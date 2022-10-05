@@ -1,0 +1,31 @@
+{
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/arshia11d/lit-application.git"
+	},
+	"workspaces": [
+		"./packages/*"
+	],
+	"author": "a11d",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/arshia11d/lit-application/issues"
+	},
+	"homepage": "https://github.com/arshia11d/lit-application#readme",
+	"type": "module",
+	"scripts": {
+		"start": "webpack serve --mode=development",
+		"build": "tsc"
+	},
+	"devDependencies": {
+		"@a11d/eslint-config": "*",
+		"@types/route-parser": "^0.1.4",
+		"tsconfig-paths-webpack-plugin": "*",
+		"resolve-typescript-plugin": "*",
+		"html-webpack-plugin": "*",
+		"ts-loader": "*",
+		"webpack": "*",
+		"webpack-cli": "*",
+		"webpack-dev-server": "*"
+	}
+}

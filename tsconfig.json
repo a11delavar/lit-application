@@ -1,0 +1,42 @@
+{
+	"exclude": [
+		"demo",
+		"dist"
+	],
+	"compilerOptions": {
+		"incremental": true,
+		"declaration": true,
+		"declarationMap": true,
+		"target": "ES2017",
+		"module": "NodeNext",
+		"baseUrl": ".",
+		"moduleResolution": "NodeNext",
+		"sourceRoot": "",
+		"outDir": "./dist",
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"allowSyntheticDefaultImports": true,
+		"experimentalDecorators": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+		"noImplicitOverride": true,
+		"esModuleInterop": true,
+		"noUncheckedIndexedAccess": true,
+		"importHelpers": true,
+		"plugins": [
+			{
+				"name": "ts-lit-plugin",
+				"strict": true,
+				"rules": {
+					"no-missing-import": "off",
+					"no-unclosed-tag": "error",
+					"no-incompatible-type-binding": "warning",
+					"no-incompatible-property-type": "warning"
+				}
+			}
+		]
+	}
+}

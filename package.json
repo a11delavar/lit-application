@@ -14,7 +14,7 @@
 	"homepage": "https://github.com/arshia11d/lit-application#readme",
 	"type": "module",
 	"scripts": {
-		"start": "webpack serve --mode=development",
+		"start": "webpack serve -c ./demo/webpack.config.mjs --mode=development",
 		"build": "tsc"
 	},
 	"devDependencies": {

@@ -1,0 +1,1 @@
+export { Router as RouterController } from '@lit-labs/router'

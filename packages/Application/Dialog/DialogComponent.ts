@@ -1,0 +1,168 @@
+import { Component, PropertyValues } from '@a11d/lit'
+import { Application, PageComponent, Router, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode } from '../index.js'
+import { PageDialog, Dialog, DialogActionKey, DialogCancelledError, DialogHost } from './index.js'
+
+export type DialogParameters = void | Record<string, any>
+
+export type DialogResult<TResult> = TResult | Error
+
+export type DialogAction<TResult> = DialogResult<TResult> | PromiseLike<DialogResult<TResult>>
+
+export const enum DialogConfirmationStrategy { Dialog, Tab, Window }
+
+export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends Component {
+	static readonly beforeConfirmationHooks = new HookSet<DialogComponent<any, any>>()
+
+	private static readonly dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
+
+	static dialogElement() {
+		return (constructor: Constructor<Dialog>) => {
+			(constructor as any)[DialogComponent.dialogElementConstructorSymbol] = true
+		}
+	}
+
+	static readonly poppableConfirmationStrategy = new LocalStorageEntry<DialogConfirmationStrategy>('DialogComponent.PoppableConfirmationStrategy', DialogConfirmationStrategy.Dialog)
+
+	static getHost() {
+		return Promise.resolve(DialogHost.instance ?? Application.instance ?? document.body)
+	}
+
+	@querySymbolizedElement(DialogComponent.dialogElementConstructorSymbol) readonly dialogElement!: Dialog
+
+	get primaryActionElement() { return this.dialogElement.primaryActionElement }
+
+	get secondaryActionElement() { return this.dialogElement.secondaryActionElement }
+
+	get cancellationActionElement() { return this.dialogElement.cancellationActionElement }
+
+	constructor(readonly parameters: T) {
+		super()
+	}
+
+	async confirm(strategy = DialogConfirmationStrategy.Dialog) {
+		await DialogComponent.beforeConfirmationHooks.execute(this)
+		return strategy === DialogConfirmationStrategy.Dialog
+			? this.confirmDialog()
+			: this.confirmDialogInNewWindow(strategy)
+	}
+
+	private _confirmationPromiseResolve!: (value: TResult) => void
+	private _confirmationPromiseReject!: (reason: Error) => void
+	protected async confirmDialog() {
+		const host = await DialogComponent.getHost()
+		host.appendChild(this)
+		return new Promise<TResult>((resolve, reject) => {
+			this._confirmationPromiseResolve = resolve
+			this._confirmationPromiseReject = reject
+		})
+	}
+
+	private _popupWindow?: Window
+	protected async confirmDialogInNewWindow(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>) {
+		this._popupWindow = await WindowHelper.open(PageDialog.route, strategy === DialogConfirmationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
+
+		const DialogConstructor = this._popupWindow.customElements.get(this.tagName.toLowerCase()) as CustomElementConstructor
+		const dialogComponent = new DialogConstructor(this.parameters) as DialogComponent<T, TResult>
+
+		const Constructor = this.constructor as unknown as typeof DialogComponent
+		const propertiesToCopy = [...Constructor.elementProperties.keys()]
+		// @ts-expect-error property is a key of the elementProperties map
+		propertiesToCopy.forEach(property => dialogComponent[property] = this[property])
+
+		const page = await PageComponent.getCurrentPage() as PageDialog
+		const confirmPromise = dialogComponent.confirm() as Promise<TResult>
+		await dialogComponent.updateComplete
+		dialogComponent.dialogElement.dialogHeadingChange.subscribe(heading => page.heading = heading)
+		dialogComponent.dialogElement.boundToWindow = true
+		page.heading = dialogComponent.dialogElement.heading
+		return confirmPromise
+	}
+
+	protected async pop(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog> = DialogConfirmationStrategy.Tab) {
+		this.open = false
+		try {
+			const value = await this.confirm(strategy)
+			this._confirmationPromiseResolve(value)
+		} catch (error) {
+			this._confirmationPromiseReject(error as Error)
+		} finally {
+			this._popupWindow?.close()
+			this.remove()
+		}
+	}
+
+	protected close(result: TResult | Error) {
+		this.open = false
+
+		if (result instanceof Error) {
+			this._confirmationPromiseReject(result)
+		} else {
+			this._confirmationPromiseResolve(result)
+		}
+
+		this.remove()
+	}
+
+	private get open() { return this.dialogElement.open ?? false }
+	private set open(value) {
+		if (this.dialogElement) {
+			this.dialogElement.open = value
+		}
+	}
+
+	protected override firstUpdated(props: PropertyValues) {
+		this.dialogElement.handleAction = this.handleAction
+		this.dialogElement.requestPopup?.subscribe(() => this.pop())
+
+		if (this.dialogElement.poppable &&
+			Router.path !== PageDialog.route &&
+			DialogComponent.poppableConfirmationStrategy.value !== DialogConfirmationStrategy.Dialog
+		) {
+			this.pop(DialogComponent.poppableConfirmationStrategy.value)
+			return
+		}
+
+		this.open = true
+		super.firstUpdated(props)
+	}
+
+	protected primaryAction(): DialogAction<TResult> {
+		throw new Error('Not implemented.')
+	}
+
+	protected secondaryAction(): DialogAction<TResult> {
+		return this.cancellationAction()
+	}
+
+	protected cancellationAction(): DialogAction<TResult> {
+		return new DialogCancelledError(this)
+	}
+
+	private readonly handleAction = async (actionKey: DialogActionKey) => {
+		const actionByKey = new Map([
+			[DialogActionKey.Primary, this.primaryAction],
+			[DialogActionKey.Secondary, this.secondaryAction],
+			[DialogActionKey.Cancellation, this.cancellationAction],
+		])
+
+		// eslint-disable-next-line no-restricted-syntax
+		const action = actionByKey.get(actionKey)?.bind(this)
+
+		if (!action) {
+			throw new Error(`No action for key ${actionKey}`)
+		}
+
+		try {
+			this.dialogElement.executingAction = actionKey
+			const result = await action()
+			if (!this.dialogElement.manualClose) {
+				this.close(result)
+			}
+		} catch (e: any) {
+			notificationHost.notifyError(e.message)
+			throw e
+		} finally {
+			this.dialogElement.executingAction = undefined
+		}
+	}
+}

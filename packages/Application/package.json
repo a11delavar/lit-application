@@ -1,0 +1,37 @@
+{
+	"name": "@a11d/lit-application",
+	"version": "0.0.2",
+	"description": "Lit-based application shell.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/arshia11d/lit-application.git"
+	},
+	"keywords": [
+		"web-component",
+		"lit",
+		"application",
+		"shell"
+	],
+	"author": "arshia11d",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/arshia11d/lit-application/issues"
+	},
+	"homepage": "https://github.com/arshia11d/lit-application#readme",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"start": "webpack serve --mode=development",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@a11d/lit": "*",
+		"@lit-labs/router": "^0.1.1",
+		"route-parser": "^0.0.5",
+		"urlpattern-polyfill": "^5.0.5"
+	}
+}

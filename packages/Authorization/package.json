@@ -1,0 +1,35 @@
+{
+	"name": "@a11d/lit-application-authorization",
+	"version": "0.0.1",
+	"description": "Lit-based native application shell authorization module.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/arshia11d/lit-application.git"
+	},
+	"keywords": [
+		"web-component",
+		"lit",
+		"application",
+		"shell",
+		"authorization"
+	],
+	"author": "arshia11d",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/arshia11d/lit-application/issues"
+	},
+	"homepage": "https://github.com/arshia11d/lit-application#readme",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"start": "webpack serve --mode=development",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@a11d/lit-application": "*"
+	}
+}

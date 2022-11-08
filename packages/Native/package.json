@@ -1,0 +1,34 @@
+{
+	"name": "@a11d/lit-application-native",
+	"version": "0.0.7",
+	"description": "Lit-based native application shell.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/arshia11d/lit-application.git"
+	},
+	"keywords": [
+		"web-component",
+		"lit",
+		"application",
+		"shell"
+	],
+	"author": "arshia11d",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/arshia11d/lit-application/issues"
+	},
+	"homepage": "https://github.com/arshia11d/lit-application#readme",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"start": "webpack serve --mode=development",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@a11d/lit-application": "*"
+	}
+}

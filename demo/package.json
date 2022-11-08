@@ -1,0 +1,11 @@
+{
+	"type": "module",
+	"scripts": {
+		"start": "webpack serve --mode=development",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@a11d/lit": "*",
+		"@a11d/lit-application-native": "file:../packages/Native"
+	}
+}

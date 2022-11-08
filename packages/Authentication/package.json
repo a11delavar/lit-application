@@ -1,7 +1,7 @@
 {
-	"name": "@a11d/lit-application",
+	"name": "@a11d/lit-application-authentication",
 	"version": "0.0.3",
-	"description": "Lit-based application shell.",
+	"description": "Lit-based native application shell authentication module.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/arshia11d/lit-application.git"
@@ -10,7 +10,8 @@
 		"web-component",
 		"lit",
 		"application",
-		"shell"
+		"shell",
+		"authentication"
 	],
 	"author": "arshia11d",
 	"license": "MIT",
@@ -29,9 +30,6 @@
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@a11d/lit": "*",
-		"@lit-labs/router": "^0.1.1",
-		"route-parser": "^0.0.5",
-		"urlpattern-polyfill": "^5.0.5"
+		"@a11d/lit-application": "*"
 	}
 }

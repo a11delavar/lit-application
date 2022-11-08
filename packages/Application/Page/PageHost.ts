@@ -9,6 +9,7 @@ export class PageHost extends Component {
 		return html`
 			<div part='pageHolder' ${style({
 				display: 'grid',
+				gridTemplateRows: '1fr',
 				maxWidth: 'var(--lit-page-host-max-width, 2560px)',
 				margin: 'auto',
 				justifyContent: 'stretch',

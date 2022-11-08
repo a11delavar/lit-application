@@ -4,28 +4,32 @@ import { HttpErrorCode, queryInstanceElement } from './utilities/index.js'
 
 export const application = () => {
 	return <T extends Application>(ApplicationConstructor: Constructor<T>) => {
-		setTimeout(() => {
-			const application = new ApplicationConstructor
-			window.document.body.appendChild(application)
-			application.setAttribute('application', '')
-		})
+		const application = new ApplicationConstructor
+		window.document.body.appendChild(application)
 	}
 }
 
 export abstract class Application extends Component {
 	static readonly connectedHooks = new HookSet()
 
-	@queryInstanceElement() static readonly instance: Application | undefined
+	@queryInstanceElement() static readonly instance?: Application
 
 	static override get styles() {
 		return css`
 			:root { color-scheme: light dark; }
 
 			html, body, [application] {
-				min-height: 100vh;
 				margin: 0;
 				padding: 0;
 				scrollbar-width: thin;
+				display: block;
+				min-height: 100vh;
+				min-height: 100dvh;
+			}
+
+			[application] {
+				display: flex;
+				flex-direction: column;
 			}
 
 			::-webkit-scrollbar {
@@ -38,9 +42,11 @@ export abstract class Application extends Component {
 			}
 
 			lit-page-host {
-				display: grid;
-				justify-content: start;
-				min-height: 100vh;
+				display: flex;
+				flex: 1;
+				margin: auto;
+				width: 100%;
+				max-width: var(--lit-application-page-host-max-width, 2560px);
 			}
 		`
 	}
@@ -59,6 +65,7 @@ export abstract class Application extends Component {
 	protected readonly rootCssInjector = new RootCssInjectorController(this, (this.constructor as any).styles)
 
 	protected override async connected() {
+		this.setAttribute('application', '')
 		await Application.connectedHooks.execute()
 		window.dispatchEvent(new Event('Application.connected'))
 	}

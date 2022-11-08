@@ -37,8 +37,13 @@ export const routerLink = directive(class extends Directive {
 	}
 
 	executeSelectionChange() {
+		const selection = Router.getPathOf(this.page) === Router.path
+		if (selection) {
+			this.element.setAttribute('data-router-selected', '')
+		} else {
+			this.element.removeAttribute('data-router-selected')
+		}
 		if (this.selectionChange) {
-			const selection = Router.getPathOf(this.page) === Router.path
 			this.selectionChange.call(this.element, selection)
 		}
 	}

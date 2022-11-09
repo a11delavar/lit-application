@@ -1,7 +1,9 @@
 import { state } from '@a11d/lit'
-import { Application, PageComponent, DialogComponent, LocalStorageEntry } from '@a11d/lit-application'
+import { Application, PageComponent, DialogComponent, LocalStorageEntry, HookSet } from '@a11d/lit-application'
 
 export abstract class DialogAuthenticator<User extends object> extends DialogComponent {
+	static readonly afterAuthenticationHooks = new HookSet()
+
 	static readonly shallRememberStorage = new LocalStorageEntry('DialogAuthenticator.ShallRemember', false)
 	static readonly authenticatedUserStorage = new LocalStorageEntry<object | undefined>('DialogAuthenticator.User', undefined)
 	private static readonly passwordStorage = new LocalStorageEntry<string | undefined>('DialogAuthenticator.Password', undefined)
@@ -31,6 +33,8 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 			if (await this.isAuthenticated() === false) {
 				throw new Error('Something went wrong.\nTry again.')
 			}
+			this.requestApplicationUpdate()
+			await DialogAuthenticator.afterAuthenticationHooks.execute()
 			notificationHost.notifySuccess('Authenticated successfully')
 		} catch (error: any) {
 			throw new Error(error.message ?? 'Incorrect Credentials')
@@ -59,14 +63,9 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 	}
 
 	override async confirm(...args: Parameters<DialogComponent['confirm']>) {
-		const defaultToSuper = async () => {
-			await super.confirm(...args)
-			this.requestApplicationUpdate()
-		}
-
 		if (this.preventNextAutomaticAuthentication === true) {
 			this.preventNextAutomaticAuthentication = false
-			return defaultToSuper()
+			return super.confirm(...args)
 		}
 
 		const isAuthenticated = await this.isAuthenticated()
@@ -78,14 +77,13 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 		const shouldHaveRemembered = DialogAuthenticator.shallRememberStorage.value
 
 		if (!shouldHaveRemembered) {
-			return defaultToSuper()
+			return super.confirm(...args)
 		}
 
 		try {
 			await this.authenticate()
-			return this.requestApplicationUpdate()
 		} catch (error) {
-			return defaultToSuper()
+			return super.confirm(...args)
 		}
 	}
 

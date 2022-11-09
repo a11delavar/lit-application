@@ -30,11 +30,14 @@ export class Dialog extends Component implements IDialog {
 	@property({ type: Boolean }) poppable?: boolean
 	@property({ type: Boolean, reflect: true }) boundToWindow?: boolean
 
+	@property({ type: Boolean }) preventCancellationOnEscape?: boolean
+	@property({ type: Boolean }) primaryOnEnter?: boolean
+
 	@state({ updated(this: Dialog, value: boolean) {
 		if (value) {
 			this.dialogElement.showModal()
 		} else {
-			this.dialogElement.close()
+			setTimeout(() => this.dialogElement.close())
 		}
 	} }) open = false
 
@@ -68,7 +71,7 @@ export class Dialog extends Component implements IDialog {
 
 	protected override get template() {
 		return html`
-			<dialog part='dialog' @cancel=${() => this.handleAction(DialogActionKey.Cancellation)}>
+			<dialog part='dialog' @cancel=${(e: Event) => e.preventDefault()}>
 				<div ${style({ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' })}>
 					<div ${style({ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '4px' })}>
 						<h1>${this.heading}</h1>

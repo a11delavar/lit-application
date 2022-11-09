@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/lit-application-native",
-	"version": "0.0.7",
+	"version": "0.0.9",
 	"description": "Lit-based native application shell.",
 	"repository": {
 		"type": "git",

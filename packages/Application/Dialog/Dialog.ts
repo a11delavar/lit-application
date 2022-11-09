@@ -17,6 +17,9 @@ export interface Dialog {
 	handleAction: (key: DialogActionKey) => void | Promise<void>
 	executingAction?: DialogActionKey
 
+	preventCancellationOnEscape?: boolean
+	primaryOnEnter?: boolean
+
 	poppable?: boolean
 	boundToWindow?: boolean
 	readonly requestPopup?: EventDispatcher<void>

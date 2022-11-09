@@ -1,5 +1,5 @@
-import { Component, PropertyValues } from '@a11d/lit'
-import { Application, PageComponent, Router, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode } from '../index.js'
+import { Component, eventListener, PropertyValues } from '@a11d/lit'
+import { Application, PageComponent, Router, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode, Key } from '../index.js'
 import { PageDialog, Dialog, DialogActionKey, DialogCancelledError, DialogHost } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
@@ -9,6 +9,8 @@ export type DialogResult<TResult> = TResult | Error
 export type DialogAction<TResult> = DialogResult<TResult> | PromiseLike<DialogResult<TResult>>
 
 export const enum DialogConfirmationStrategy { Dialog, Tab, Window }
+
+export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 
 export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends Component {
 	static readonly beforeConfirmationHooks = new HookSet<DialogComponent<any, any>>()
@@ -39,16 +41,40 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		super()
 	}
 
+	@eventListener({ target: window, type: 'beforeunload' })
+	protected async handleBeforeUnload() {
+		if (this.dialogElement.boundToWindow) {
+			await this.handleAction(DialogActionKey.Cancellation)
+		}
+	}
+
+	@eventListener({ target: window, type: 'keydown' })
+	protected async handleKeyDown(e: KeyboardEvent) {
+		const host = await DialogComponent.getHost()
+
+		if ([...host.children].filter(e => e instanceof DialogComponent).reverse()[0] !== this) {
+			return
+		}
+
+		if (this.dialogElement.primaryOnEnter === true && e.key === Key.Enter) {
+			await this.handleAction(DialogActionKey.Primary)
+		}
+
+		if (!this.dialogElement.preventCancellationOnEscape && e.key === Key.Escape) {
+			await this.handleAction(DialogActionKey.Cancellation)
+		}
+	}
+
 	async confirm(strategy = DialogConfirmationStrategy.Dialog) {
 		await DialogComponent.beforeConfirmationHooks.execute(this)
 		return strategy === DialogConfirmationStrategy.Dialog
-			? this.confirmDialog()
-			: this.confirmDialogInNewWindow(strategy)
+			? this.confirmAsDialog()
+			: this.confirmAsPopup(strategy)
 	}
 
 	private _confirmationPromiseResolve!: (value: TResult) => void
 	private _confirmationPromiseReject!: (reason: Error) => void
-	protected async confirmDialog() {
+	protected async confirmAsDialog() {
 		const host = await DialogComponent.getHost()
 		host.appendChild(this)
 		return new Promise<TResult>((resolve, reject) => {
@@ -58,7 +84,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	}
 
 	private _popupWindow?: Window
-	protected async confirmDialogInNewWindow(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>) {
+	protected async confirmAsPopup(strategy: PopupConfirmationStrategy) {
 		this._popupWindow = await WindowHelper.open(PageDialog.route, strategy === DialogConfirmationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
 
 		const DialogConstructor = this._popupWindow.customElements.get(this.tagName.toLowerCase()) as CustomElementConstructor

@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/lit-application",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"description": "Lit-based application shell.",
 	"repository": {
 		"type": "git",
@@ -32,6 +32,7 @@
 		"@a11d/lit": "*",
 		"@lit-labs/router": "^0.1.1",
 		"route-parser": "^0.0.5",
+		"ts-key-enum": "^2.0.12",
 		"urlpattern-polyfill": "^5.0.5"
 	}
 }

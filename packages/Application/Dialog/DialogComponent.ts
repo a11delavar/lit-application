@@ -29,7 +29,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return Promise.resolve(DialogHost.instance ?? Application.instance ?? document.body)
 	}
 
-	@querySymbolizedElement(DialogComponent.dialogElementConstructorSymbol) readonly dialogElement!: Dialog
+	@querySymbolizedElement(DialogComponent.dialogElementConstructorSymbol) readonly dialogElement!: Dialog & HTMLElement
 
 	get primaryActionElement() { return this.dialogElement.primaryActionElement }
 

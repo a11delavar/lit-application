@@ -8,6 +8,7 @@ export type Manifest = {
 	readonly background_color: string
 	readonly theme_color: string
 	readonly icons: Array<ManifestIcon>
+	readonly version?: string
 }
 
 export type ManifestIcon = {

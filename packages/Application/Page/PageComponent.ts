@@ -1,4 +1,4 @@
-import { Component, LitElement, literal } from '@a11d/lit'
+import { Component, literal } from '@a11d/lit'
 import { querySymbolizedElement, WindowHelper, WindowOpenMode, HookSet, Application, Router } from '../index.js'
 import { Page, PageHost } from './index.js'
 
@@ -45,7 +45,7 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 		}
 	}
 
-	@querySymbolizedElement(PageComponent.pageElementConstructorSymbol) readonly pageElement!: LitElement
+	@querySymbolizedElement(PageComponent.pageElementConstructorSymbol) readonly pageElement!: Page & HTMLElement
 
 	constructor(readonly parameters: T) {
 		super()

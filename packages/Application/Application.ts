@@ -10,7 +10,7 @@ export const application = () => {
 }
 
 export abstract class Application extends Component {
-	static readonly connectedHooks = new HookSet()
+	static readonly connectingHooks = new HookSet()
 
 	@queryInstanceElement() static readonly instance?: Application
 
@@ -64,9 +64,10 @@ export abstract class Application extends Component {
 
 	protected readonly rootCssInjector = new RootCssInjectorController(this, (this.constructor as any).styles)
 
-	protected override async connected() {
+	override async connectedCallback() {
+		await Application.connectingHooks.execute()
+		super.connectedCallback()
 		this.setAttribute('application', '')
-		await Application.connectedHooks.execute()
 		window.dispatchEvent(new Event('Application.connected'))
 	}
 

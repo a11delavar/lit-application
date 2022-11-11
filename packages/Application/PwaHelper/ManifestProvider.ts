@@ -1,6 +1,6 @@
 import { Application, type Manifest } from '../index.js'
 
-Application.connectedHooks.add(async () => {
+Application.connectingHooks.add(async () => {
 	// @ts-expect-error - This is declared as a constant property
 	globalThis.manifest = undefined
 	const manifestLink = globalThis.document.head.querySelector<HTMLLinkElement>('link[rel=manifest]')

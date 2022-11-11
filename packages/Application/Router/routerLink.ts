@@ -1,6 +1,6 @@
 import { directive, Directive, ElementPart, PartInfo, PartType } from '@a11d/lit'
 import { Router } from './index.js'
-import { PageComponent } from '../Page/index.js'
+import { PageComponent, PageNavigationStrategy } from '../Page/index.js'
 
 type SelectionChangeHandler = (this: Element, selected: boolean) => void
 
@@ -24,6 +24,11 @@ export const routerLink = directive(class extends Directive {
 		this.element.addEventListener('click', event => {
 			event.preventDefault()
 			this.page.navigate()
+		})
+
+		this.element.addEventListener('auxclick', event => {
+			event.preventDefault()
+			this.page.navigate(PageNavigationStrategy.Tab)
 		})
 	}
 

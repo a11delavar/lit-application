@@ -1,5 +1,5 @@
 import { Component, property, css, html } from '@a11d/lit'
-import { HookSet, PageError, RootCssInjectorController, Router, RouterController } from './index.js'
+import { HookSet, PageError, RootCssInjectorController, RouterController } from './index.js'
 import { HttpErrorCode, queryInstanceElement } from './utilities/index.js'
 
 export const application = () => {
@@ -53,8 +53,7 @@ export abstract class Application extends Component {
 
 	@property({ updated(this: Application) { document.title = [this.pageHeading, manifest?.short_name].filter(Boolean).join(' | ') } }) pageHeading?: string
 
-	readonly router = new RouterController(this,
-		[...Router.pageByRoute].map(([route, page]) => ({ path: route, render: params => new page(params) })),
+	readonly router = new RouterController(this, [],
 		{
 			fallback: {
 				render: () => new PageError({ error: HttpErrorCode.NotFound })

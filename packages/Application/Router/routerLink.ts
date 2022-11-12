@@ -1,13 +1,28 @@
 import { directive, Directive, ElementPart, PartInfo, PartType } from '@a11d/lit'
-import { Router } from './index.js'
+import { RouteMatchMode, Router } from './index.js'
 import { PageComponent, PageNavigationStrategy } from '../Page/index.js'
 
-type SelectionChangeHandler = (this: Element, selected: boolean) => void
+type Parameters = {
+	page: PageComponent<any>
+	matchMode?: RouteMatchMode
+	selectionChangeHandler?: (this: Element, selected: boolean) => void
+}
+
+type ShorthandParametersOrParameters =
+	| [page: PageComponent<any>]
+	| [parameters: Parameters]
+
+function getParameters(...parameters: ShorthandParametersOrParameters): Parameters {
+	return !(parameters[0] instanceof PageComponent) ? parameters[0] : {
+		page: parameters[0],
+		matchMode: RouteMatchMode.All,
+		selectionChangeHandler: undefined,
+	}
+}
 
 export const routerLink = directive(class extends Directive {
 	readonly element: Element
-	page!: PageComponent<any>
-	selectionChange?: SelectionChangeHandler
+	readonly parameters!: Parameters
 
 	constructor(partInfo: PartInfo) {
 		super(partInfo)
@@ -23,33 +38,33 @@ export const routerLink = directive(class extends Directive {
 
 		this.element.addEventListener('click', event => {
 			event.preventDefault()
-			this.page.navigate()
+			this.parameters.page.navigate()
 		})
 
 		this.element.addEventListener('auxclick', event => {
 			event.preventDefault()
-			this.page.navigate(PageNavigationStrategy.Tab)
+			this.parameters.page.navigate(PageNavigationStrategy.Tab)
 		})
 	}
 
-	render(page: PageComponent<any>, selectionChange?: SelectionChangeHandler) {
-		const firstRender = !this.page
-		this.page = page
-		this.selectionChange = selectionChange
+	render(...parameters: ShorthandParametersOrParameters) {
+		const firstRender = !this.parameters
+		// @ts-expect-error - parameters is readonly
+		this.parameters = getParameters(...parameters)
 		if (firstRender) {
 			this.executeSelectionChange()
 		}
 	}
 
 	executeSelectionChange() {
-		const selection = Router.getPathOf(this.page) === Router.path
-		if (selection) {
+		const selected = Router.match(this.parameters.page, this.parameters.matchMode)
+		if (selected) {
 			this.element.setAttribute('data-router-selected', '')
 		} else {
 			this.element.removeAttribute('data-router-selected')
 		}
-		if (this.selectionChange) {
-			this.selectionChange.call(this.element, selection)
+		if (this.parameters.selectionChangeHandler) {
+			this.parameters.selectionChangeHandler.call(this.element, selected)
 		}
 	}
 })

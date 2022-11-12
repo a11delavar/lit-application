@@ -1,6 +1,6 @@
 import { Component, literal } from '@a11d/lit'
-import { querySymbolizedElement, WindowHelper, WindowOpenMode, HookSet, Application, Router } from '../index.js'
-import { Page, PageHost } from './index.js'
+import { querySymbolizedElement, WindowHelper, WindowOpenMode, HookSet, Router, RouteMatchMode } from '../index.js'
+import { Page } from './index.js'
 
 export type PageParameters = void | Record<string, string | number | undefined>
 
@@ -19,19 +19,8 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 		}
 	}
 
-	static getHost() {
-		return Promise.resolve(PageHost.instance ?? Application.instance ?? document.body)
-	}
-
-	static async getCurrentPage() {
-		const host = await this.getHost()
-		return [...host.querySelectorAll('*') ?? []]
-			.find((page): page is PageComponent<any> => page instanceof PageComponent)
-	}
-
 	async navigate(strategy = PageNavigationStrategy.Page, force = false) {
-		const currentPage = await PageComponent.getCurrentPage()
-		if (currentPage && Router.pathsMatch(currentPage, this) && force === false) {
+		if (Router.match(this, RouteMatchMode.All) && force === false) {
 			return
 		}
 

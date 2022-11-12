@@ -1,11 +1,14 @@
 import { component, html } from '@a11d/lit'
-import { PageComponent, route } from './index.js'
+import { PageComponent, PageSettings, route } from './index.js'
 import { DialogSample } from './DialogSample.js'
-import { PageSubRouter } from './PageSubRouter.js'
 
-@component('lit-page-home')
+@component('demo-page-home')
 @route('/')
 export class PageHome extends PageComponent {
+	protected override initialized() {
+		console.log('PageHome initialized')
+	}
+
 	protected override get template() {
 		return html`
 			<lit-page heading='Home' fullHeight>
@@ -24,6 +27,6 @@ export class PageHome extends PageComponent {
 	}
 
 	private async openPage() {
-		await new PageSubRouter({ subRoute: 'a' }).navigate()
+		await new PageSettings({ subRoute: 'one' }).navigate()
 	}
 }

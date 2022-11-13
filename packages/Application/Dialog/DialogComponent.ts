@@ -1,4 +1,4 @@
-import { Component, eventListener, PropertyValues } from '@a11d/lit'
+import { Component, eventListener, literal, PropertyValues } from '@a11d/lit'
 import { Application, Router, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, PageHost } from '../index.js'
 import { PageDialog, Dialog, DialogActionKey, DialogCancelledError, DialogHost } from './index.js'
 
@@ -16,6 +16,8 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	static readonly beforeConfirmationHooks = new HookSet<DialogComponent<any, any>>()
 
 	private static readonly dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
+
+	static defaultDialogElementTag = literal`lit-dialog`
 
 	static dialogElement() {
 		return (constructor: Constructor<Dialog>) => {

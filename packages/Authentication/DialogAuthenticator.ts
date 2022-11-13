@@ -1,5 +1,5 @@
 import { state } from '@a11d/lit'
-import { Application, PageComponent, DialogComponent, LocalStorageEntry, HookSet } from '@a11d/lit-application'
+import { Application, DialogComponent, LocalStorageEntry, HookSet } from '@a11d/lit-application'
 
 export abstract class DialogAuthenticator<User extends object> extends DialogComponent {
 	static readonly afterAuthenticationHooks = new HookSet()
@@ -33,7 +33,7 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 			if (await this.isAuthenticated() === false) {
 				throw new Error('Something went wrong.\nTry again.')
 			}
-			this.requestApplicationUpdate()
+			Application.instance?.requestUpdate()
 			await DialogAuthenticator.afterAuthenticationHooks.execute()
 			notificationHost.notifySuccess('Authenticated successfully')
 		} catch (error: any) {
@@ -85,11 +85,6 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 		} catch (error) {
 			return super.confirm(...args)
 		}
-	}
-
-	private requestApplicationUpdate() {
-		Application.instance?.requestUpdate()
-		PageComponent.getCurrentPage().then(p => p?.requestUpdate())
 	}
 
 	protected override createRenderRoot() {

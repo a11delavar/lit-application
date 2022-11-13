@@ -1,20 +1,21 @@
 import { directive, Directive, ElementPart, PartInfo, PartType } from '@a11d/lit'
 import { RouteMatchMode, Router } from './index.js'
 import { PageComponent, PageNavigationStrategy } from '../Page/index.js'
+import { DialogComponent, DialogConfirmationStrategy } from '../Dialog/index.js'
 
 type Parameters = {
-	page: PageComponent<any>
+	component: PageComponent<any> | DialogComponent<any>
 	matchMode?: RouteMatchMode
 	selectionChangeHandler?: (this: Element, selected: boolean) => void
 }
 
 type ShorthandParametersOrParameters =
-	| [page: PageComponent<any>]
+	| [component: PageComponent<any> | DialogComponent<any>]
 	| [parameters: Parameters]
 
 function getParameters(...parameters: ShorthandParametersOrParameters): Parameters {
-	return !(parameters[0] instanceof PageComponent) ? parameters[0] : {
-		page: parameters[0],
+	return !(parameters[0] instanceof PageComponent || parameters[0] instanceof DialogComponent) ? parameters[0] : {
+		component: parameters[0],
 		matchMode: RouteMatchMode.All,
 		selectionChangeHandler: undefined,
 	}
@@ -38,12 +39,20 @@ export const routerLink = directive(class extends Directive {
 
 		this.element.addEventListener('click', event => {
 			event.preventDefault()
-			this.parameters.page.navigate()
+			if (this.parameters.component instanceof PageComponent) {
+				this.parameters.component.navigate()
+			} else {
+				this.parameters.component.confirm()
+			}
 		})
 
 		this.element.addEventListener('auxclick', event => {
 			event.preventDefault()
-			this.parameters.page.navigate(PageNavigationStrategy.Tab)
+			if (this.parameters.component instanceof PageComponent) {
+				this.parameters.component.navigate(PageNavigationStrategy.Tab)
+			} else {
+				this.parameters.component.confirm(DialogConfirmationStrategy.Tab)
+			}
 		})
 	}
 
@@ -57,7 +66,11 @@ export const routerLink = directive(class extends Directive {
 	}
 
 	executeSelectionChange() {
-		const selected = Router.match(this.parameters.page, this.parameters.matchMode)
+		if (this.parameters.component instanceof DialogComponent) {
+			return
+		}
+
+		const selected = Router.match(this.parameters.component, this.parameters.matchMode)
 		if (selected) {
 			this.element.setAttribute('data-router-selected', '')
 		} else {

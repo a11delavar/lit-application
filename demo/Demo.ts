@@ -28,8 +28,8 @@ export class Demo extends Application {
 		return html`
 			<header>
 				<nav ${style({ padding: '1em', background: 'rgba(128, 128, 128, 0.15)' })}>
-					<a href='' ${routerLink({ page: new PageHome })}>Home</a>
-					<a href='' ${routerLink({ page: new PageSettings, matchMode: RouteMatchMode.IgnoreParameters })}>Settings</a>
+					<a href='' ${routerLink(new PageHome)}>Home</a>
+					<a href='' ${routerLink({ component: new PageSettings, matchMode: RouteMatchMode.IgnoreParameters })}>Settings</a>
 				</nav>
 			</header>
 		`

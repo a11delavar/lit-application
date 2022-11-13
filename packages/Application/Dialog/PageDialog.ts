@@ -1,5 +1,6 @@
 import { component, HTMLTemplateResult, state, staticHtml } from '@a11d/lit'
-import { PageComponent, route } from '../index.js'
+import { PageComponent } from '../Page/PageComponent.js'
+import { route } from '../Router/route.js'
 
 @route(PageDialog.route)
 @component('lit-page-dialog')

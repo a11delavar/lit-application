@@ -29,7 +29,7 @@ export class Demo extends Application {
 			<header>
 				<nav ${style({ padding: '1em', background: 'rgba(128, 128, 128, 0.15)' })}>
 					<a href='' ${routerLink(new PageHome)}>Home</a>
-					<a href='' ${routerLink({ component: new PageSettings, matchMode: RouteMatchMode.IgnoreParameters })}>Settings</a>
+					<a href='' ${routerLink({ component: new PageSettings, matchMode: 'ignore-parameters' as any })}>Settings</a>
 				</nav>
 			</header>
 		`

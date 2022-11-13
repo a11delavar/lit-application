@@ -7,7 +7,7 @@
 		"incremental": true,
 		"declaration": true,
 		"declarationMap": true,
-		"target": "ES2017",
+		"target": "ES2020",
 		"module": "NodeNext",
 		"baseUrl": ".",
 		"moduleResolution": "NodeNext",

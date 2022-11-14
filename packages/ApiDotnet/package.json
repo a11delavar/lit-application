@@ -1,0 +1,31 @@
+{
+	"name": "@a11d/api-dotnet",
+	"version": "0.0.1",
+	"description": ".NET extensions for the @a11d/api package.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/a11delavar/lit-application.git"
+	},
+	"keywords": [
+		"sdk",
+		"api"
+	],
+	"author": "a11delavar",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/a11delavar/lit-application/issues"
+	},
+	"homepage": "https://github.com/a11delavar/lit-application#readme",
+	"type": "module",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@a11d/api": "x"
+	}
+}

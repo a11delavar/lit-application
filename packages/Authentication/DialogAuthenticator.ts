@@ -71,6 +71,7 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 		const isAuthenticated = await this.isAuthenticated()
 
 		if (isAuthenticated) {
+			await DialogAuthenticator.afterAuthenticationHooks.execute()
 			return
 		}
 

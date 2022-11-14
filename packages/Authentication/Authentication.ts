@@ -73,6 +73,5 @@ export class Authentication {
 	}
 }
 
-Application.routerConnectingHooks.add(async () => void await Authentication.authenticateGloballyIfAvailable())
-PageComponent.beforeNavigationHooks.add(async page => void await Authentication.authenticateComponent(page))
-DialogComponent.beforeConfirmationHooks.add(async dialog => void await Authentication.authenticateComponent(dialog))
+PageComponent.connectingHooks.add(async page => void await Authentication.authenticateComponent(page))
+DialogComponent.connectingHooks.add(async dialog => void await Authentication.authenticateComponent(dialog))

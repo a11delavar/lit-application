@@ -6,7 +6,6 @@
 	},
 	"dependencies": {
 		"@a11d/lit": "*",
-		"@a11d/lit-application-native": "file:../packages/Native",
-		"@a11d/lit-application": "file:../packages/Application"
+		"@a11d/lit-application-native": "file:../packages/Native"
 	}
 }

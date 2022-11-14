@@ -45,5 +45,5 @@ export class Authorization {
 	}
 }
 
-PageComponent.beforeNavigationHooks.add(page => Authorization.authorizeComponent(page))
-DialogComponent.beforeConfirmationHooks.add(dialog => Authorization.authorizeComponent(dialog))
+PageComponent.connectingHooks.add(page => Authorization.authorizeComponent(page))
+DialogComponent.connectingHooks.add(dialog => Authorization.authorizeComponent(dialog))

@@ -7,7 +7,7 @@ export type PageParameters = void | Record<string, string | number | undefined>
 export const enum PageNavigationStrategy { Page, Tab, Window }
 
 export abstract class PageComponent<T extends PageParameters = void> extends Component {
-	static readonly beforeNavigationHooks = new HookSet<PageComponent<any>>()
+	static readonly connectingHooks = new HookSet<PageComponent<any>>()
 
 	private static readonly pageElementConstructorSymbol = Symbol('PageComponent.PageElementConstructor')
 
@@ -20,11 +20,9 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 	}
 
 	async navigate(strategy = PageNavigationStrategy.Page, force = false) {
-		if (Router.match(this, RouteMatchMode.All) && force === false) {
+		if (force === false && Router.match(this, RouteMatchMode.All)) {
 			return
 		}
-
-		await PageComponent.beforeNavigationHooks.execute(this)
 
 		if (strategy === PageNavigationStrategy.Page) {
 			Router.setPathByPage(this)
@@ -38,6 +36,11 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 
 	constructor(readonly parameters: T) {
 		super()
+	}
+
+	override async connectedCallback() {
+		await (this.constructor as typeof PageComponent).connectingHooks.execute(this)
+		super.connectedCallback()
 	}
 
 	protected refresh(parameters = this.parameters) {

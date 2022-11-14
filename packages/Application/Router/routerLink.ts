@@ -4,13 +4,13 @@ import { PageComponent, PageNavigationStrategy } from '../Page/index.js'
 import { DialogComponent, DialogConfirmationStrategy } from '../Dialog/index.js'
 
 type Parameters = {
-	component: PageComponent<any> | DialogComponent<any>
+	component: PageComponent<any> | DialogComponent<any, any>
 	matchMode?: RouteMatchMode
 	selectionChangeHandler?: (this: Element, selected: boolean) => void
 }
 
 type ShorthandParametersOrParameters =
-	| [component: PageComponent<any> | DialogComponent<any>]
+	| [component: PageComponent<any> | DialogComponent<any, any>]
 	| [parameters: Parameters]
 
 function getParameters(...parameters: ShorthandParametersOrParameters): Parameters {

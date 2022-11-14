@@ -1,6 +1,5 @@
 import { component, css, html, style } from '@a11d/lit'
 import { application, Application, routerLink, PageHome, PageSettings } from './index.js'
-import { RouteMatchMode } from '@a11d/lit-application'
 
 @application()
 @component('demo-application')
@@ -38,7 +37,8 @@ export class Demo extends Application {
 	private get footerTemplate() {
 		return html`
 			<footer ${style({ padding: '1em', color: 'white', background: 'rgba(128, 128, 128, 0.15)' })}>
-				<p>Footer</p>
+				<a href='' ${routerLink(new PageHome)}>Home</a>
+				<a href='' ${routerLink({ component: new PageSettings, matchMode: 'ignore-parameters' as any })}>Settings</a>
 			</footer>
 		`
 	}

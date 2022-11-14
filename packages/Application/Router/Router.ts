@@ -16,13 +16,6 @@ export const enum RouteMatchMode {
 export class Router {
 	static readonly container = new Map<string, { routerHostConstructor: RouterHostConstructor, pageConstructor: PageConstructor }>()
 
-	static get path() { return window.location.pathname + window.location.search }
-	static set path(value) {
-		if (Router.path !== value) {
-			window.location.pathname = value
-		}
-	}
-
 	static getPathOf(page: Page) {
 		const route = this.getRouteOf(page)
 		return route === undefined ? undefined : compile(route)(page.parameters)
@@ -52,5 +45,11 @@ export class Router {
 		return [...Router.container]
 			.find(([, { pageConstructor }]) => pageConstructor.name === page.constructor.name)
 			?.[0]
+	}
+
+	private static get path() { return window.location.pathname + window.location.search }
+	private static set path(value) {
+		window.history.pushState(null, '', value)
+		window.dispatchEvent(new PopStateEvent('popstate'))
 	}
 }

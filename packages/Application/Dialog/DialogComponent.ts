@@ -1,5 +1,5 @@
 import { Component, eventListener, literal, PropertyValues } from '@a11d/lit'
-import { Application, Router, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, PageHost } from '../index.js'
+import { Application, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, PageHost } from '../index.js'
 import { PageDialog, Dialog, DialogActionKey, DialogCancelledError, DialogHost } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
@@ -13,7 +13,7 @@ export const enum DialogConfirmationStrategy { Dialog, Tab, Window }
 export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 
 export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends Component {
-	static readonly beforeConfirmationHooks = new HookSet<DialogComponent<any, any>>()
+	static readonly connectingHooks = new HookSet<DialogComponent<any, any>>()
 
 	private static readonly dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
 
@@ -67,8 +67,12 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
-	async confirm(strategy = DialogConfirmationStrategy.Dialog) {
-		await DialogComponent.beforeConfirmationHooks.execute(this)
+	override async connectedCallback() {
+		await (this.constructor as typeof DialogComponent).connectingHooks.execute(this)
+		super.connectedCallback()
+	}
+
+	confirm(strategy = DialogConfirmationStrategy.Dialog) {
 		return strategy === DialogConfirmationStrategy.Dialog
 			? this.confirmAsDialog()
 			: this.confirmAsPopup(strategy)
@@ -143,7 +147,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		this.dialogElement.requestPopup?.subscribe(() => this.pop())
 
 		if (this.dialogElement.poppable &&
-			Router.path !== PageDialog.route &&
+			window.location.pathname !== PageDialog.route &&
 			DialogComponent.poppableConfirmationStrategy.value !== DialogConfirmationStrategy.Dialog
 		) {
 			this.pop(DialogComponent.poppableConfirmationStrategy.value)

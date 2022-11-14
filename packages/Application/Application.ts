@@ -11,7 +11,6 @@ export const application = () => {
 
 export abstract class Application extends Component {
 	static readonly connectingHooks = new HookSet()
-	static readonly routerConnectingHooks = new HookSet()
 
 	@queryInstanceElement() static readonly instance?: Application
 
@@ -65,7 +64,7 @@ export abstract class Application extends Component {
 	protected readonly rootCssInjector = new RootCssInjectorController(this, (this.constructor as any).styles)
 
 	override async connectedCallback() {
-		await Application.connectingHooks.execute()
+		await (this.constructor as typeof Application).connectingHooks.execute()
 		super.connectedCallback()
 		this.setAttribute('application', '')
 		window.dispatchEvent(new Event('Application.connected'))
@@ -73,14 +72,8 @@ export abstract class Application extends Component {
 
 	@state() protected renderRouter = false
 
-	protected override async initialized() {
-		await this.connectRouter()
+	protected override initialized() {
 		window.dispatchEvent(new Event('Application.initialized'))
-	}
-
-	protected async connectRouter() {
-		await Application.routerConnectingHooks.execute()
-		this.renderRouter = true
 	}
 
 	protected override createRenderRoot() {
@@ -100,9 +93,7 @@ export abstract class Application extends Component {
 	}
 
 	protected get bodyTemplate() {
-		return html`
-			${this.pageHostTemplate}
-		`
+		return html`${this.pageHostTemplate}`
 	}
 
 	protected get pageHostTemplate() {

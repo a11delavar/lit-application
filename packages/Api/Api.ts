@@ -1,6 +1,6 @@
 import type { ApiAuthenticator } from './ApiAuthenticator.js'
 import type { ApiValueConstructor } from './ApiValueConstructor.js'
-import { HttpError } from './HttpError.js'
+import type { HttpError } from './HttpError.js'
 
 type HttpFetchMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD'
 
@@ -9,10 +9,10 @@ type HttpFetchOptions = {
 }
 
 export class Api {
+	static url = '/api'
 	static readonly valueConstructors = new Set<ApiValueConstructor<unknown, unknown>>()
 	static authenticator?: ApiAuthenticator
-	static httpErrorConstructor: Constructor<HttpError> = HttpError
-	static url = '/api'
+	static httpErrorConstructor?: Constructor<HttpError>
 
 	static get<T = void>(route: string, options?: HttpFetchOptions) {
 		return this.fetch<T>('GET', route, null, options)
@@ -56,7 +56,9 @@ export class Api {
 		const response = await fetch(this.url + route, request)
 
 		if (response.status >= 400 && !options?.noHttpErrorOnErrorStatusCode) {
-			throw new (this.httpErrorConstructor)(response)
+			throw !this.httpErrorConstructor
+				? new Error(await response.json())
+				: new (this.httpErrorConstructor)(response)
 		}
 
 		const responseText = await response.text()

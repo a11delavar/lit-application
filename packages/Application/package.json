@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/lit-application",
-	"version": "0.0.14",
+	"version": "0.0.15",
 	"description": "Lit-based application shell.",
 	"repository": {
 		"type": "git",
@@ -29,11 +29,11 @@
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@a11d/lit": "*",
-		"tslib": "^2.4.1",
-		"@lit-labs/router": "^0.1.1",
-		"path-to-regexp": "^6.2.1",
-		"ts-key-enum": "^2.0.12",
-		"urlpattern-polyfill": "^5.0.5"
+		"@a11d/lit": "x",
+		"@lit-labs/router": "0.x",
+		"path-to-regexp": "6.x",
+		"ts-key-enum": "x",
+		"tslib": "x",
+		"urlpattern-polyfill": "x"
 	}
 }

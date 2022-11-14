@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/lit-application-authentication",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"description": "Lit-based native application shell authentication module.",
 	"repository": {
 		"type": "git",
@@ -30,7 +30,7 @@
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@a11d/lit-application": "^0.0.14",
-		"tslib": "^2.4.1"
+		"@a11d/lit-application": "x",
+		"tslib": "x"
 	}
 }

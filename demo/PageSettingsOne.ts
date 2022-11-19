@@ -7,7 +7,9 @@ import { PageSettings } from './PageSettings.js'
 export class PageSettingsOne extends PageComponent {
 	protected override get template() {
 		return html`
-			Settings Page > One
+			<lit-page heading='Settings One'>
+				Settings Page > One
+			</lit-page>
 		`
 	}
 }

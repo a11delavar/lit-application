@@ -47,6 +47,10 @@ export abstract class Application extends Component {
 				width: 100%;
 				max-width: var(--lit-application-page-host-max-width, 2560px);
 			}
+
+			lit-page-host > * {
+				padding: max(min(1rem, 1vw), min(1rem, 1vh));
+			}
 		`
 	}
 

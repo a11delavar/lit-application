@@ -13,7 +13,6 @@ export class Page extends Component implements IPage {
 	static override get styles() {
 		return css`
 			:host {
-				padding: var(--lit-page-padding, max(min(1rem, 1vw), min(1rem, 1vh)));
 				display: inherit;
 			}
 

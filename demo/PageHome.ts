@@ -5,10 +5,6 @@ import { DialogSample } from './DialogSample.js'
 @component('demo-page-home')
 @route('/')
 export class PageHome extends PageComponent {
-	protected override initialized() {
-		console.log('PageHome initialized')
-	}
-
 	protected override get template() {
 		return html`
 			<lit-page heading='Home' fullHeight>

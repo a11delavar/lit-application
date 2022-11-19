@@ -4,8 +4,7 @@ import { HttpErrorCode, queryInstanceElement } from './utilities/index.js'
 
 export const application = () => {
 	return <T extends Application>(ApplicationConstructor: Constructor<T>) => {
-		const application = new ApplicationConstructor
-		window.document.body.appendChild(application)
+		window.document.body.appendChild(new ApplicationConstructor)
 	}
 }
 

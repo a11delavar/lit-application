@@ -27,12 +27,12 @@ export class RouterController extends RouterControllerBase {
 			this.routes.push({
 				path: route,
 				render: p => {
-					const cached = this.pagesByRoute.get(route)
+					const cached = this.pagesByRoute.get(Router.path)
 					if (cached) {
 						return cached
 					}
 					const page = new pageConstructor(p)
-					this.pagesByRoute.set(route, page)
+					this.pagesByRoute.set(Router.path, page)
 					return page
 				}
 			})

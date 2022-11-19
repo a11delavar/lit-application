@@ -47,8 +47,8 @@ export class Router {
 			?.[0]
 	}
 
-	private static get path() { return window.location.pathname + window.location.search }
-	private static set path(value) {
+	static get path() { return window.location.pathname + window.location.search }
+	static set path(value) {
 		window.history.pushState(null, '', value)
 		window.dispatchEvent(new PopStateEvent('popstate'))
 	}

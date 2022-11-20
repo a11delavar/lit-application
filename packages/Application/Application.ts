@@ -67,9 +67,9 @@ export abstract class Application extends Component {
 	protected readonly rootCssInjector = new RootCssInjectorController(this, (this.constructor as any).styles)
 
 	override async connectedCallback() {
+		this.setAttribute('application', '')
 		await (this.constructor as typeof Application).connectingHooks.execute()
 		super.connectedCallback()
-		this.setAttribute('application', '')
 		window.dispatchEvent(new Event('Application.connected'))
 	}
 

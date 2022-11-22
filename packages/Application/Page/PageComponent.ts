@@ -39,7 +39,7 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 	}
 
 	override async connectedCallback() {
-		await (this.constructor as typeof PageComponent).connectingHooks.execute(this)
+		await PageComponent.connectingHooks.execute(this)
 		super.connectedCallback()
 	}
 

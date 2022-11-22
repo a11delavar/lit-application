@@ -1,4 +1,4 @@
-import { Component, property, css, html } from '@a11d/lit'
+import { Component, property, css, html, nothing, state } from '@a11d/lit'
 import { HookSet, PageError, RootCssInjectorController, RouterController } from './index.js'
 import { HttpErrorCode, queryInstanceElement } from './utilities/index.js'
 
@@ -10,6 +10,7 @@ export const application = () => {
 
 export abstract class Application extends Component {
 	static readonly connectingHooks = new HookSet()
+	static readonly beforeRouteHooks = new HookSet()
 
 	@queryInstanceElement() static readonly instance?: Application
 
@@ -66,19 +67,23 @@ export abstract class Application extends Component {
 
 	protected readonly rootCssInjector = new RootCssInjectorController(this, (this.constructor as any).styles)
 
+	@state() private shallRenderRouter = false
+
+	protected override createRenderRoot() {
+		return this
+	}
+
 	override async connectedCallback() {
 		this.setAttribute('application', '')
-		await (this.constructor as typeof Application).connectingHooks.execute()
+		await Application.connectingHooks.execute()
 		super.connectedCallback()
 		window.dispatchEvent(new Event('Application.connected'))
 	}
 
-	protected override initialized() {
+	protected override async initialized() {
 		window.dispatchEvent(new Event('Application.initialized'))
-	}
-
-	protected override createRenderRoot() {
-		return this
+		await Application.beforeRouteHooks.execute()
+		this.shallRenderRouter = true
 	}
 
 	protected override get template() {
@@ -100,7 +105,7 @@ export abstract class Application extends Component {
 	protected get pageHostTemplate() {
 		return html`
 			<lit-page-host @pageHeadingChange=${(e: CustomEvent<string>) => this.pageHeading = e.detail}>
-				${this.router.outlet()}
+				${!this.shallRenderRouter ? nothing : this.router.outlet()}
 			</lit-page-host>
 		`
 	}

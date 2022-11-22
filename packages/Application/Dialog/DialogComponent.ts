@@ -68,7 +68,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	}
 
 	override async connectedCallback() {
-		await (this.constructor as typeof DialogComponent).connectingHooks.execute(this)
+		await DialogComponent.connectingHooks.execute(this)
 		super.connectedCallback()
 	}
 

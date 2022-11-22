@@ -17,7 +17,7 @@ export class DialogSample extends DialogComponent<{ readonly message: string }, 
 
 	protected override get template() {
 		return html`
-			<lit-dialog heading='Sample Dialog'>
+			<lit-dialog heading='Sample Dialog' poppable>
 				<button slot='primaryAction' ?disabled=${this.secondsRemaining > 0}>OK ${this.secondsRemaining === 0 ? '' : `(${this.secondsRemaining})`}</button>
 				${this.parameters.message}
 			</lit-dialog>

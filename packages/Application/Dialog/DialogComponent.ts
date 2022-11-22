@@ -1,5 +1,5 @@
 import { Component, eventListener, literal, PropertyValues } from '@a11d/lit'
-import { Application, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, PageHost } from '../index.js'
+import { Application, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode, Key } from '../index.js'
 import { PageDialog, Dialog, DialogActionKey, DialogCancelledError, DialogHost } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
@@ -101,7 +101,9 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		// @ts-expect-error property is a key of the elementProperties map
 		propertiesToCopy.forEach(property => dialogComponent[property] = this[property])
 
-		const page = PageHost.instance?.querySelector('lit-page-dialog') as PageDialog
+		const app = this._popupWindow.document.querySelector('[application]') as Application
+		await app.updateComplete
+		const page = this._popupWindow.document.querySelector('lit-page-dialog') as PageDialog
 		const confirmPromise = dialogComponent.confirm() as Promise<TResult>
 		await dialogComponent.updateComplete
 		dialogComponent.dialogElement.dialogHeadingChange.subscribe(heading => page.heading = heading)

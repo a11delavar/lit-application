@@ -16,7 +16,7 @@ export class RouterController extends RouterControllerBase {
 		this.host = args[0]
 	}
 
-	private readonly pagesByRoute = new Map<string, PageComponent>()
+	private currentPage?: PageComponent<any>
 
 	private importDecoratorRoutesIfAvailable() {
 		const decoratorRoutes = [...Router.container]
@@ -27,13 +27,9 @@ export class RouterController extends RouterControllerBase {
 			this.routes.push({
 				path: route,
 				render: p => {
-					const cached = this.pagesByRoute.get(Router.path)
-					if (cached) {
-						return cached
-					}
-					const page = new pageConstructor(p)
-					this.pagesByRoute.set(Router.path, page)
-					return page
+					return this.currentPage?.parameters === p && this.currentPage?.constructor === pageConstructor
+						? this.currentPage
+						: this.currentPage = new pageConstructor(p)
 				}
 			})
 		}

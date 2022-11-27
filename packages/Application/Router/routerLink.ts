@@ -7,6 +7,7 @@ type Parameters = {
 	component: PageComponent<any> | DialogComponent<any, any>
 	matchMode?: RouteMatchMode
 	selectionChangeHandler?: (this: Element, selected: boolean) => void
+	invocationHandler?: () => void
 }
 
 type ShorthandParametersOrParameters =
@@ -18,6 +19,7 @@ function getParameters(...parameters: ShorthandParametersOrParameters): Paramete
 		component: parameters[0],
 		matchMode: RouteMatchMode.All,
 		selectionChangeHandler: undefined,
+		invocationHandler: undefined,
 	}
 }
 
@@ -44,6 +46,7 @@ export const routerLink = directive(class extends Directive {
 			} else {
 				this.parameters.component.confirm()
 			}
+			this.parameters.invocationHandler?.()
 		})
 
 		this.element.addEventListener('auxclick', event => {
@@ -53,6 +56,7 @@ export const routerLink = directive(class extends Directive {
 			} else {
 				this.parameters.component.confirm(DialogConfirmationStrategy.Tab)
 			}
+			this.parameters.invocationHandler?.()
 		})
 	}
 
@@ -66,16 +70,16 @@ export const routerLink = directive(class extends Directive {
 	}
 
 	executeSelectionChange() {
-		if (this.parameters.component instanceof DialogComponent) {
-			return
-		}
+		const selected = this.parameters.component instanceof DialogComponent
+			? false
+			: Router.match(this.parameters.component, this.parameters.matchMode)
 
-		const selected = Router.match(this.parameters.component, this.parameters.matchMode)
 		if (selected) {
 			this.element.setAttribute('data-router-selected', '')
 		} else {
 			this.element.removeAttribute('data-router-selected')
 		}
+
 		if (this.parameters.selectionChangeHandler) {
 			this.parameters.selectionChangeHandler.call(this.element, selected)
 		}

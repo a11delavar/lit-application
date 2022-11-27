@@ -22,8 +22,13 @@ export class PwaHelper {
 	}
 
 	static async registerServiceWorker(absolutePath: string) {
-		await this.serviceWorkerContainer?.register(absolutePath, { scope: '/' })
-		await this.requestInstallation()
+		try {
+			await this.serviceWorkerContainer?.register(absolutePath, { scope: '/' })
+			await this.requestInstallation()
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error(e)
+		}
 	}
 
 	static async unregisterServiceWorkers() {

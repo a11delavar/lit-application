@@ -78,14 +78,16 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			: this.confirmAsPopup(strategy)
 	}
 
-	private _confirmationPromiseResolve!: (value: TResult) => void
-	private _confirmationPromiseReject!: (reason: Error) => void
+	private _confirmationPromiseExecutor?: [
+		resolve: (value: TResult) => void,
+		reject: (reason: Error) => void,
+	]
+
 	protected async confirmAsDialog() {
 		const host = await DialogComponent.getHost()
 		host.appendChild(this)
 		return new Promise<TResult>((resolve, reject) => {
-			this._confirmationPromiseResolve = resolve
-			this._confirmationPromiseReject = reject
+			this._confirmationPromiseExecutor = [resolve, reject]
 		})
 	}
 
@@ -116,9 +118,9 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		this.open = false
 		try {
 			const value = await this.confirm(strategy)
-			this._confirmationPromiseResolve(value)
+			this._confirmationPromiseExecutor?.[0](value)
 		} catch (error) {
-			this._confirmationPromiseReject(error as Error)
+			this._confirmationPromiseExecutor?.[1](error as Error)
 		} finally {
 			this._popupWindow?.close()
 			this.remove()
@@ -129,9 +131,9 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		this.open = false
 
 		if (result instanceof Error) {
-			this._confirmationPromiseReject(result)
+			this._confirmationPromiseExecutor?.[1](result)
 		} else {
-			this._confirmationPromiseResolve(result)
+			this._confirmationPromiseExecutor?.[0](result)
 		}
 
 		this.remove()

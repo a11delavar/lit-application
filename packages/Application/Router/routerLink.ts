@@ -41,22 +41,12 @@ export const routerLink = directive(class extends Directive {
 
 		this.element.addEventListener('click', event => {
 			event.preventDefault()
-			if (this.parameters.component instanceof PageComponent) {
-				this.parameters.component.navigate()
-			} else {
-				this.parameters.component.confirm()
-			}
-			this.parameters.invocationHandler?.()
+			this.invoke(event as PointerEvent)
 		})
 
 		this.element.addEventListener('auxclick', event => {
 			event.preventDefault()
-			if (this.parameters.component instanceof PageComponent) {
-				this.parameters.component.navigate(PageNavigationStrategy.Tab)
-			} else {
-				this.parameters.component.confirm(DialogConfirmationStrategy.Tab)
-			}
-			this.parameters.invocationHandler?.()
+			this.invoke(event as PointerEvent)
 		})
 	}
 
@@ -67,6 +57,38 @@ export const routerLink = directive(class extends Directive {
 		if (firstRender) {
 			this.executeSelectionChange()
 		}
+	}
+
+	invoke(pointerEvent: PointerEvent) {
+		const getPageNavigationStrategy = () => {
+			switch (true) {
+				case pointerEvent.ctrlKey || pointerEvent.metaKey || pointerEvent.type === 'auxclick':
+					return PageNavigationStrategy.Tab
+				case pointerEvent.shiftKey:
+					return PageNavigationStrategy.Window
+				default:
+					return PageNavigationStrategy.Page
+			}
+		}
+
+		const getDialogConfirmationStrategy = () => {
+			switch (true) {
+				case pointerEvent.ctrlKey || pointerEvent.metaKey || pointerEvent.type === 'auxclick':
+					return DialogConfirmationStrategy.Tab
+				case pointerEvent.shiftKey:
+					return DialogConfirmationStrategy.Window
+				default:
+					return DialogConfirmationStrategy.Dialog
+			}
+		}
+
+		if (this.parameters.component instanceof PageComponent) {
+			this.parameters.component.navigate(getPageNavigationStrategy())
+		} else {
+			this.parameters.component.confirm(getDialogConfirmationStrategy())
+		}
+
+		this.parameters.invocationHandler?.()
 	}
 
 	executeSelectionChange() {

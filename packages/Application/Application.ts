@@ -55,7 +55,7 @@ export abstract class Application extends Component {
 		`
 	}
 
-	@property({ updated(this: Application) { document.title = [this.pageHeading, manifest?.short_name].filter(Boolean).join(' | ') } }) pageHeading?: string
+	@property({ updated(this: Application) { document.title = this.documentTitle } }) pageHeading?: string
 
 	readonly router = new RouterController(this, [],
 		{
@@ -84,6 +84,10 @@ export abstract class Application extends Component {
 		window.dispatchEvent(new Event('Application.initialized'))
 		await Application.beforeRouteHooks.execute()
 		this.shallRenderRouter = true
+	}
+
+	protected get documentTitle() {
+		return [this.pageHeading, manifest?.short_name].filter(Boolean).join(' | ')
 	}
 
 	protected override get template() {

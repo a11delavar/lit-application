@@ -37,17 +37,9 @@ export const routerLink = directive(class extends Directive {
 		const part = partInfo as ElementPart
 		this.element = part.element
 
-		window.addEventListener('popstate', () => this.executeSelectionChange())
-
-		this.element.addEventListener('click', event => {
-			event.preventDefault()
-			this.invoke(event as PointerEvent)
-		})
-
-		this.element.addEventListener('auxclick', event => {
-			event.preventDefault()
-			this.invoke(event as PointerEvent)
-		})
+		window.addEventListener('popstate', this)
+		this.element.addEventListener('click', this)
+		this.element.addEventListener('auxclick', this)
 	}
 
 	render(...parameters: ShorthandParametersOrParameters) {
@@ -56,6 +48,18 @@ export const routerLink = directive(class extends Directive {
 		this.parameters = getParameters(...parameters)
 		if (firstRender) {
 			this.executeSelectionChange()
+		}
+	}
+
+	handleEvent(event: Event) {
+		switch (event.type) {
+			case 'click':
+			case 'auxclick':
+				event.preventDefault()
+				this.invoke(event as PointerEvent)
+				break
+			case 'popstate':
+				this.executeSelectionChange()
 		}
 	}
 
@@ -83,7 +87,7 @@ export const routerLink = directive(class extends Directive {
 		}
 
 		if (this.parameters.component instanceof PageComponent) {
-			this.parameters.component.navigate(getPageNavigationStrategy())
+			this.parameters.component.navigate(getPageNavigationStrategy(), pointerEvent.type === 'auxclick')
 		} else {
 			this.parameters.component.confirm(getDialogConfirmationStrategy())
 		}

@@ -1,4 +1,4 @@
-import { directive, Directive, ElementPart, PartInfo, PartType } from '@a11d/lit'
+import { directive, Directive, ElementPart, noChange, PartInfo, PartType } from '@a11d/lit'
 import { RouteMatchMode, Router } from './index.js'
 import { PageComponent, PageNavigationStrategy } from '../Page/index.js'
 import { DialogComponent, DialogConfirmationStrategy } from '../Dialog/index.js'
@@ -24,7 +24,7 @@ function getParameters(...parameters: ShorthandParametersOrParameters): Paramete
 }
 
 export const routerLink = directive(class extends Directive {
-	readonly element: Element
+	readonly element!: Element
 	readonly parameters!: Parameters
 
 	constructor(partInfo: PartInfo) {
@@ -33,22 +33,30 @@ export const routerLink = directive(class extends Directive {
 		if (partInfo.type !== PartType.ELEMENT) {
 			throw new Error('routerLink can only be used on an element')
 		}
+	}
 
-		const part = partInfo as ElementPart
+	override update(part: ElementPart, parameters: ShorthandParametersOrParameters) {
+		const firstRender = !this.parameters
+
+		// @ts-expect-error - Readonly
 		this.element = part.element
+		// @ts-expect-error - Readonly
+		this.parameters = getParameters(...parameters)
 
 		window.addEventListener('popstate', this)
 		this.element.addEventListener('click', this)
 		this.element.addEventListener('auxclick', this)
-	}
 
-	render(...parameters: ShorthandParametersOrParameters) {
-		const firstRender = !this.parameters
-		// @ts-expect-error - parameters is readonly
-		this.parameters = getParameters(...parameters)
 		if (firstRender) {
 			this.executeSelectionChange()
 		}
+
+		return super.update(part, parameters)
+	}
+
+	render(...parameters: ShorthandParametersOrParameters) {
+		parameters
+		return noChange
 	}
 
 	handleEvent(event: Event) {
@@ -60,6 +68,7 @@ export const routerLink = directive(class extends Directive {
 				break
 			case 'popstate':
 				this.executeSelectionChange()
+				break
 		}
 	}
 

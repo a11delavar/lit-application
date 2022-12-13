@@ -55,7 +55,7 @@ export class Api {
 
 		const response = await fetch(this.url + route, request)
 
-		if (response.status >= 400 && !options?.noHttpErrorOnErrorStatusCode) {
+		if (response.status >= 400 && options?.noHttpErrorOnErrorStatusCode !== true) {
 			throw !this.httpErrorConstructor
 				? new Error(await response.json())
 				: new (this.httpErrorConstructor)(response)

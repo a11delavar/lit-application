@@ -14,12 +14,13 @@
 	"homepage": "https://github.com/arshia11d/lit-application#readme",
 	"type": "module",
 	"scripts": {
-		"start": "webpack serve -c ./demo/webpack.config.mjs --mode=development",
-		"build": "tsc",
+		"start": "npm run build && webpack serve -c ./demo/webpack.config.mjs --mode=development",
+		"build": "tsc -p ./packages/Application/tsconfig.json && tsc -p ./packages/Native/tsconfig.json",
 		"clean": "node ./scripts/clean.mjs",
 		"release": "node ./scripts/release.mjs"
 	},
 	"devDependencies": {
+		"concurrently": "x",
 		"@a11d/eslint-config": "x",
 		"html-webpack-plugin": "x",
 		"resolve-typescript-plugin": "x",

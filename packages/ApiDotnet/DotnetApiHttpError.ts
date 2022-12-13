@@ -1,5 +1,5 @@
 import { HttpErrorCode } from './HttpErrorCode.js'
-import { HttpError } from '@a11d/api'
+import { apiError, HttpError } from '@a11d/api'
 
 export type DotnetError = {
 	readonly title: string
@@ -9,6 +9,7 @@ export type DotnetError = {
 	readonly type: string
 }
 
+@apiError()
 export class DotnetHttpError extends HttpError {
 	get status() { return this.error.status }
 	get traceId() { return this.error.traceId }

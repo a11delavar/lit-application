@@ -1,8 +1,10 @@
 import { component, css, html, HTMLTemplateResult, staticHtml, style } from '@a11d/lit'
 import { HttpError, HttpErrorCode } from '../index.js'
+import { route } from '../Router/route.js'
 import { PageComponent } from './PageComponent.js'
 
 @component('lit-page-error')
+@route('/error/:error')
 export class PageError extends PageComponent<{ readonly error: HttpErrorCode, readonly message?: string }> {
 	private static readonly emojisByErrorCodes = new Map<HttpErrorCode, string>([
 		[HttpErrorCode.BadRequest, '😟'],

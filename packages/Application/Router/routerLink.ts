@@ -1,4 +1,4 @@
-import { directive, Directive, ElementPart, noChange, PartInfo, PartType } from '@a11d/lit'
+import { AsyncDirective, directive, ElementPart, noChange, PartInfo, PartType } from '@a11d/lit'
 import { RouteMatchMode, Router } from './index.js'
 import { PageComponent, PageNavigationStrategy } from '../Page/index.js'
 import { DialogComponent, DialogConfirmationStrategy } from '../Dialog/index.js'
@@ -23,7 +23,7 @@ function getParameters(...parameters: ShorthandParametersOrParameters): Paramete
 	}
 }
 
-export const routerLink = directive(class extends Directive {
+class RouterLinkDirective extends AsyncDirective {
 	readonly element!: Element
 	readonly parameters!: Parameters
 
@@ -43,9 +43,9 @@ export const routerLink = directive(class extends Directive {
 		// @ts-expect-error - Readonly
 		this.parameters = getParameters(...parameters)
 
-		window.addEventListener('popstate', this)
-		this.element.addEventListener('click', this)
-		this.element.addEventListener('auxclick', this)
+		if (this.isConnected) {
+			this.addEventListeners()
+		}
 
 		if (firstRender) {
 			this.executeSelectionChange()
@@ -57,6 +57,10 @@ export const routerLink = directive(class extends Directive {
 	render(...parameters: ShorthandParametersOrParameters) {
 		parameters
 		return noChange
+	}
+
+	protected override disconnected() {
+		this.removeEventListeners()
 	}
 
 	handleEvent(event: Event) {
@@ -72,7 +76,19 @@ export const routerLink = directive(class extends Directive {
 		}
 	}
 
-	invoke(pointerEvent: PointerEvent) {
+	private addEventListeners() {
+		window.addEventListener('popstate', this)
+		this.element.addEventListener('click', this)
+		this.element.addEventListener('auxclick', this)
+	}
+
+	private removeEventListeners() {
+		window.removeEventListener('popstate', this)
+		this.element.removeEventListener('click', this)
+		this.element.removeEventListener('auxclick', this)
+	}
+
+	private invoke(pointerEvent: PointerEvent) {
 		const getPageNavigationStrategy = () => {
 			switch (true) {
 				case pointerEvent.ctrlKey || pointerEvent.metaKey || pointerEvent.type === 'auxclick':
@@ -104,7 +120,7 @@ export const routerLink = directive(class extends Directive {
 		this.parameters.invocationHandler?.()
 	}
 
-	executeSelectionChange() {
+	private executeSelectionChange() {
 		const selected = this.parameters.component instanceof DialogComponent
 			? false
 			: Router.match(this.parameters.component, this.parameters.matchMode)
@@ -119,4 +135,6 @@ export const routerLink = directive(class extends Directive {
 			this.parameters.selectionChangeHandler.call(this.element, selected)
 		}
 	}
-})
+}
+
+export const routerLink = directive(RouterLinkDirective)

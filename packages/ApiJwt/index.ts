@@ -1,1 +1,1 @@
-export * from './JwtApiConstructor.js'
+export * from './JwtApiAuthenticator.js'

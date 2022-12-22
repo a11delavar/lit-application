@@ -17,15 +17,15 @@ export class DotnetHttpError extends HttpError {
 
 	private error!: DotnetError
 
-	constructor(protected override readonly response: Response) {
-		super(response)
-		this.response.json().then(json => {
-			this.error = json
-			this.message = [this.error.title,
-				!this.error.errors ? undefined : Object.values(this.error.errors)
-					.map(error => error[0])
-					.join('\n')
-			].filter(Boolean).join('\n')
-		})
+	override async throw(): Promise<never> {
+		const json = await this.response.json()
+		this.error = json
+		this.message = [
+			this.error.title,
+			!this.error.errors ? undefined : Object.values(this.error.errors)
+				.map(error => error[0])
+				.join('\n')
+		].filter(Boolean).join('\n')
+		throw this
 	}
 }

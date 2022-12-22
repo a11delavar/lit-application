@@ -1,8 +1,12 @@
 import { Api } from './Api.js'
 
-export class HttpError extends Error {
+export abstract class HttpError extends Error {
 	constructor(protected readonly response: Response, ...parameters: ConstructorParameters<typeof Error>) {
 		super(...parameters)
+	}
+
+	throw(): never | PromiseLike<never> {
+		throw this
 	}
 }
 

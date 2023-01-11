@@ -1,12 +1,5 @@
 import { compile, match } from 'path-to-regexp'
-import type { Component } from '@a11d/lit'
-import type { PageComponent } from '../Page/index.js'
-
-type Page = PageComponent<any>
-type PageConstructor = Constructor<Page>
-
-type RouterHost = Component
-type RouterHostConstructor = Constructor<RouterHost>
+import { RoutesContainer, type Page } from './RoutesContainer.js'
 
 export const enum RouteMatchMode {
 	All = 'all',
@@ -14,7 +7,10 @@ export const enum RouteMatchMode {
 }
 
 export class Router {
-	static readonly container = new Map<string, { routerHostConstructor: RouterHostConstructor, pageConstructor: PageConstructor }>()
+	static readonly container = new RoutesContainer
+
+	get basePath() { return Router.container.basePath }
+	set basePath(value) { Router.container.basePath = value }
 
 	static getPathOf(page: Page) {
 		const route = this.getRouteOf(page)

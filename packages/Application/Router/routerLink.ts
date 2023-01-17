@@ -111,10 +111,13 @@ class RouterLinkDirective extends AsyncDirective {
 			}
 		}
 
-		if (this.parameters.component instanceof PageComponent) {
-			this.parameters.component.navigate(getPageNavigationStrategy(), pointerEvent.type === 'auxclick')
+		const ComponentConstructor = this.parameters.component.constructor as Constructor<PageComponent<any>> | Constructor<DialogComponent<any>>
+		const component = new ComponentConstructor(this.parameters.component.parameters)
+
+		if (component instanceof PageComponent) {
+			component.navigate(getPageNavigationStrategy(), pointerEvent.type === 'auxclick')
 		} else {
-			this.parameters.component.confirm(getDialogConfirmationStrategy())
+			component.confirm(getDialogConfirmationStrategy())
 		}
 
 		this.parameters.invocationHandler?.()

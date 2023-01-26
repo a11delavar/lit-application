@@ -1,17 +1,13 @@
 {
-	"name": "@a11d/lit-application-authorization",
-	"version": "0.0.7",
-	"description": "Lit-based native application shell authorization module.",
+	"name": "@a11d/local-storage",
+	"version": "0.0.2",
+	"description": "A simple, strongly-typed local-storage wrapper",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/a11delavar/lit-application.git"
 	},
 	"keywords": [
-		"web-component",
-		"lit",
-		"application",
-		"shell",
-		"authorization"
+		"local-storage"
 	],
 	"author": "a11delavar",
 	"license": "MIT",
@@ -26,11 +22,9 @@
 		"dist"
 	],
 	"scripts": {
-		"start": "webpack serve --mode=development",
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@a11d/lit-application": "x",
 		"tslib": "x"
 	}
 }

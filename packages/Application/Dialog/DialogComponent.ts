@@ -1,5 +1,6 @@
 import { Component, eventListener, literal, PropertyValues } from '@a11d/lit'
-import { Application, HookSet, LocalStorageEntry, querySymbolizedElement, WindowHelper, WindowOpenMode, Key } from '../index.js'
+import { LocalStorage } from '@a11d/local-storage'
+import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key } from '../index.js'
 import { PageDialog, Dialog, DialogActionKey, DialogCancelledError, DialogHost } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
@@ -25,7 +26,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
-	static readonly poppableConfirmationStrategy = new LocalStorageEntry<DialogConfirmationStrategy>('DialogComponent.PoppableConfirmationStrategy', DialogConfirmationStrategy.Dialog)
+	static readonly poppableConfirmationStrategy = new LocalStorage<DialogConfirmationStrategy>('DialogComponent.PoppableConfirmationStrategy', DialogConfirmationStrategy.Dialog)
 
 	static getHost() {
 		return Promise.resolve(DialogHost.instance ?? Application.instance ?? document.body)

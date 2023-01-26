@@ -1,13 +1,14 @@
 import { state } from '@a11d/lit'
-import { Application, DialogComponent, LocalStorageEntry, HookSet } from '@a11d/lit-application'
+import { Application, DialogComponent, HookSet } from '@a11d/lit-application'
+import { LocalStorage } from '@a11d/local-storage'
 
 export abstract class DialogAuthenticator<User extends object> extends DialogComponent {
 	static readonly afterAuthenticationHooks = new HookSet()
 
-	static readonly shallRememberStorage = new LocalStorageEntry('DialogAuthenticator.ShallRemember', false)
-	static readonly authenticatedUserStorage = new LocalStorageEntry<object | undefined>('DialogAuthenticator.User', undefined)
-	private static readonly passwordStorage = new LocalStorageEntry<string | undefined>('DialogAuthenticator.Password', undefined)
-	private static readonly usernameStorage = new LocalStorageEntry<string | undefined>('DialogAuthenticator.Username', undefined)
+	static readonly shallRememberStorage = new LocalStorage('DialogAuthenticator.ShallRemember', false)
+	static readonly authenticatedUserStorage = new LocalStorage<object | undefined>('DialogAuthenticator.User', undefined)
+	private static readonly passwordStorage = new LocalStorage<string | undefined>('DialogAuthenticator.Password', undefined)
+	private static readonly usernameStorage = new LocalStorage<string | undefined>('DialogAuthenticator.Username', undefined)
 
 	@state() username = DialogAuthenticator.shallRememberStorage.value ? DialogAuthenticator.usernameStorage.value ?? '' : ''
 	@state() password = DialogAuthenticator.shallRememberStorage.value ? DialogAuthenticator.passwordStorage.value ?? '' : ''

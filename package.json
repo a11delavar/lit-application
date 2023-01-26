@@ -1,7 +1,7 @@
 {
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/arshia11d/lit-application.git"
+		"url": "git+https://github.com/a11delavar/lit-application.git"
 	},
 	"workspaces": [
 		"./packages/*"
@@ -9,9 +9,9 @@
 	"author": "a11d",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/arshia11d/lit-application/issues"
+		"url": "https://github.com/a11delavar/lit-application/issues"
 	},
-	"homepage": "https://github.com/arshia11d/lit-application#readme",
+	"homepage": "https://github.com/a11delavar/lit-application#readme",
 	"type": "module",
 	"scripts": {
 		"start": "npm run build && webpack serve -c ./demo/webpack.config.mjs --mode=development",

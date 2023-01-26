@@ -1,4 +1,5 @@
-import { HttpErrorCode, LocalStorageEntry, DialogComponent, PageComponent, PageError } from '@a11d/lit-application'
+import { HttpErrorCode, DialogComponent, PageComponent, PageError } from '@a11d/lit-application'
+import { LocalStorage } from '@a11d/local-storage'
 
 type AuthorizableComponent = DialogComponent<any, any> | PageComponent<any>
 
@@ -9,7 +10,7 @@ export const requiresAuthorization = <TConstructor extends Constructor<Authoriza
 }
 
 export class Authorization {
-	private static readonly storage = new LocalStorageEntry('LitApplication.Authorizations', new Array<string>())
+	private static readonly storage = new LocalStorage('LitApplication.Authorizations', new Array<string>())
 	private static readonly authorizationsByComponent = new Map<Constructor<AuthorizableComponent>, Array<string>>()
 
 	static addAuthorizationsByComponent(component: Constructor<AuthorizableComponent>, authorizations: Array<string>) {

@@ -1,8 +1,8 @@
 import { PureEventDispatcher } from '@a11d/lit'
 
-export class LocalStorageEntry<T> {
+export class LocalStorage<T> {
 	static readonly changed = new PureEventDispatcher<unknown>()
-	static readonly container = new Set<LocalStorageEntry<any>>()
+	static readonly container = new Set<LocalStorage<any>>()
 
 	readonly changed = new PureEventDispatcher<T>()
 
@@ -10,7 +10,7 @@ export class LocalStorageEntry<T> {
 		protected readonly name: string,
 		protected readonly defaultValue: T,
 		protected readonly reviver?: (key: string, value: any) => any
-	) { LocalStorageEntry.container.add(this) }
+	) { LocalStorage.container.add(this) }
 
 	get value(): T {
 		const value = window.localStorage.getItem(this.name) ?? undefined
@@ -29,6 +29,6 @@ export class LocalStorageEntry<T> {
 	set value(obj: T) {
 		window.localStorage.setItem(this.name, JSON.stringify(obj))
 		this.changed.dispatch(obj)
-		LocalStorageEntry.changed.dispatch(this)
+		LocalStorage.changed.dispatch(this)
 	}
 }

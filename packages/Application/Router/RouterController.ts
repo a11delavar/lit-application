@@ -21,12 +21,14 @@ export class RouterController extends RouterControllerBase {
 	private importDecoratorRoutesIfAvailable() {
 		const decoratorRoutes = [...Router.container]
 			.filter(([, { routerHostConstructor }]) => this.host.constructor === routerHostConstructor || this.host.constructor.prototype instanceof routerHostConstructor)
-			.map(([route, { pageConstructor }]) => ({ route, pageConstructor }))
+			.map(([route, { pageConstructor, getTemplate }]) => ({ route, pageConstructor, getTemplate }))
 
-		for (const { pageConstructor, route } of decoratorRoutes) {
+		for (const { pageConstructor, route, getTemplate } of decoratorRoutes) {
 			this.routes.push({
 				path: route,
 				render: p => {
+					// How to distinguish between the same page with different parameters?
+					getTemplate
 					return this.currentPage?.parameters === p && this.currentPage?.constructor === pageConstructor
 						? this.currentPage
 						: this.currentPage = new pageConstructor(p)

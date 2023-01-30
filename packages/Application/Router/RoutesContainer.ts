@@ -10,9 +10,10 @@ type RouterHostConstructor = Constructor<RouterHost>
 type RouteMetadata = {
 	routerHostConstructor: RouterHostConstructor
 	pageConstructor: PageConstructor
+	getTemplate?: <T>(parameters: T) => Page
 }
 
-export class RoutesContainer extends Map<string, { routerHostConstructor: RouterHostConstructor, pageConstructor: PageConstructor }> {
+export class RoutesContainer extends Map<string, RouteMetadata> {
 	basePath = ''
 
 	override set(key: string, value: RouteMetadata) {

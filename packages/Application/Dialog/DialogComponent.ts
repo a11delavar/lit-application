@@ -175,7 +175,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return new DialogCancelledError(this)
 	}
 
-	private readonly handleAction = async (actionKey: DialogActionKey) => {
+	protected readonly handleAction = async (actionKey: DialogActionKey) => {
 		const actionByKey = new Map([
 			[DialogActionKey.Primary, this.primaryAction],
 			[DialogActionKey.Secondary, this.secondaryAction],

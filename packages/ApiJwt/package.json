@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/api-jwt",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "JWT extensions for the @a11d/api package.",
 	"repository": {
 		"type": "git",

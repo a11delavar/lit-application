@@ -1,12 +1,11 @@
 import { state } from '@a11d/lit'
-import { Application, DialogComponent, HookSet } from '@a11d/lit-application'
+import { Application, DialogComponent, DialogConfirmationStrategy, HookSet } from '@a11d/lit-application'
 import { LocalStorage } from '@a11d/local-storage'
 
-export abstract class DialogAuthenticator<User extends object> extends DialogComponent {
+export abstract class DialogAuthenticator<Account extends object> extends DialogComponent<void, Account> {
 	static readonly afterAuthenticationHooks = new HookSet()
 
 	static readonly shallRememberStorage = new LocalStorage('DialogAuthenticator.ShallRemember', false)
-	static readonly authenticatedUserStorage = new LocalStorage<object | undefined>('DialogAuthenticator.User', undefined)
 	private static readonly passwordStorage = new LocalStorage<string | undefined>('DialogAuthenticator.Password', undefined)
 	private static readonly usernameStorage = new LocalStorage<string | undefined>('DialogAuthenticator.Username', undefined)
 
@@ -16,27 +15,21 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 
 	private preventNextAutomaticAuthentication = false
 
-	protected abstract requestAuthentication(): Promise<User>
-	protected abstract requestUnauthentication(): Promise<void>
-	protected abstract isAuthenticatedServerSide(): Promise<boolean>
-	protected abstract requestPasswordReset(): Promise<void>
-
-	async isAuthenticated() {
-		const isAuthenticatedServerSide = await this.isAuthenticatedServerSide()
-		const isAuthenticatedClientSide = DialogAuthenticator.authenticatedUserStorage.value !== undefined
-		return isAuthenticatedServerSide && isAuthenticatedClientSide
-	}
+	protected abstract authenticateAccount(): Promise<Account>
+	protected abstract unauthenticateAccount(): Promise<void>
+	protected abstract getAuthenticatedAccount(): Promise<Account | undefined>
 
 	async authenticate() {
 		try {
-			const user = await this.requestAuthentication()
-			DialogAuthenticator.authenticatedUserStorage.value = user
-			if (await this.isAuthenticated() === false) {
+			const account = await this.authenticateAccount()
+			const authenticated = await this.getAuthenticatedAccount()
+			if (!authenticated) {
 				throw new Error('Something went wrong.\nTry again.')
 			}
 			Application.instance?.requestUpdate()
 			await DialogAuthenticator.afterAuthenticationHooks.execute()
 			notificationHost.notifySuccess('Authenticated successfully')
+			return account
 		} catch (error: any) {
 			throw new Error(error.message ?? 'Incorrect Credentials')
 		}
@@ -44,48 +37,37 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 
 	async unauthenticate() {
 		try {
-			await this.requestUnauthentication()
+			await this.unauthenticateAccount()
 		} finally {
 			notificationHost.notifySuccess('Unauthenticated successfully')
-			DialogAuthenticator.authenticatedUserStorage.value = undefined
 			this.preventNextAutomaticAuthentication = true
 			this.confirm()
 		}
 	}
 
-	async resetPassword() {
-		try {
-			await this.requestPasswordReset()
-			notificationHost.notifyInfo('Password reset instructions have been sent to your email address')
-		} catch (error: any) {
-			notificationHost.notifyError(error.message ?? 'Password could not be reset')
-			throw error
-		}
-	}
-
-	override async confirm(...args: Parameters<DialogComponent['confirm']>) {
+	override async confirm(strategy = DialogConfirmationStrategy.Dialog) {
 		if (this.preventNextAutomaticAuthentication === true) {
 			this.preventNextAutomaticAuthentication = false
-			return super.confirm(...args)
+			return super.confirm(strategy)
 		}
 
-		const isAuthenticated = await this.isAuthenticated()
+		const authenticated = await this.getAuthenticatedAccount()
 
-		if (isAuthenticated) {
+		if (authenticated) {
 			await DialogAuthenticator.afterAuthenticationHooks.execute()
-			return
+			return authenticated
 		}
 
 		const shouldHaveRemembered = DialogAuthenticator.shallRememberStorage.value
 
 		if (!shouldHaveRemembered) {
-			return super.confirm(...args)
+			return super.confirm(strategy)
 		}
 
 		try {
-			await this.authenticate()
+			return this.authenticate()
 		} catch (error) {
-			return super.confirm(...args)
+			return super.confirm(strategy)
 		}
 	}
 
@@ -93,12 +75,12 @@ export abstract class DialogAuthenticator<User extends object> extends DialogCom
 		return this
 	}
 
-	protected override async primaryAction() {
+	protected override primaryAction() {
 		DialogAuthenticator.shallRememberStorage.value = this.shallRememberPassword
 		if (DialogAuthenticator.shallRememberStorage.value) {
 			DialogAuthenticator.usernameStorage.value = this.username
 			DialogAuthenticator.passwordStorage.value = this.password
 		}
-		await this.authenticate()
+		return this.authenticate()
 	}
 }

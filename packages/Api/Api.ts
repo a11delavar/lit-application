@@ -19,21 +19,29 @@ export class Api {
 	}
 
 	static post<T = void, TData = unknown>(route: string, data?: TData, options?: HttpFetchOptions) {
-		return this.fetch<T>('POST', route, JSON.stringify(this.deconstruct(data)), options)
-	}
-
-	static postFile<T = void>(route: string, file: File, options?: HttpFetchOptions) {
-		const form = new FormData
-		form.set('file', file, file.name)
-		return this.fetch<T>('POST', route, form, options)
+		return this.fetch<T>('POST', route, this.processDataForPostOrPut(data), options)
 	}
 
 	static put<T = void, TData = unknown>(route: string, data?: TData, options?: HttpFetchOptions) {
-		return this.fetch<T>('PUT', route, JSON.stringify(this.deconstruct(data)), options)
+		return this.fetch<T>('PUT', route, this.processDataForPostOrPut(data), options)
 	}
 
 	static delete<T = void>(route: string, options?: HttpFetchOptions) {
 		return this.fetch<T>('DELETE', route, null, options)
+	}
+
+	private static processDataForPostOrPut<TData>(data: TData) {
+		if (data instanceof FormData) {
+			return data
+		}
+
+		if (data instanceof File) {
+			const form = new FormData
+			form.set('file', data, data.name)
+			return form
+		}
+
+		return JSON.stringify(this.deconstruct(data))
 	}
 
 	private static async fetch<T = void>(method: HttpFetchMethod, route: string, body: BodyInit | null = null, options?: HttpFetchOptions) {

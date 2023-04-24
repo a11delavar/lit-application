@@ -1,4 +1,3 @@
-export * from './RootCssInjectorController.js'
 export * from './HookSet.js'
 export * from './WindowHelper.js'
 export * from './HttpError.js'

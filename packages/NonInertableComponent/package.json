@@ -1,16 +1,16 @@
 {
-	"name": "@a11d/lit-application",
-	"version": "0.0.45",
-	"description": "Lit-based application shell.",
+	"name": "@a11d/non-inertable-component",
+	"version": "0.0.1",
+	"description": "A non-inertable Lit component",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/a11delavar/lit-application.git"
 	},
 	"keywords": [
-		"web-component",
 		"lit",
-		"application",
-		"shell"
+		"component",
+		"inert",
+		"non-inertable"
 	],
 	"author": "a11delavar",
 	"license": "MIT",
@@ -25,18 +25,9 @@
 		"dist"
 	],
 	"scripts": {
-		"start": "webpack serve --mode=development",
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@a11d/lit": "x",
-		"@a11d/local-storage": "x",
-		"@a11d/root-css-injector": "x",
-		"@a11d/non-inertable-component": "x",
-		"@lit-labs/router": "0.x",
-		"path-to-regexp": "6.x",
-		"ts-key-enum": "x",
-		"tslib": "x",
-		"urlpattern-polyfill": "x"
+		"@a11d/lit": "x"
 	}
 }

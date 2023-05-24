@@ -1,5 +1,6 @@
-import { Component, state, css, html, component, LitElement } from '@a11d/lit'
-import { nonInertable, queryInstanceElement } from '../index.js'
+import { state, css, html, component, LitElement } from '@a11d/lit'
+import { NonInertableComponent } from '@a11d/non-inertable-component'
+import { queryInstanceElement } from '../index.js'
 import { NotificationComponent } from './NotificationComponent.js'
 
 export const enum NotificationType {
@@ -38,8 +39,7 @@ function normalizeNonTypedNotificationParameters(...parameters: NonTypedNotifica
 }
 
 @component('lit-notification-host')
-@nonInertable()
-export class NotificationHost extends Component {
+export class NotificationHost extends NonInertableComponent {
 	static readonly shownNotifications = new Set<Notification>()
 
 	@queryInstanceElement() static readonly instance: NotificationHost | undefined

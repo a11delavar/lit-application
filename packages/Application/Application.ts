@@ -1,5 +1,6 @@
-import { Component, property, css, html, nothing, state } from '@a11d/lit'
+import { property, css, html, nothing, state } from '@a11d/lit'
 import { RootCssInjectorController } from '@a11d/root-css-injector'
+import { NonInertableComponent } from '@a11d/non-inertable-component'
 import { HookSet, PageError, RouterController } from './index.js'
 import { HttpErrorCode, queryInstanceElement } from './utilities/index.js'
 
@@ -9,7 +10,7 @@ export const application = () => {
 	}
 }
 
-export abstract class Application extends Component {
+export abstract class Application extends NonInertableComponent {
 	static readonly connectingHooks = new HookSet()
 	static readonly beforeRouteHooks = new HookSet()
 

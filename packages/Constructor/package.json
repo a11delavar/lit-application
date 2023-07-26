@@ -1,14 +1,14 @@
 {
-	"name": "@a11d/api",
-	"version": "0.1.1",
-	"description": "Tools for building API SDKs",
+	"name": "@a11d/constructor",
+	"version": "0.0.2",
+	"description": "Global constructor types",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/a11delavar/lit-application.git"
 	},
 	"keywords": [
-		"sdk",
-		"api"
+		"constructor",
+		"type"
 	],
 	"author": "a11delavar",
 	"license": "MIT",
@@ -24,8 +24,5 @@
 	],
 	"scripts": {
 		"build": "tsc"
-	},
-	"dependencies": {
-		"@a11d/constructor": "x"
 	}
 }

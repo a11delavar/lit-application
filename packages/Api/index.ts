@@ -1,3 +1,4 @@
+import '@a11d/constructor'
 export * from './JsonExtensions.js'
 export * from './HttpError.js'
 export * from './ApiAuthenticator.js'

@@ -1,21 +1,22 @@
 import { apiValueConstructor, ApiValueConstructor } from '@a11d/api'
 
-export const model = (dotnetTypeName: string) => {
+export const model = (typeName: string) => {
 	return (Constructor: Constructor<unknown>) => {
-		ModelValueConstructor.modelConstructorsByDotnetTypeName.set(dotnetTypeName, Constructor)
+		ModelValueConstructor.modelConstructorsByTypeName.set(typeName, Constructor)
 	}
 }
 
 @apiValueConstructor()
 export class ModelValueConstructor implements ApiValueConstructor<object, object> {
-	static readonly modelConstructorsByDotnetTypeName = new Map<string, Constructor<unknown>>()
-	private static readonly dotnetTypeNameKeyName = '__typeName__'
+	static readonly modelConstructorsByTypeName = new Map<string, Constructor<unknown>>()
+	private static readonly typeNameKey = '@type'
 
-	shallConstruct = (value: unknown) => !!value && typeof value === 'object' && ModelValueConstructor.dotnetTypeNameKeyName in value
+	shallConstruct = (value: unknown) =>
+		!!value && typeof value === 'object' && ModelValueConstructor.typeNameKey in value
 
 	construct(object: object) {
-		const dotnetTypeName = object[ModelValueConstructor.dotnetTypeNameKeyName as keyof typeof object] as string
-		const Constructor = ModelValueConstructor.modelConstructorsByDotnetTypeName.get(dotnetTypeName)
+		const typeName = object[ModelValueConstructor.typeNameKey as keyof typeof object] as string
+		const Constructor = ModelValueConstructor.modelConstructorsByTypeName.get(typeName)
 		return !Constructor ? object : safeAssign(new Constructor, object)
 	}
 }

@@ -57,7 +57,7 @@ export class Packages {
 	static async release(packageName, versionBumpType) {
 		// await run('npm run clean')
 		const packageDirectory = Packages.getDirectory(packageName)
-		await run('npm install', Packages.getDirectory('@a11d/lit-application'))
+		await run('npm install', packageDirectory)
 		await run('tsc', packageDirectory)
 		await run(`npm version ${versionBumpType}`, packageDirectory)
 		await run('npm publish --access public', packageDirectory)

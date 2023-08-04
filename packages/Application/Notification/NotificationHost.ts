@@ -69,7 +69,9 @@ export class NotificationHost extends NonInertableComponent {
 	}
 
 	notifyAndThrowError<TError extends Error>(error: TError, ...notification: NonTypedNotificationWithErrorParameters) {
-		const normalizedNotification = normalizeNonTypedNotificationParameters(...notification as NonTypedNotificationParameters)
+		const normalizedNotification = notification.length === 0
+			? {} as NonTypedNotification
+			: normalizeNonTypedNotificationParameters(...notification as NonTypedNotificationParameters)
 		normalizedNotification.message ??= error.message
 		this.notifyError(normalizedNotification)
 		throw error

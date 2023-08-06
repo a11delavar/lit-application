@@ -12,10 +12,12 @@
 		"url": "https://github.com/a11delavar/lit-application/issues"
 	},
 	"homepage": "https://github.com/a11delavar/lit-application#readme",
-	"type": "module",
 	"scripts": {
 		"start": "npm run build && webpack serve -c ./demo/webpack.config.mjs --mode=development",
+		"dev": "npm install --loglevel=error && webpack --config ./webpack.config.test.mjs && webpack --watch --config ./webpack.config.test.mjs",
 		"build": "tsc -p ./packages/Application/tsconfig.json && tsc -p ./packages/Native/tsconfig.json",
+		"test": "npm install --loglevel=error && webpack --config ./webpack.config.test.mjs && concurrently --raw \"webpack --watch --config ./webpack.config.test.mjs\" \"karma start\" --restart-tries -1",
+		"test:ci": "webpack --config ./webpack.config.test.mjs && karma start --single-run",
 		"clean": "node ./scripts/clean.mjs",
 		"release": "node ./scripts/release.mjs",
 		"release-all": "node ./scripts/release-all.mjs"
@@ -29,6 +31,12 @@
 		"tsconfig-paths-webpack-plugin": "x",
 		"webpack": "x",
 		"webpack-cli": "x",
+		"karma": "x",
+		"karma-chrome-launcher": "x",
+		"karma-firefox-launcher": "x",
+		"karma-helpful-reporter": "x",
+		"@types/jasmine": "x",
+		"karma-jasmine": "x",
 		"typescript": "5.x",
 		"webpack-dev-server": "4.x"
 	}

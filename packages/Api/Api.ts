@@ -2,6 +2,10 @@ import type { ApiAuthenticator } from './ApiAuthenticator.js'
 import type { ApiValueConstructor } from './ApiValueConstructor.js'
 import type { HttpError } from './HttpError.js'
 
+if (('structuredClone' in globalThis) === false) {
+	import('@ungap/structured-clone').then(structuredClone => globalThis.structuredClone = structuredClone.default as any)
+}
+
 type HttpFetchMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD'
 
 type HttpFetchOptions = {
@@ -92,7 +96,7 @@ export class Api {
 	}
 
 	private static deconstruct<T>(data: T, isChild = false): any {
-		data = (isChild ? data : { ROOT: data }) as T
+		data = (isChild ? structuredClone(data) : { ROOT: structuredClone(data) }) as T
 		const response = !data || typeof data !== 'object' ? data : Object.assign(
 			data,
 			Object.fromEntries(

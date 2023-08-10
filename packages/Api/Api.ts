@@ -12,6 +12,8 @@ type HttpFetchOptions = {
 	readonly noHttpErrorOnErrorStatusCode?: boolean
 }
 
+export type FetchAction = () => Promise<Response>
+
 export class Api {
 	static url = '/api'
 	static readonly valueConstructors = new Set<ApiValueConstructor<unknown, unknown>>()
@@ -48,6 +50,10 @@ export class Api {
 		return JSON.stringify(this.deconstruct(data))
 	}
 
+	protected static get headers(): Record<string, string> {
+		return {}
+	}
+
 	private static async fetch<T = void>(method: HttpFetchMethod, route: string, body: BodyInit | null = null, options?: HttpFetchOptions) {
 		const request: RequestInit = {
 			method: method,
@@ -57,7 +63,8 @@ export class Api {
 				...(body instanceof FormData
 					? { encType: 'multipart/form-data' }
 					: { 'Content-Type': 'application/json' }
-				)
+				),
+				...this.headers,
 			}),
 			referrer: 'no-referrer',
 			body: body
@@ -65,7 +72,11 @@ export class Api {
 
 		this.authenticator?.processRequest(request)
 
-		const response = await fetch(this.url + route, request)
+		const fetchAction = () => fetch(this.url + route, request)
+		let response = await fetchAction()
+		if (this.authenticator?.processResponse) {
+			response = await this.authenticator.processResponse(response, fetchAction)
+		}
 
 		if (response.status >= 400 && options?.noHttpErrorOnErrorStatusCode !== true) {
 			if (this.httpErrorConstructor) {

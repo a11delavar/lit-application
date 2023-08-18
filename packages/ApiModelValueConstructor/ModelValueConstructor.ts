@@ -3,13 +3,15 @@ import { apiValueConstructor, ApiValueConstructor } from '@a11d/api'
 export const model = (typeName: string) => {
 	return (Constructor: Constructor<unknown>) => {
 		ModelValueConstructor.modelConstructorsByTypeName.set(typeName, Constructor)
+		// @ts-expect-error - This will exist at runtime
+		Constructor[ModelValueConstructor.typeNameKey] = typeName
 	}
 }
 
 @apiValueConstructor()
 export class ModelValueConstructor implements ApiValueConstructor<object, object> {
 	static readonly modelConstructorsByTypeName = new Map<string, Constructor<unknown>>()
-	private static readonly typeNameKey = '@type'
+	static readonly typeNameKey = '@type'
 
 	shallConstruct = (value: unknown) =>
 		!!value && typeof value === 'object' && ModelValueConstructor.typeNameKey in value

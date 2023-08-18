@@ -6,7 +6,7 @@ if (('structuredClone' in globalThis) === false) {
 	import('@ungap/structured-clone').then(structuredClone => globalThis.structuredClone = structuredClone.default as any)
 }
 
-type HttpFetchMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD'
+export type HttpFetchMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD'
 
 type HttpFetchOptions = {
 	readonly noHttpErrorOnErrorStatusCode?: boolean
@@ -21,22 +21,26 @@ export class Api {
 	static httpErrorConstructor?: Constructor<HttpError>
 
 	static get<T = void>(route: string, options?: HttpFetchOptions) {
-		return this.fetch<T>('GET', route, null, options)
+		return this.fetch<T>('GET', route, undefined, options)
 	}
 
 	static post<T = void, TData = unknown>(route: string, data?: TData, options?: HttpFetchOptions) {
-		return this.fetch<T>('POST', route, this.processDataForPostOrPut(data), options)
+		return this.fetch<T>('POST', route, this.processBody(data), options)
 	}
 
 	static put<T = void, TData = unknown>(route: string, data?: TData, options?: HttpFetchOptions) {
-		return this.fetch<T>('PUT', route, this.processDataForPostOrPut(data), options)
+		return this.fetch<T>('PUT', route, this.processBody(data), options)
+	}
+
+	static patch<T = void, TData = unknown>(route: string, data?: TData, options?: HttpFetchOptions) {
+		return this.fetch<T>('PATCH', route, this.processBody(data), options)
 	}
 
 	static delete<T = void>(route: string, options?: HttpFetchOptions) {
-		return this.fetch<T>('DELETE', route, null, options)
+		return this.fetch<T>('DELETE', route, undefined, options)
 	}
 
-	private static processDataForPostOrPut<TData>(data: TData) {
+	private static processBody<TData>(data: TData) {
 		if (data instanceof FormData) {
 			return data
 		}
@@ -50,29 +54,35 @@ export class Api {
 		return JSON.stringify(this.deconstruct(data))
 	}
 
-	protected static get headers(): Record<string, string> {
+	protected static getHeaders(method: HttpFetchMethod, route: string, body?: BodyInit): Record<string, string> {
+		method
+		route
+		body
 		return {}
 	}
 
-	private static async fetch<T = void>(method: HttpFetchMethod, route: string, body: BodyInit | null = null, options?: HttpFetchOptions) {
-		const request: RequestInit = {
-			method: method,
-			credentials: 'omit',
-			headers: new Headers({
-				Accept: 'application/json',
-				...(body instanceof FormData
-					? { encType: 'multipart/form-data' }
-					: { 'Content-Type': 'application/json' }
-				),
-				...this.headers,
-			}),
-			referrer: 'no-referrer',
-			body: body
+	private static async fetch<T = void>(method: HttpFetchMethod, route: string, body?: BodyInit, options?: HttpFetchOptions) {
+		const fetchAction = () => {
+			const request: RequestInit = {
+				method,
+				credentials: 'omit',
+				headers: new Headers({
+					Accept: 'application/json',
+					...(body instanceof FormData
+						? { encType: 'multipart/form-data' }
+						: { 'Content-Type': 'application/json' }
+					),
+					...this.getHeaders(method, route, body),
+				}),
+				referrer: 'no-referrer',
+				body
+			}
+
+			this.authenticator?.processRequest(request)
+
+			return fetch(this.url + route, request)
 		}
 
-		this.authenticator?.processRequest(request)
-
-		const fetchAction = () => fetch(this.url + route, request)
 		let response = await fetchAction()
 		if (this.authenticator?.processResponse) {
 			response = await this.authenticator.processResponse(response, fetchAction)

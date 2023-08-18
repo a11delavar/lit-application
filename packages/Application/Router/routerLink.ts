@@ -51,6 +51,11 @@ class RouterLinkDirective extends AsyncDirective {
 			this.executeSelectionChange()
 		}
 
+		if (this.parameters.component instanceof PageComponent) {
+			const path = Router.getPathOf(this.parameters.component)
+			this.element.setAttribute('href', path ?? '#')
+		}
+
 		return super.update(part, parameters)
 	}
 
@@ -128,11 +133,7 @@ class RouterLinkDirective extends AsyncDirective {
 			? false
 			: Router.match(this.parameters.component, this.parameters.matchMode)
 
-		if (selected) {
-			this.element.setAttribute('data-router-selected', '')
-		} else {
-			this.element.removeAttribute('data-router-selected')
-		}
+		this.element.toggleAttribute('data-router-selected', selected)
 
 		if (this.parameters.selectionChangeHandler) {
 			this.parameters.selectionChangeHandler.call(this.element, selected)

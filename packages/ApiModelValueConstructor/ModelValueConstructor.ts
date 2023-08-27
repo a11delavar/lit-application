@@ -3,7 +3,6 @@ import { apiValueConstructor, ApiValueConstructor } from '@a11d/api'
 export const model = (typeName: string) => {
 	return (Constructor: Constructor<unknown>) => {
 		ModelValueConstructor.modelConstructorsByTypeName.set(typeName, Constructor)
-		// @ts-expect-error - This will exist at runtime
 		Constructor[ModelValueConstructor.typeNameKey] = typeName
 	}
 }

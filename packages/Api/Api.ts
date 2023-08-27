@@ -51,7 +51,21 @@ export class Api {
 			return form
 		}
 
-		return JSON.stringify(this.deconstruct(data))
+		return JSON.stringify(this.handleRequest(data))
+	}
+
+	private static handleRequest<T>(data: T, isChild = false): any {
+		data = (isChild ? structuredClone(data) : { ROOT: structuredClone(data) }) as T
+		const response = !data || typeof data !== 'object' ? data : Object.assign(
+			data,
+			Object.fromEntries(
+				Object.entries(data).map(([key, value]) => [
+					key,
+					this.handleRequest([...this.valueConstructors].find(converter => converter.shallDeconstruct?.(value) ?? false)?.deconstruct?.(value) ?? value, true)
+				])
+			)
+		) as any
+		return isChild ? response as T : response.ROOT
 	}
 
 	protected static getHeaders(method: HttpFetchMethod, route: string, body?: BodyInit): Record<string, string> {
@@ -75,7 +89,7 @@ export class Api {
 					...this.getHeaders(method, route, body),
 				}),
 				referrer: 'no-referrer',
-				body
+				body,
 			}
 
 			this.authenticator?.processRequest(request)
@@ -96,37 +110,13 @@ export class Api {
 			}
 		}
 
-		const responseText = await response.text()
-		return JSON.isJson(responseText) === false
-			? responseText as unknown as T
-			: this.construct<T>(JSON.parse(responseText))
+		return this.handleResponse<T>(await response.text())
 	}
 
-	private static construct<T>(data: any, isChild = false): T {
-		data = isChild ? data : { ROOT: data }
-		const response = !data || typeof data !== 'object' ? data : Object.assign(
-			data,
-			Object.fromEntries(
-				Object.entries(data).map(([key, value]) => [
-					key,
-					this.construct([...this.valueConstructors].find(converter => converter.shallConstruct(value))?.construct(value) ?? value, true)
-				])
-			)
+	private static handleResponse<T>(responseText: string): T {
+		const [isJson, json] = JSON.tryParse(responseText,
+			(_, value) => [...this.valueConstructors].find(converter => converter.shallConstruct(value))?.construct(value) ?? value
 		)
-		return isChild ? response as T : response.ROOT
-	}
-
-	private static deconstruct<T>(data: T, isChild = false): any {
-		data = (isChild ? structuredClone(data) : { ROOT: structuredClone(data) }) as T
-		const response = !data || typeof data !== 'object' ? data : Object.assign(
-			data,
-			Object.fromEntries(
-				Object.entries(data).map(([key, value]) => [
-					key,
-					this.deconstruct([...this.valueConstructors].find(converter => converter.shallDeconstruct?.(value) ?? false)?.deconstruct?.(value) ?? value, true)
-				])
-			)
-		) as any
-		return isChild ? response as T : response.ROOT
+		return isJson ? json : responseText
 	}
 }

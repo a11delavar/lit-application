@@ -1,14 +1,13 @@
-JSON.isJson = function (text: string) {
+JSON.tryParse = function (...parameters: Parameters<typeof JSON.parse>) {
 	try {
-		JSON.parse(text)
-		return true
+		return [true, JSON.parse(...parameters)]
 	} catch (e) {
-		return false
+		return [false, undefined]
 	}
 }
 
 declare global {
 	interface JSON {
-		isJson(text: string): boolean
+		tryParse(...parameters: Parameters<typeof JSON.parse>): [true, ReturnType<typeof JSON.parse>] | [false, undefined]
 	}
 }

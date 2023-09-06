@@ -106,12 +106,9 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 		const app = this._popupWindow.document.querySelector('[application]') as Application
 		await app.updateComplete
-		const page = this._popupWindow.document.querySelector('lit-page-dialog') as PageDialog
 		const confirmPromise = dialogComponent.confirm() as Promise<TResult>
 		await dialogComponent.updateComplete
-		dialogComponent.dialogElement.dialogHeadingChange.subscribe(heading => page.heading = heading)
 		dialogComponent.dialogElement.boundToWindow = true
-		page.heading = dialogComponent.dialogElement.heading
 		return confirmPromise
 	}
 

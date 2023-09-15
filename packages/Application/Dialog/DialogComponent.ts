@@ -9,7 +9,7 @@ export type DialogResult<TResult> = TResult | Error
 
 export type DialogAction<TResult> = DialogResult<TResult> | PromiseLike<DialogResult<TResult>>
 
-export const enum DialogConfirmationStrategy { Dialog, Tab, Window }
+export enum DialogConfirmationStrategy { Dialog, Tab, Window }
 
 export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 

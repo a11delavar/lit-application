@@ -1,4 +1,4 @@
-export const enum HttpErrorCode {
+export enum HttpErrorCode {
 	BadRequest = 400,
 	Unauthorized = 401,
 	PaymentRequired = 402,

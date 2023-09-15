@@ -4,7 +4,7 @@ import { Page } from './index.js'
 
 export type PageParameters = void | Record<string, string | number | undefined>
 
-export const enum PageNavigationStrategy { Page, Tab, Window }
+export enum PageNavigationStrategy { Page, Tab, Window }
 
 export abstract class PageComponent<T extends PageParameters = void> extends Component {
 	static readonly connectingHooks = new HookSet<PageComponent<any>>()

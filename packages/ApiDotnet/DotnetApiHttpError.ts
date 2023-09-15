@@ -1,9 +1,8 @@
-import { HttpErrorCode } from './HttpErrorCode.js'
 import { apiError, HttpError } from '@a11d/api'
 
 export type DotnetError = {
 	readonly title: string
-	readonly status: HttpErrorCode
+	readonly status: number
 	readonly errors?: Array<Record<string, Array<string>>>
 	readonly traceId: string
 	readonly type: string

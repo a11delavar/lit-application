@@ -3,7 +3,7 @@ import { NonInertableComponent } from '@a11d/non-inertable-component'
 import { queryInstanceElement } from '../index.js'
 import { NotificationComponent } from './NotificationComponent.js'
 
-export const enum NotificationType {
+export enum NotificationType {
 	Info = 'info',
 	Success = 'success',
 	Warning = 'warning',

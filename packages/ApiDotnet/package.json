@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/api-dotnet",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"description": ".NET extensions for the @a11d/api package.",
 	"repository": {
 		"type": "git",

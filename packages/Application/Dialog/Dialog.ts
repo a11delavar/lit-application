@@ -1,4 +1,4 @@
-export const enum DialogActionKey {
+export enum DialogActionKey {
 	Primary = 'primary',
 	Secondary = 'secondary',
 	Cancellation = 'cancellation',

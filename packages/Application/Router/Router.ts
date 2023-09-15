@@ -1,7 +1,7 @@
 import { compile, match } from 'path-to-regexp'
 import { RoutesContainer, type Page } from './RoutesContainer.js'
 
-export const enum RouteMatchMode {
+export enum RouteMatchMode {
 	All = 'all',
 	IgnoreParameters = 'ignore-parameters',
 }

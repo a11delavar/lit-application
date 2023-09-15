@@ -1,4 +1,4 @@
-export const enum WindowOpenMode { Tab, Window }
+export enum WindowOpenMode { Tab, Window }
 
 export class WindowHelper {
 	private static readonly windowSizeReductionMultiplier = 0.9

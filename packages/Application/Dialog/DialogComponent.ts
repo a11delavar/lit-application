@@ -1,7 +1,7 @@
 import { Component, eventListener, literal, PropertyValues } from '@a11d/lit'
 import { LocalStorage } from '@a11d/local-storage'
-import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key } from '../index.js'
-import { PageDialog, Dialog, DialogActionKey, DialogCancelledError, DialogHost } from './index.js'
+import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, NotificationComponent } from '../index.js'
+import { PageDialog, Dialog, DialogActionKey, DialogCancelledError } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
 
@@ -29,7 +29,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	static readonly poppableConfirmationStrategy = new LocalStorage<DialogConfirmationStrategy>('DialogComponent.PoppableConfirmationStrategy', DialogConfirmationStrategy.Dialog)
 
 	static getHost() {
-		return Promise.resolve(DialogHost.instance ?? Application.instance ?? document.body)
+		return Promise.resolve(Application.topLayer)
 	}
 
 	@querySymbolizedElement(DialogComponent.dialogElementConstructorSymbol) readonly dialogElement!: Dialog & HTMLElement
@@ -193,7 +193,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 				this.close(result)
 			}
 		} catch (e: any) {
-			notificationHost.notifyError(e.message)
+			NotificationComponent.notifyError(e.message)
 			throw e
 		} finally {
 			this.dialogElement.executingAction = undefined

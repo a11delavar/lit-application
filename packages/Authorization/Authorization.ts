@@ -1,4 +1,4 @@
-import { HttpErrorCode, DialogComponent, PageComponent, PageError } from '@a11d/lit-application'
+import { HttpErrorCode, DialogComponent, PageComponent, PageError, NotificationComponent } from '@a11d/lit-application'
 import { LocalStorage } from '@a11d/local-storage'
 
 type AuthorizableComponent = DialogComponent<any, any> | PageComponent<any>
@@ -24,7 +24,7 @@ export class Authorization {
 			if (component instanceof PageComponent) {
 				component = new PageError({ error: HttpErrorCode.Unauthorized })
 			} else {
-				notificationHost.notifyAndThrowError(new Error('🔒 Access denied'))
+				NotificationComponent.notifyAndThrowError(new Error('🔒 Access denied'))
 			}
 		}
 	}

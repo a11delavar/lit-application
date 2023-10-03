@@ -1,5 +1,5 @@
 import { state } from '@a11d/lit'
-import { Application, DialogComponent, DialogConfirmationStrategy, HookSet } from '@a11d/lit-application'
+import { Application, DialogComponent, DialogConfirmationStrategy, HookSet, NotificationComponent } from '@a11d/lit-application'
 import { LocalStorage } from '@a11d/local-storage'
 
 export abstract class DialogAuthenticator<Account extends object> extends DialogComponent<void, Account> {
@@ -28,7 +28,7 @@ export abstract class DialogAuthenticator<Account extends object> extends Dialog
 			}
 			Application.instance?.requestUpdate()
 			await DialogAuthenticator.afterAuthenticationHooks.execute()
-			notificationHost.notifySuccess('Authenticated successfully')
+			NotificationComponent.notifySuccess('Authenticated successfully')
 			return account
 		} catch (error: any) {
 			throw new Error(error.message ?? 'Incorrect Credentials')
@@ -39,7 +39,7 @@ export abstract class DialogAuthenticator<Account extends object> extends Dialog
 		try {
 			await this.unauthenticateAccount()
 		} finally {
-			notificationHost.notifySuccess('Unauthenticated successfully')
+			NotificationComponent.notifySuccess('Unauthenticated successfully')
 			this.preventNextAutomaticAuthentication = true
 			this.confirm()
 		}

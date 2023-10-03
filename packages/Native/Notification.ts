@@ -1,7 +1,9 @@
-import { Notification as NotificationObject, NotificationComponent, NotificationHost, NotificationType } from '@a11d/lit-application'
+import { component } from '@a11d/lit'
+import { Notification as NotificationObject, NotificationComponent, NotificationType } from '@a11d/lit-application'
 
-@NotificationHost.notificationComponent()
-export class Notification implements NotificationComponent {
+@component('lit-notification')
+@NotificationComponent.defaultComponent()
+export class Notification extends NotificationComponent {
 	private static readonly typeEmojisByType = new Map([
 		[NotificationType.Info, 'ℹ️'],
 		[NotificationType.Success, '✅'],

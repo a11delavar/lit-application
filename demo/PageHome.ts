@@ -1,5 +1,5 @@
 import { component, html } from '@a11d/lit'
-import { PageComponent, PageSettings, route } from './index.js'
+import { NotificationComponent, PageComponent, PageSettings, route } from './index.js'
 import { DialogSample } from './DialogSample.js'
 
 @component('demo-page-home')
@@ -12,6 +12,7 @@ export class PageHome extends PageComponent {
 					<h1>Home Page</h1>
 					<button @click=${this.confirmDialog}>Open sample dialog</button>
 					<button @click=${this.openPage}>Open sample page of sub router</button>
+					<button @click=${this.sendNotification}>Send sample notification</button>
 				</div>
 			</lit-page>
 		`
@@ -19,10 +20,14 @@ export class PageHome extends PageComponent {
 
 	private async confirmDialog() {
 		const result1 = await new DialogSample({ message: 'Message 1' }).confirm()
-		notificationHost.notifySuccess(`The result was "${result1}"`)
+		NotificationComponent.notifySuccess(`The result was "${result1}"`)
 	}
 
 	private async openPage() {
 		await new PageSettings({ subRoute: 'one' }).navigate()
+	}
+
+	private async sendNotification() {
+		NotificationComponent.notifySuccess('This is a sample notification')
 	}
 }

@@ -1,16 +1,19 @@
-import { Component, component, html, style } from '@a11d/lit'
-import { queryInstanceElement } from '../utilities/index.js'
+import { Component, component, css, html } from '@a11d/lit'
 
 @component('lit-page-host')
 export class PageHost extends Component {
-	@queryInstanceElement() static readonly instance?: PageHost
+	static override get styles() {
+		return css`
+			:host {
+				display: grid;
+				grid-template-rows: 1fr;
+				width: 100%;
+			}
+		`
+	}
 
 	protected override get template() {
-		return html`
-			<div part='pageHolder' ${style({ display: 'grid', gridTemplateRows: '1fr', width: '100%' })}>
-				<slot></slot>
-			</div>
-		`
+		return html`<slot></slot>`
 	}
 }
 

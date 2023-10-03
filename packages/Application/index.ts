@@ -1,6 +1,7 @@
 export * from './utilities/index.js'
 export * from './Router/index.js'
 export * from './Application.js'
+export * from './ApplicationTopLayer.js'
 export * from './Page/index.js'
 export * from './Dialog/index.js'
 export * from './Notification/index.js'

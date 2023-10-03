@@ -3,6 +3,7 @@ import { RootCssInjectorController } from '@a11d/root-css-injector'
 import { NonInertableComponent } from '@a11d/non-inertable-component'
 import { HookSet, PageError, RouterController } from './index.js'
 import { HttpErrorCode, queryInstanceElement } from './utilities/index.js'
+import { ApplicationTopLayer } from './ApplicationTopLayer.js'
 
 export const application = () => {
 	return <T extends Application>(ApplicationConstructor: Constructor<T>) => {
@@ -15,6 +16,8 @@ export const application = () => {
 export abstract class Application extends NonInertableComponent {
 	static readonly connectingHooks = new HookSet()
 	static readonly beforeRouteHooks = new HookSet()
+
+	static get topLayer() { return ApplicationTopLayer.instance }
 
 	@queryInstanceElement() static readonly instance?: Application
 
@@ -46,7 +49,6 @@ export abstract class Application extends NonInertableComponent {
 			}
 
 			lit-page-host {
-				display: flex;
 				flex: 1;
 				margin: auto;
 				width: 100%;
@@ -96,14 +98,8 @@ export abstract class Application extends NonInertableComponent {
 
 	protected override get template() {
 		return html`
-			${this.notificationHostTemplate}
 			${this.bodyTemplate}
-			${this.dialogHostTemplate}
 		`
-	}
-
-	protected get notificationHostTemplate() {
-		return html`<lit-notification-host></lit-notification-host>`
 	}
 
 	protected get bodyTemplate() {
@@ -116,9 +112,5 @@ export abstract class Application extends NonInertableComponent {
 				${!this.shallRenderRouter ? nothing : this.router.outlet()}
 			</lit-page-host>
 		`
-	}
-
-	protected get dialogHostTemplate() {
-		return html`<lit-dialog-host></lit-dialog-host>`
 	}
 }

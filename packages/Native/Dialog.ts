@@ -86,6 +86,7 @@ export class Dialog extends Component implements IDialog {
 						${this.secondaryActionElementTemplate}
 					</div>
 				</div>
+				<lit-application-top-layer></lit-application-top-layer>
 			</dialog>
 		`
 	}

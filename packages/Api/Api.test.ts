@@ -1,5 +1,5 @@
 import { Api } from './Api.js'
-import { ApiValueConstructor } from './ApiValueConstructor.js'
+import type { ApiValueConstructor } from './ApiValueConstructor.js'
 import './index.js'
 
 class Data {

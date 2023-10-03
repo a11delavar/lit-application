@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/api-model-value-constructor",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "A value-constructor extension for @a11d/api which facilitates mapping incoming objects to classes.",
 	"repository": {
 		"type": "git",

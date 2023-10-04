@@ -103,7 +103,10 @@ export abstract class Application extends NonInertableComponent {
 	}
 
 	protected get bodyTemplate() {
-		return html`${this.pageHostTemplate}`
+		return html`
+			${this.pageHostTemplate}
+			${this.topLayerTemplate}
+		`
 	}
 
 	protected get pageHostTemplate() {
@@ -112,5 +115,9 @@ export abstract class Application extends NonInertableComponent {
 				${!this.shallRenderRouter ? nothing : this.router.outlet()}
 			</lit-page-host>
 		`
+	}
+
+	protected get topLayerTemplate() {
+		return html`<lit-application-top-layer></lit-application-top-layer>`
 	}
 }

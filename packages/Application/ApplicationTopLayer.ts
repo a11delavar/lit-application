@@ -17,11 +17,11 @@ export class ApplicationTopLayer extends Component {
 	static override get styles() {
 		return css`
 			:host {
-				position: fixed;
-				width: 0px;
-				height: 0px;
-				margin: 0px;
-				padding: 0px;
+				position: fixed !important;
+				width: 0px !important;
+				height: 0px !important;
+				margin: 0px !important;
+				padding: 0px !important;
 			}
 		`
 	}

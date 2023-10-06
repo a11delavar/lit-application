@@ -22,6 +22,7 @@ export class ApplicationTopLayer extends Component {
 				height: 0px !important;
 				margin: 0px !important;
 				padding: 0px !important;
+				z-index: 9999 !important;
 			}
 		`
 	}

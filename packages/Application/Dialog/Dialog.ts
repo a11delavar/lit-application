@@ -1,3 +1,5 @@
+import type { ApplicationTopLayer } from '../ApplicationTopLayer.js'
+
 export enum DialogActionKey {
 	Primary = 'primary',
 	Secondary = 'secondary',
@@ -10,6 +12,8 @@ export interface Dialog {
 	heading: string
 
 	open: boolean
+
+	readonly topLayerElement: ApplicationTopLayer
 
 	readonly primaryActionElement: HTMLElement | undefined
 	readonly secondaryActionElement: HTMLElement | undefined

@@ -51,9 +51,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 	@eventListener({ target: window, type: 'keydown' })
 	protected async handleKeyDown(e: KeyboardEvent) {
-		const host = await DialogComponent.getHost()
-
-		if ([...host.children].filter(e => e instanceof DialogComponent).reverse()[0] !== this) {
+		if (Application.topLayer !== this.dialogElement.topLayerElement) {
 			return
 		}
 

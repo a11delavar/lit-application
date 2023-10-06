@@ -1,5 +1,5 @@
 import { component, html, css, property, Component, state, query, nothing, style, event } from '@a11d/lit'
-import { Dialog as IDialog, DialogActionKey, DialogComponent } from '@a11d/lit-application'
+import { Dialog as IDialog, DialogActionKey, DialogComponent, ApplicationTopLayer } from '@a11d/lit-application'
 
 const queryActionElement = (slotName: string) => {
 	return (prototype: Component, propertyKey: string) => {
@@ -42,6 +42,7 @@ export class Dialog extends Component implements IDialog {
 	} }) open = false
 
 	@query('dialog') readonly dialogElement!: HTMLDialogElement
+	@query('lit-application-top-layer') readonly topLayerElement!: ApplicationTopLayer
 
 	@queryActionElement('primaryAction') readonly primaryActionElement: HTMLElement | undefined
 	@queryActionElement('secondaryAction') readonly secondaryActionElement: HTMLElement | undefined

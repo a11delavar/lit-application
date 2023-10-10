@@ -1,4 +1,4 @@
-import { property, css, html, nothing, state } from '@a11d/lit'
+import { property, css, html, state } from '@a11d/lit'
 import { RootCssInjectorController } from '@a11d/root-css-injector'
 import { NonInertableComponent } from '@a11d/non-inertable-component'
 import { HookSet, PageError, RouterController } from './index.js'
@@ -112,7 +112,7 @@ export abstract class Application extends NonInertableComponent {
 	protected get pageHostTemplate() {
 		return html`
 			<lit-page-host @pageHeadingChange=${(e: CustomEvent<string>) => this.pageHeading = e.detail}>
-				${!this.shallRenderRouter ? nothing : this.router.outlet()}
+				${!this.shallRenderRouter ? html.nothing : this.router.outlet()}
 			</lit-page-host>
 		`
 	}

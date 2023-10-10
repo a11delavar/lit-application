@@ -1,11 +1,11 @@
-import { component, html, nothing, style } from '@a11d/lit'
+import { component, html, style } from '@a11d/lit'
 import { PageComponent, route, RouterController } from './index.js'
 
 @component('demo-page-settings')
 @route('/settings{/:subRoute}?')
 export class PageSettings extends PageComponent<void | { readonly subRoute: string }> {
 	private readonly router = new RouterController(this, [], {
-		fallback: { render: () => nothing }
+		fallback: { render: () => html.nothing }
 	})
 
 	protected override get template() {

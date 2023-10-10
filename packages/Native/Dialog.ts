@@ -1,4 +1,4 @@
-import { component, html, css, property, Component, state, query, nothing, style, event } from '@a11d/lit'
+import { component, html, css, property, Component, state, query, style, event } from '@a11d/lit'
 import { Dialog as IDialog, DialogActionKey, DialogComponent, ApplicationTopLayer } from '@a11d/lit-application'
 
 const queryActionElement = (slotName: string) => {
@@ -93,7 +93,7 @@ export class Dialog extends Component implements IDialog {
 	}
 
 	private get popupButtonTemplate() {
-		return !this.poppable ? nothing : html`
+		return !this.poppable ? html.nothing : html`
 			<button @click=${() => this.requestPopup.dispatch()}>🚀</button>
 		`
 	}
@@ -101,7 +101,7 @@ export class Dialog extends Component implements IDialog {
 	protected get primaryActionElementTemplate() {
 		return html`
 			<slot name='primaryAction' @click=${() => this.handleAction(DialogActionKey.Primary)}>
-				${!this.primaryButtonText ? nothing : html`<button>${this.primaryButtonText}</button>`}
+				${!this.primaryButtonText ? html.nothing : html`<button>${this.primaryButtonText}</button>`}
 			</slot>
 		`
 	}
@@ -109,7 +109,7 @@ export class Dialog extends Component implements IDialog {
 	protected get secondaryActionElementTemplate() {
 		return html`
 			<slot name='secondaryAction' @click=${() => this.handleAction(DialogActionKey.Secondary)}>
-				${!this.secondaryButtonText ? nothing : html`<button>${this.secondaryButtonText}</button>`}
+				${!this.secondaryButtonText ? html.nothing : html`<button>${this.secondaryButtonText}</button>`}
 			</slot>
 		`
 	}

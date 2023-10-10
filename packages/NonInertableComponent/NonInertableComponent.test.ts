@@ -1,4 +1,4 @@
-import { ComponentTestFixture } from '@a11d/lit/dist/test/ComponentTestFixture.js'
+import { ComponentTestFixture } from '@a11d/lit-testing'
 import { NonInertableComponent } from './NonInertableComponent.js'
 
 customElements.define('test-non-inertable-test', class NonInertableTestComponent extends NonInertableComponent { })

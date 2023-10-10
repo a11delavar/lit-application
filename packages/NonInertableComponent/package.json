@@ -29,5 +29,8 @@
 	},
 	"dependencies": {
 		"@a11d/lit": "x"
+	},
+	"devDependencies": {
+		"@a11d/lit-testing": "x"
 	}
 }

@@ -5,7 +5,7 @@
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@a11d/lit": "*",
+		"@a11d/lit": "x",
 		"@a11d/lit-application-native": "file:../packages/Native"
 	}
 }

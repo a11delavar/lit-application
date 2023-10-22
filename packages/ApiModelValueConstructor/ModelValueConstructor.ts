@@ -1,8 +1,10 @@
 import { apiValueConstructor, type ApiValueConstructor } from '@a11d/api'
+import '@a11d/is-writable'
 
 export const model = (typeName: string) => {
 	return (Constructor: Constructor<unknown>) => {
 		ModelValueConstructor.modelConstructorsByTypeName.set(typeName, Constructor)
+		// @ts-expect-error - ModelValueConstructor.typeNameKey is not typed
 		Constructor[ModelValueConstructor.typeNameKey] = typeName
 	}
 }
@@ -23,14 +25,10 @@ export class ModelValueConstructor implements ApiValueConstructor<object, object
 }
 
 function safeAssign<T, U>(target: T, source: U): T & U {
-	const safeSource = Object.fromEntries(
-		Object.entries(source as any).reduce((accumulator, currentValue) => {
-			const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(target), currentValue[0])
-			if (!descriptor || descriptor.set) {
-				accumulator.push(currentValue)
-			}
-			return accumulator
-		}, new Array<[string, any]>())
-	)
-	return Object.assign(target as any, safeSource)
+	for (const [key, value] of Object.entries(source as any)) {
+		if (Object.isWritable(target, key)) {
+			target[key as keyof T] = value as any
+		}
+	}
+	return target as T & U
 }

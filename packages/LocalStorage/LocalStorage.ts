@@ -1,4 +1,4 @@
-import { PureEventDispatcher } from '@a11d/lit'
+import { PureEventDispatcher, isServer } from '@a11d/lit'
 
 export class LocalStorage<T> {
 	static readonly changed = new PureEventDispatcher<unknown>()
@@ -13,6 +13,10 @@ export class LocalStorage<T> {
 	) { LocalStorage.container.add(this) }
 
 	get value(): T {
+		if (isServer) {
+			return this.defaultValue
+		}
+
 		const value = window.localStorage.getItem(this.name) ?? undefined
 
 		if (value === undefined) {

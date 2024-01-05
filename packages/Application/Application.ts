@@ -8,7 +8,7 @@ import { ApplicationTopLayer } from './ApplicationTopLayer.js'
 export const application = () => {
 	return <T extends Application>(ApplicationConstructor: Constructor<T>) => {
 		if (!(ApplicationConstructor as unknown as typeof Application).instance) {
-			window.document.body.appendChild(new ApplicationConstructor)
+			document?.body.appendChild(new ApplicationConstructor)
 		}
 	}
 }
@@ -83,11 +83,11 @@ export abstract class Application extends NonInertableComponent {
 		this.setAttribute('application', '')
 		await Application.connectingHooks.execute()
 		super.connectedCallback()
-		window.dispatchEvent(new Event('Application.connected'))
+		window?.dispatchEvent(new Event('Application.connected'))
 	}
 
 	protected override async initialized() {
-		window.dispatchEvent(new Event('Application.initialized'))
+		window?.dispatchEvent(new Event('Application.initialized'))
 		await Application.beforeRouteHooks.execute()
 		this.shallRenderRouter = true
 	}

@@ -4,7 +4,7 @@ export function queryInstanceElement() {
 	return (prototype: AbstractConstructor<LitElement>, propertyKey: string) => {
 		Object.defineProperty(prototype, propertyKey, {
 			get(this: AbstractConstructor<LitElement>) {
-				return [...window.document.querySelectorAll('*')].find(element => element instanceof this)
+				return [...document?.querySelectorAll('*') ?? []].find(element => element instanceof this)
 			}
 		})
 	}

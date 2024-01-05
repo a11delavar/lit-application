@@ -11,7 +11,7 @@ export class PwaHelper {
 	private static pwaPrompt?: BeforeInstallPromptEvent
 
 	static {
-		window.addEventListener('beforeinstallprompt', e => {
+		window?.addEventListener('beforeinstallprompt', e => {
 			this.pwaPrompt = e as BeforeInstallPromptEvent
 			e.preventDefault()
 		})

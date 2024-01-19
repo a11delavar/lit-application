@@ -26,7 +26,8 @@ globalThis.environment = 'test'
 ${getTestFiles('./packages').map(file => {
 	const relativePath = Path.relative('./dist', file)
 	return `import '${relativePath.replace(/\\/g, '/').replace(/\.ts$/, '')}'`
-}).join('\n')}`
+}).join('\n')}
+`
 FileSystem.writeFileSync('./dist/test.ts', testIndexFileContent)
 
 await esbuild.build({

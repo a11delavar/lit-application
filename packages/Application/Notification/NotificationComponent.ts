@@ -1,6 +1,6 @@
-import { LitElement } from "@a11d/lit"
-import { Application } from "../Application.js"
-import { NonInertableComponent } from "@a11d/non-inertable-component"
+import { LitElement } from '@a11d/lit'
+import { Application } from '../Application.js'
+import { NonInertableComponent } from '@a11d/non-inertable-component'
 
 export enum NotificationType {
 	Info = 'info',
@@ -27,8 +27,9 @@ type NonTypedNotificationParameters =
 	| [message: string, ...actions: Array<NotificationAction>]
 
 type NonTypedNotificationWithErrorParameters =
-	| [notification: Partial<NonTypedNotification>]
-	| [message?: string, ...actions: Array<NotificationAction>]
+	| [notification: NonTypedNotification]
+	| [errorMessage: string, ...actions: Array<NotificationAction>]
+	| [error: Error, ...actions: Array<NotificationAction>]
 
 function normalizeNonTypedNotificationParameters(...parameters: NonTypedNotificationParameters) {
 	return typeof parameters[0] !== 'string' ? parameters[0] : {
@@ -48,28 +49,35 @@ export abstract class NotificationComponent extends NonInertableComponent {
 		}
 	}
 
-	static notifyInfo(...notification: NonTypedNotificationParameters) {
-		return this.notify({ type: NotificationType.Info, ...normalizeNonTypedNotificationParameters(...notification) })
+	static notifyInfo(...parameters: NonTypedNotificationParameters) {
+		return this.notify({ type: NotificationType.Info, ...normalizeNonTypedNotificationParameters(...parameters) })
 	}
 
-	static notifySuccess(...notification: NonTypedNotificationParameters) {
-		return this.notify({ type: NotificationType.Success, ...normalizeNonTypedNotificationParameters(...notification) })
+	static notifySuccess(...parameters: NonTypedNotificationParameters) {
+		return this.notify({ type: NotificationType.Success, ...normalizeNonTypedNotificationParameters(...parameters) })
 	}
 
-	static notifyWarning(...notification: NonTypedNotificationParameters) {
-		return this.notify({ type: NotificationType.Warning, ...normalizeNonTypedNotificationParameters(...notification) })
+	static notifyWarning(...parameters: NonTypedNotificationParameters) {
+		return this.notify({ type: NotificationType.Warning, ...normalizeNonTypedNotificationParameters(...parameters) })
 	}
 
-	static notifyError(...notification: NonTypedNotificationParameters) {
-		return this.notify({ type: NotificationType.Error, ...normalizeNonTypedNotificationParameters(...notification) })
+	static notifyError(...parameters: NonTypedNotificationParameters) {
+		return this.notify({ type: NotificationType.Error, ...normalizeNonTypedNotificationParameters(...parameters) })
 	}
 
-	static notifyAndThrowError<TError extends Error>(error: TError, ...notification: NonTypedNotificationWithErrorParameters) {
-		const normalizedNotification = notification.length === 0
-			? {} as NonTypedNotification
-			: normalizeNonTypedNotificationParameters(...notification as NonTypedNotificationParameters)
-		normalizedNotification.message ??= error.message
-		this.notifyError(normalizedNotification)
+	static notifyAndThrowError(...parameters: NonTypedNotificationWithErrorParameters) {
+		let error: Error
+		if (parameters[0] instanceof Error) {
+			error = parameters[0]
+			this.notifyError({ message: error.message, actions: parameters.slice(1) as Array<NotificationAction> })
+		} else if (typeof parameters[0] === 'string') {
+			error = new Error(parameters[0])
+			this.notifyError({ message: error.message, actions: parameters.slice(1) as Array<NotificationAction> })
+		} else {
+			const notification = parameters[0]
+			error = new Error(notification.message)
+			this.notifyError(notification)
+		}
 		throw error
 	}
 

@@ -6,16 +6,16 @@ export type PageParameters = void | Record<string, string | number | undefined>
 
 export enum PageNavigationStrategy { Page, Tab, Window }
 
+const pageElementConstructorSymbol = Symbol('PageComponent.PageElementConstructor')
+
 export abstract class PageComponent<T extends PageParameters = void> extends Component {
 	static readonly connectingHooks = new HookSet<PageComponent<any>>()
-
-	private static readonly pageElementConstructorSymbol = Symbol('PageComponent.PageElementConstructor')
 
 	static defaultPageElementTag = literal`lit-page`
 
 	static pageElement() {
 		return (constructor: Constructor<Page>) => {
-			(constructor as any)[PageComponent.pageElementConstructorSymbol] = true
+			(constructor as any)[pageElementConstructorSymbol] = true
 		}
 	}
 
@@ -32,7 +32,7 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 		}
 	}
 
-	@querySymbolizedElement(PageComponent.pageElementConstructorSymbol) readonly pageElement!: Page & HTMLElement
+	@querySymbolizedElement(pageElementConstructorSymbol) readonly pageElement!: Page & HTMLElement
 
 	constructor(readonly parameters: T) {
 		super()

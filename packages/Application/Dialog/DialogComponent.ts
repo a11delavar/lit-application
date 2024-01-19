@@ -13,14 +13,14 @@ export enum DialogConfirmationStrategy { Dialog, Tab, Window }
 
 export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 
+const dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
+
 export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends Component {
 	static readonly connectingHooks = new HookSet<DialogComponent<any, any>>()
 
-	private static readonly dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
-
 	static dialogElement() {
 		return (constructor: Constructor<Dialog>) => {
-			(constructor as any)[DialogComponent.dialogElementConstructorSymbol] = true
+			(constructor as any)[dialogElementConstructorSymbol] = true
 		}
 	}
 
@@ -30,7 +30,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return Promise.resolve(Application.topLayer)
 	}
 
-	@querySymbolizedElement(DialogComponent.dialogElementConstructorSymbol) readonly dialogElement!: Dialog & HTMLElement
+	@querySymbolizedElement(dialogElementConstructorSymbol) readonly dialogElement!: Dialog & HTMLElement
 
 	get primaryActionElement() { return this.dialogElement.primaryActionElement }
 

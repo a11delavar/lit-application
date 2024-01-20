@@ -1,5 +1,4 @@
-import { Component, component, css, html } from '@a11d/lit'
-import { queryConnectedInstances } from '@3mo/query-connected-instances'
+import { Component, component, css, html, queryConnectedInstances } from '@a11d/lit'
 
 @component('lit-application-top-layer')
 export class ApplicationTopLayer extends Component {

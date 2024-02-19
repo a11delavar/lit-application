@@ -25,6 +25,14 @@ export class ApplicationTopLayer extends Component {
 			}
 		`
 	}
+
+	override disconnectedCallback() {
+		const children = this.children
+		super.disconnectedCallback()
+		for (const element of children) {
+			ApplicationTopLayer.instance.appendChild(element)
+		}
+	}
 }
 
 declare global {

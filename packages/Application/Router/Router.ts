@@ -9,8 +9,8 @@ export enum RouteMatchMode {
 export class Router {
 	static readonly container = new RoutesContainer
 
-	get basePath() { return Router.container.basePath }
-	set basePath(value) { Router.container.basePath = value }
+	static get basePath() { return Router.container.basePath }
+	static set basePath(value) { Router.container.basePath = value }
 
 	static getPathOf(page: Page) {
 		const route = this.getRouteOf(page)

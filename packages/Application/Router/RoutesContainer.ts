@@ -12,10 +12,31 @@ type RouteMetadata = {
 	pageConstructor: PageConstructor
 }
 
-export class RoutesContainer extends Map<string, { routerHostConstructor: RouterHostConstructor, pageConstructor: PageConstructor }> {
+export class RoutesContainer extends Map<string, RouteMetadata> {
 	basePath = ''
 
-	override set(key: string, value: RouteMetadata) {
-		return super.set(this.basePath + key, value)
+	override get(key: string) {
+		key = key.split(this.basePath)[1]!
+		return super.get(key)
+	}
+
+	override entries(): IterableIterator<[string, RouteMetadata]> {
+		const entries = super.entries()
+		const basePath = this.basePath
+		return {
+			*[Symbol.iterator]() {
+				for (const [key, value] of entries) {
+					yield [basePath + key, value]
+				}
+			},
+
+			next() {
+				return this[Symbol.iterator]().next()
+			}
+		}
+	}
+
+	[Symbol.iterator]() {
+		return this.entries()
 	}
 }

@@ -1,6 +1,6 @@
 import { Component, eventListener, PropertyValues } from '@a11d/lit'
 import { LocalStorage } from '@a11d/local-storage'
-import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, NotificationComponent } from '../index.js'
+import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key } from '../index.js'
 import { PageDialog, Dialog, DialogActionKey, DialogCancelledError } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
@@ -13,14 +13,31 @@ export enum DialogConfirmationStrategy { Dialog, Tab, Window }
 
 export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 
+export abstract class DialogComponentErrorHandler {
+	constructor(protected readonly dialogComponent: DialogComponent<any, any>) { }
+	abstract handle(error: Error): void | Promise<void>
+}
+
 const dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
 
 export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends Component {
 	static readonly connectingHooks = new HookSet<DialogComponent<any, any>>()
 
+	private static readonly errorHandlers = new Map<string, Constructor<DialogComponentErrorHandler>>()
+	private static defaultErrorHandler: Constructor<DialogComponentErrorHandler>
+
 	static dialogElement() {
 		return (constructor: Constructor<Dialog>) => {
 			(constructor as any)[dialogElementConstructorSymbol] = true
+		}
+	}
+
+	static errorHandler(key: string, isDefault = false) {
+		return (ErrorHandlerConstructor: Constructor<DialogComponentErrorHandler>) => {
+			DialogComponent.errorHandlers.set(key, ErrorHandlerConstructor)
+			if (isDefault) {
+				DialogComponent.defaultErrorHandler = ErrorHandlerConstructor
+			}
 		}
 	}
 
@@ -32,11 +49,17 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 	@querySymbolizedElement(dialogElementConstructorSymbol) readonly dialogElement!: Dialog & HTMLElement
 
-	get primaryActionElement() { return this.dialogElement.primaryActionElement }
+	get primaryActionElement() {
+		return this.dialogElement.primaryActionElement
+	}
 
-	get secondaryActionElement() { return this.dialogElement.secondaryActionElement }
+	get secondaryActionElement() {
+		return this.dialogElement.secondaryActionElement
+	}
 
-	get cancellationActionElement() { return this.dialogElement.cancellationActionElement }
+	get cancellationActionElement() {
+		return this.dialogElement.cancellationActionElement
+	}
 
 	constructor(readonly parameters: T) {
 		super()
@@ -110,11 +133,12 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 	protected async pop(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog> = DialogConfirmationStrategy.Tab) {
 		this.open = false
+		const [resolve, reject] = this._confirmationPromiseExecutor ?? []
 		try {
 			const value = await this.confirm(strategy)
-			this._confirmationPromiseExecutor?.[0](value)
+			resolve?.(value)
 		} catch (error) {
-			this._confirmationPromiseExecutor?.[1](error as Error)
+			reject?.(error as Error)
 		} finally {
 			this._popupWindow?.close()
 			this.remove()
@@ -124,10 +148,11 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	protected close(result: TResult | Error) {
 		this.open = false
 
+		const [resolve, reject] = this._confirmationPromiseExecutor ?? []
 		if (result instanceof Error) {
-			this._confirmationPromiseExecutor?.[1](result)
+			reject?.(result)
 		} else {
-			this._confirmationPromiseExecutor?.[0](result)
+			resolve?.(result)
 		}
 
 		this.remove()
@@ -189,10 +214,28 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 				this.close(result)
 			}
 		} catch (e: any) {
-			NotificationComponent.notifyError(e.message)
+			this.handleError(e)
 			throw e
 		} finally {
 			this.dialogElement.executingAction = undefined
 		}
+	}
+
+	protected handleError(error: Error) {
+		if (!this.dialogElement.errorHandler) {
+			return new DialogComponent.defaultErrorHandler(this).handle(error)
+		}
+
+		if (typeof this.dialogElement.errorHandler === 'string') {
+			const ErrorHandlerConstructor = DialogComponent.errorHandlers.get(this.dialogElement.errorHandler)
+
+			if (!ErrorHandlerConstructor) {
+				throw new Error(`No error handler for key ${this.dialogElement.errorHandler}`)
+			}
+
+			return new ErrorHandlerConstructor(this).handle(error)
+		}
+
+		this.dialogElement.errorHandler(error)
 	}
 }

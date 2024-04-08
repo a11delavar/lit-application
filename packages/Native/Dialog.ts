@@ -32,6 +32,7 @@ export class Dialog extends Component implements IDialog {
 
 	@property({ type: Boolean }) preventCancellationOnEscape?: boolean
 	@property({ type: Boolean }) primaryOnEnter?: boolean
+	@property() errorHandler?: keyof DialogComponentErrorHandlers | ((error: Error) => void | Promise<void>)
 
 	@state({ updated(this: Dialog, value: boolean) {
 		if (value) {

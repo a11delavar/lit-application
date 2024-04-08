@@ -29,4 +29,6 @@ export interface Dialog {
 	readonly requestPopup?: EventDispatcher<void>
 
 	manualClose?: boolean
+
+	errorHandler?: keyof DialogComponentErrorHandlers | ((error: Error) => void | Promise<void>)
 }

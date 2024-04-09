@@ -6,6 +6,10 @@ export enum DialogActionKey {
 	Cancellation = 'cancellation',
 }
 
+export type DialogErrorHandler =
+	| keyof DialogComponentErrorHandlers
+	| ((error: Error) => void | Promise<void>)
+
 export interface Dialog {
 	/** The event must be "composed", "bubbles" and "cancellable" */ readonly dialogHeadingChange: EventDispatcher<string>
 
@@ -29,4 +33,6 @@ export interface Dialog {
 	readonly requestPopup?: EventDispatcher<void>
 
 	manualClose?: boolean
+
+	errorHandler?: DialogErrorHandler
 }

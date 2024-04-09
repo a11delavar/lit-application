@@ -1,5 +1,5 @@
 import { component, html, css, property, Component, state, query, style, event } from '@a11d/lit'
-import { Dialog as IDialog, DialogActionKey, DialogComponent, ApplicationTopLayer } from '@a11d/lit-application'
+import { Dialog as IDialog, DialogActionKey, DialogComponent, ApplicationTopLayer, type DialogErrorHandler } from '@a11d/lit-application'
 
 const queryActionElement = (slotName: string) => {
 	return (prototype: Component, propertyKey: string) => {
@@ -29,9 +29,9 @@ export class Dialog extends Component implements IDialog {
 	@property() secondaryButtonText?: string
 	@property({ type: Boolean }) poppable?: boolean
 	@property({ type: Boolean, reflect: true }) boundToWindow?: boolean
-
 	@property({ type: Boolean }) preventCancellationOnEscape?: boolean
 	@property({ type: Boolean }) primaryOnEnter?: boolean
+	@property() errorHandler?: DialogErrorHandler
 
 	@state({ updated(this: Dialog, value: boolean) {
 		if (value) {

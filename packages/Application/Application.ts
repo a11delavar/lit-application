@@ -112,9 +112,13 @@ export abstract class Application extends NonInertableComponent {
 	protected get pageHostTemplate() {
 		return html`
 			<lit-page-host @pageHeadingChange=${(e: CustomEvent<string>) => this.pageHeading = e.detail}>
-				${!this.shallRenderRouter ? html.nothing : this.router.outlet()}
+				${!this.shallRenderRouter ? this.pageLoadingTemplate : this.router.outlet()}
 			</lit-page-host>
 		`
+	}
+
+	protected get pageLoadingTemplate() {
+		return html.nothing
 	}
 
 	protected get topLayerTemplate() {

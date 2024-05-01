@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/local-storage",
-	"version": "0.0.4",
+	"version": "1.0.0",
 	"description": "A simple, strongly-typed local-storage wrapper",
 	"repository": {
 		"type": "git",

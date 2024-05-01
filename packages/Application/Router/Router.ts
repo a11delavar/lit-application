@@ -39,7 +39,7 @@ export class Router {
 
 	private static getRouteOf(page: Page) {
 		return [...Router.container]
-			.find(([, { pageConstructor }]) => pageConstructor.name === page.constructor.name)
+			.find(([, { pageConstructor }]) => pageConstructor === page.constructor)
 			?.[0]
 	}
 

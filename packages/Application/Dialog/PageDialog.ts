@@ -2,11 +2,14 @@ import { component, eventListener, HTMLTemplateResult, state, staticHtml } from 
 import { PageComponent } from '../Page/PageComponent.js'
 import { route } from '../Router/route.js'
 import { DialogComponent } from './DialogComponent.js'
+import { Router } from '../Router/Router.js'
 
 @route(PageDialog.route)
 @component('lit-page-dialog')
 export class PageDialog extends PageComponent {
-	static readonly route = '/dialog'
+	static get route() {
+		return `${Router.basePath}/dialog`
+	}
 
 	@state() heading = ''
 

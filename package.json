@@ -13,7 +13,7 @@
 	},
 	"homepage": "https://github.com/a11delavar/lit-application#readme",
 	"scripts": {
-		"start": "npm run build && webpack serve -c ./demo/webpack.config.mjs --mode=development",
+		"start": "node ./scripts/demo.mjs",
 		"dev": "node ./scripts/test.mjs",
 		"build": "tsc -p ./packages/Application/tsconfig.json && tsc -p ./packages/Native/tsconfig.json",
 		"test": "node ./scripts/test.mjs && karma start --single-run",
@@ -30,14 +30,7 @@
 		}
 	},
 	"devDependencies": {
-		"concurrently": "x",
 		"@a11d/eslint-config": "x",
-		"html-webpack-plugin": "x",
-		"resolve-typescript-plugin": "x",
-		"ts-loader": "x",
-		"tsconfig-paths-webpack-plugin": "x",
-		"webpack": "x",
-		"webpack-cli": "x",
 		"karma": "x",
 		"karma-chrome-launcher": "x",
 		"karma-firefox-launcher": "x",
@@ -45,8 +38,10 @@
 		"@types/jasmine": "x",
 		"karma-jasmine": "x",
 		"typescript": "5.x",
-		"webpack-dev-server": "4.x",
 		"esbuild": "0.x",
-		"npm-watch": "0.x"
+		"esbuild-server": "0.x",
+		"npm-watch": "0.x",
+		"tsc-watch": "6.x",
+		"open": "x"
 	}
 }

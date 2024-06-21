@@ -7,7 +7,7 @@ import { DialogSample } from './DialogSample.js'
 export class PageHome extends PageComponent {
 	protected override get template() {
 		return html`
-			<lit-page heading='Home' fullHeight>
+			<lit-page heading='Home 4' fullHeight>
 				<div>
 					<h1>Home Page</h1>
 					<button @click=${this.confirmDialog}>Open sample dialog</button>

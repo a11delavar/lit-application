@@ -1,21 +1,19 @@
 import { AsyncDirective, directive, ElementPart, noChange, PartInfo, PartType } from '@a11d/lit'
-import { RouteMatchMode, Router } from './index.js'
-import { PageComponent, PageNavigationStrategy } from '../Page/index.js'
-import { DialogComponent, DialogConfirmationStrategy } from '../Dialog/index.js'
+import { RouteMatchMode, Router, NavigationStrategy, type Routable } from './index.js'
 
 type Parameters = {
-	component: PageComponent<any> | DialogComponent<any, any>
+	component: Routable
 	matchMode?: RouteMatchMode
-	selectionChangeHandler?: (this: Element, selected: boolean) => void
-	invocationHandler?: () => void
+	selectionChangeHandler?(this: Element, selected: boolean): void
+	invocationHandler?(): void
 }
 
 type ShorthandParametersOrParameters =
-	| [component: PageComponent<any> | DialogComponent<any, any>]
+	| [component: Routable]
 	| [parameters: Parameters]
 
 function getParameters(...parameters: ShorthandParametersOrParameters): Parameters {
-	return !(parameters[0] instanceof PageComponent || parameters[0] instanceof DialogComponent) ? parameters[0] : {
+	return !(parameters[0] instanceof HTMLElement) ? parameters[0] : {
 		component: parameters[0],
 		matchMode: RouteMatchMode.All,
 		selectionChangeHandler: undefined,
@@ -51,10 +49,8 @@ class RouterLinkDirective extends AsyncDirective {
 			this.executeSelectionChange()
 		}
 
-		if (this.parameters.component instanceof PageComponent) {
-			const path = Router.getPathOf(this.parameters.component)
-			this.element.setAttribute('href', path ?? '#')
-		}
+		const path = Router.getPathOf(this.parameters.component)
+		this.element.setAttribute('href', path ?? '#')
 
 		return super.update(part, parameters)
 	}
@@ -94,45 +90,26 @@ class RouterLinkDirective extends AsyncDirective {
 	}
 
 	private invoke(pointerEvent: PointerEvent) {
-		const getPageNavigationStrategy = () => {
+		const getStrategy = () => {
 			switch (true) {
 				case pointerEvent.ctrlKey || pointerEvent.metaKey || pointerEvent.type === 'auxclick':
-					return PageNavigationStrategy.Tab
+					return NavigationStrategy.Tab
 				case pointerEvent.shiftKey:
-					return PageNavigationStrategy.Window
+					return NavigationStrategy.Window
 				default:
-					return PageNavigationStrategy.Page
+					return NavigationStrategy.Page
 			}
 		}
+		const strategy = getStrategy()
 
-		const getDialogConfirmationStrategy = () => {
-			switch (true) {
-				case pointerEvent.ctrlKey || pointerEvent.metaKey || pointerEvent.type === 'auxclick':
-					return DialogConfirmationStrategy.Tab
-				case pointerEvent.shiftKey:
-					return DialogConfirmationStrategy.Window
-				default:
-					return DialogConfirmationStrategy.Dialog
-			}
-		}
-
-		const ComponentConstructor = this.parameters.component.constructor as Constructor<PageComponent<any>> | Constructor<DialogComponent<any>>
-		const component = new ComponentConstructor(this.parameters.component.parameters)
-
-		if (component instanceof PageComponent) {
-			component.navigate(getPageNavigationStrategy(), pointerEvent.type === 'auxclick')
-		} else {
-			component.confirm(getDialogConfirmationStrategy())
-		}
+		const component = new (this.parameters.component.constructor as any)(this.parameters.component.parameters)
+		component.navigate(strategy, strategy !== NavigationStrategy.Page)
 
 		this.parameters.invocationHandler?.()
 	}
 
 	private executeSelectionChange() {
-		const selected = this.parameters.component instanceof DialogComponent
-			? false
-			: Router.match(this.parameters.component, this.parameters.matchMode)
-
+		const selected = Router.match(this.parameters.component, this.parameters.matchMode)
 		this.element.toggleAttribute('data-router-selected', selected)
 
 		if (this.parameters.selectionChangeHandler) {

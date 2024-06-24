@@ -1,7 +1,7 @@
 import { Component } from '@a11d/lit'
 import { Router } from './Router.js'
 import { Application } from '../Application.js'
-import type { PageComponent } from '../Page/index.js'
+import { type RoutableConstructor } from './Routable.js'
 
 type RouteParameters =
 	| [...routes: Array<string>]
@@ -19,10 +19,10 @@ function getParameters(...parameters: RouteParameters) {
 }
 
 export const route = (...parameters: RouteParameters) => {
-	return (pageConstructor: Constructor<PageComponent<any>>) => {
+	return (routableConstructor: RoutableConstructor) => {
 		const { routerHostConstructor, routes } = getParameters(...parameters)
 		for (const route of routes) {
-			Router.container.set(route, { routerHostConstructor, pageConstructor })
+			Router.container.set(route, { routerHostConstructor, routableConstructor })
 		}
 	}
 }

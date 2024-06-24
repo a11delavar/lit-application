@@ -1,7 +1,7 @@
 import { Component, eventListener, PropertyValues } from '@a11d/lit'
 import { LocalStorage } from '@a11d/local-storage'
-import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key } from '../index.js'
-import { PageDialog, Dialog, DialogActionKey, DialogCancelledError } from './index.js'
+import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, type Routable, NavigationStrategy, Router } from '../index.js'
+import { Dialog, DialogActionKey, DialogCancelledError } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
 
@@ -9,7 +9,7 @@ export type DialogResult<TResult> = TResult | Error
 
 export type DialogAction<TResult> = DialogResult<TResult> | PromiseLike<DialogResult<TResult>>
 
-export enum DialogConfirmationStrategy { Dialog, Tab, Window }
+export enum DialogConfirmationStrategy { Dialog = NavigationStrategy.Page, Tab = NavigationStrategy.Tab, Window = NavigationStrategy.Window }
 
 export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 
@@ -20,7 +20,7 @@ export abstract class DialogComponentErrorHandler {
 
 const dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
 
-export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends Component {
+export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends Component implements Routable {
 	static readonly connectingHooks = new HookSet<DialogComponent<any, any>>()
 
 	private static readonly errorHandlers = new Map<string, Constructor<DialogComponentErrorHandler>>()
@@ -92,6 +92,11 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		super.connectedCallback()
 	}
 
+	navigate(strategy = NavigationStrategy.Page, force = false) {
+		force
+		return this.confirm(strategy as unknown as DialogConfirmationStrategy)
+	}
+
 	confirm(strategy = DialogConfirmationStrategy.Dialog) {
 		return strategy === DialogConfirmationStrategy.Dialog
 			? this.confirmAsDialog()
@@ -105,43 +110,52 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 	protected async confirmAsDialog() {
 		const host = await DialogComponent.getHost()
-		host.appendChild(this)
+		if (this.isConnected === false) {
+			host.appendChild(this)
+		}
 		return new Promise<TResult>((resolve, reject) => {
 			this._confirmationPromiseExecutor = [resolve, reject]
 		})
 	}
 
-	private _popupWindow?: Window
 	protected async confirmAsPopup(strategy: PopupConfirmationStrategy) {
-		this._popupWindow = await WindowHelper.open(PageDialog.route, strategy === DialogConfirmationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
+		const path = Router.getPathOf(this)
 
-		const DialogConstructor = this._popupWindow.customElements.get(this.tagName.toLowerCase()) as CustomElementConstructor
-		const dialogComponent = new DialogConstructor(this.parameters) as DialogComponent<T, TResult>
+		if (!path) {
+			throw new Error('No @route decorator found on dialog component.')
+		}
 
-		const Constructor = this.constructor as unknown as typeof DialogComponent
-		const propertiesToCopy = [...Constructor.elementProperties.keys()]
+		// Open a new window at the dialog's path
+		const popup = await WindowHelper.open(path, strategy === DialogConfirmationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
+
+		// Wait for the router to navigate to the dialog
+		await new Promise(r => popup?.addEventListener('Application.routed', r))
+
+		// Find the dialog in the new window
+		const other = popup.document.querySelector<DialogComponent<T, TResult>>(this.localName)
+
+		if (!other) {
+			throw new Error('Something went wrong while opening the dialog.')
+		}
+
+		// Copy the dialog's properties to the dialog in the new window
+		const propertiesToCopy = [...(this.constructor as unknown as typeof DialogComponent).elementProperties.keys()]
 		// @ts-expect-error property is a key of the elementProperties map
-		propertiesToCopy.forEach(property => dialogComponent[property] = this[property])
+		propertiesToCopy.forEach(property => other[property] = this[property])
 
-		const app = this._popupWindow.document.querySelector('[application]') as Application
-		await app.updateComplete
-		const confirmPromise = dialogComponent.confirm() as Promise<TResult>
-		await dialogComponent.updateComplete
-		dialogComponent.dialogElement.boundToWindow = true
-		return confirmPromise
+		other.requestUpdate()
+
+		return other.confirmAsDialog()
 	}
 
 	protected async pop(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog> = DialogConfirmationStrategy.Tab) {
 		this.open = false
 		const [resolve, reject] = this._confirmationPromiseExecutor ?? []
 		try {
-			const value = await this.confirm(strategy)
+			const value = await this.confirm(strategy) as TResult
 			resolve?.(value)
 		} catch (error) {
 			reject?.(error as Error)
-		} finally {
-			this._popupWindow?.close()
-			this.remove()
 		}
 	}
 
@@ -156,6 +170,10 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 
 		this.remove()
+
+		if (this.dialogElement.boundToWindow) {
+			window.close()
+		}
 	}
 
 	private get open() { return this.dialogElement.open ?? false }
@@ -169,8 +187,12 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		this.dialogElement.handleAction = this.handleAction
 		this.dialogElement.requestPopup?.subscribe(() => this.pop())
 
+		if (window.location.pathname === Router.getPathOf(this)) {
+			this.dialogElement.boundToWindow = true
+		}
+
 		if (this.dialogElement.poppable &&
-			window.location.pathname !== PageDialog.route &&
+			window.location.pathname !== Router.getPathOf(this) &&
 			DialogComponent.poppableConfirmationStrategy.value !== DialogConfirmationStrategy.Dialog
 		) {
 			this.pop(DialogComponent.poppableConfirmationStrategy.value)

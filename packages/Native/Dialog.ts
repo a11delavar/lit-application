@@ -21,10 +21,10 @@ const queryActionElement = (slotName: string) => {
 @component('lit-dialog')
 @DialogComponent.dialogElement()
 export class Dialog extends Component implements IDialog {
-	@event({ bubbles: true, composed: true, cancelable: true }) readonly dialogHeadingChange!: EventDispatcher<string>
+	@event({ bubbles: true, composed: true, cancelable: true }) readonly pageHeadingChange!: EventDispatcher<string>
 	@event() readonly requestPopup!: EventDispatcher
 
-	@property({ updated(this: Dialog) { this.dialogHeadingChange.dispatch(this.heading) } }) heading = ''
+	@property({ updated(this: Dialog) { this.pageHeadingChange.dispatch(this.heading) } }) heading = ''
 	@property() primaryButtonText?: string
 	@property() secondaryButtonText?: string
 	@property({ type: Boolean }) poppable?: boolean

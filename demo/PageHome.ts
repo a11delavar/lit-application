@@ -27,7 +27,7 @@ export class PageHome extends PageComponent {
 		await new PageSettings({ subRoute: 'one' }).navigate()
 	}
 
-	private async sendNotification() {
+	private sendNotification() {
 		NotificationComponent.notifySuccess('This is a sample notification')
 	}
 }

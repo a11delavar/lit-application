@@ -8,9 +8,12 @@ export class Demo extends Application {
 		return css`
 			${super.styles}
 
-			a[data-router-selected] {
-				font-weight: bold;
-				background-color: #eee;
+			a {
+				padding: 0.25em;
+				&[data-router-selected] {
+					font-weight: bold;
+					background-color: rgba(128, 128, 128, 0.5);
+				}
 			}
 		`
 	}

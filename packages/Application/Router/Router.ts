@@ -1,5 +1,6 @@
 import { compile, match } from 'path-to-regexp'
-import { RoutesContainer, type Page } from './RoutesContainer.js'
+import { RoutesContainer } from './RoutesContainer.js'
+import { type Routable } from './Routable.js'
 
 export enum RouteMatchMode {
 	All = 'all',
@@ -12,20 +13,27 @@ export class Router {
 	static get basePath() { return Router.container.basePath }
 	static set basePath(value) { Router.container.basePath = value }
 
-	static getPathOf(page: Page) {
-		const route = this.getRouteOf(page)
-		return route === undefined ? undefined : compile(route)(page.parameters)
+	/** Returns the path that matches the given routable. */
+	static getPathOf(routable: Routable) {
+		const route = this.container.getByRoutable(routable)
+		return route === undefined ? undefined : compile(route)(routable.parameters)
 	}
 
-	static setPathByPage(page: Page) {
-		const path = Router.getPathOf(page)
+	/** Sets the path to the one that matches the given routable. */
+	static setPathBy(routable: Routable) {
+		const path = Router.getPathOf(routable)
 		if (path) {
 			Router.path = path
 		}
 	}
 
-	static match(page: Page, mode = RouteMatchMode.All) {
-		const route = Router.getRouteOf(page)
+	/**
+	 * Determines if the given routable matches the current path.
+	 * @param routable The routable to match.
+	 * @param mode The matching mode. 'all' matches the path and parameters, 'ignore-parameters' matches only the path. Defaults to 'all'.
+	 */
+	static match(routable: Routable, mode = RouteMatchMode.All) {
+		const route = this.container.getByRoutable(routable)
 		const m = route === undefined ? false : match(route)(Router.path)
 		if (m === false) {
 			return false
@@ -34,13 +42,7 @@ export class Router {
 			return true
 		}
 		const parameters = m.params as Record<string, string>
-		return Object.keys(parameters).every(key => key in (page.parameters ?? {}) && parameters[key] === page.parameters[key])
-	}
-
-	private static getRouteOf(page: Page) {
-		return [...Router.container]
-			.find(([, { pageConstructor }]) => pageConstructor === page.constructor)
-			?.[0]
+		return Object.keys(parameters).every(key => key in (routable.parameters ?? {}) && parameters[key] === routable.parameters[key])
 	}
 
 	static get path() { return window.location.pathname + window.location.search }

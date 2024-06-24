@@ -1,4 +1,5 @@
 import type { ApplicationTopLayer } from '../ApplicationTopLayer.js'
+import type { Page } from '../Page/Page.js'
 
 export enum DialogActionKey {
 	Primary = 'primary',
@@ -10,9 +11,7 @@ export type DialogErrorHandler =
 	| keyof DialogComponentErrorHandlers
 	| ((error: Error) => void | Promise<void>)
 
-export interface Dialog {
-	/** The event must be "composed", "bubbles" and "cancellable" */ readonly dialogHeadingChange: EventDispatcher<string>
-
+export interface Dialog extends Page {
 	heading: string
 
 	open: boolean

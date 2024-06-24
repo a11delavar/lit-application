@@ -1,14 +1,12 @@
 import { Component, literal } from '@a11d/lit'
-import { querySymbolizedElement, WindowHelper, WindowOpenMode, HookSet, Router, RouteMatchMode } from '../index.js'
+import { querySymbolizedElement, WindowHelper, WindowOpenMode, HookSet, Router, RouteMatchMode, NavigationStrategy, type Routable, type RoutableParameters } from '../index.js'
 import { Page } from './index.js'
 
-export type PageParameters = void | Record<string, string | number | undefined>
-
-export enum PageNavigationStrategy { Page, Tab, Window }
+export type PageParameters = RoutableParameters
 
 const pageElementConstructorSymbol = Symbol('PageComponent.PageElementConstructor')
 
-export abstract class PageComponent<T extends PageParameters = void> extends Component {
+export abstract class PageComponent<T extends PageParameters = void> extends Component implements Routable {
 	static readonly connectingHooks = new HookSet<PageComponent<any>>()
 
 	static defaultPageElementTag = literal`lit-page`
@@ -19,16 +17,16 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 		}
 	}
 
-	async navigate(strategy = PageNavigationStrategy.Page, force = false) {
+	async navigate(strategy = NavigationStrategy.Page, force = false) {
 		if (force === false && Router.match(this, RouteMatchMode.All)) {
 			return
 		}
 
-		if (strategy === PageNavigationStrategy.Page) {
-			Router.setPathByPage(this)
+		if (strategy === NavigationStrategy.Page) {
+			Router.setPathBy(this)
 		} else {
 			const url = window.location.origin + Router.getPathOf(this)
-			await WindowHelper.openAndFocus(url, strategy === PageNavigationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
+			await WindowHelper.openAndFocus(url, strategy === NavigationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
 		}
 	}
 
@@ -44,6 +42,6 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 	}
 
 	protected refresh(parameters = this.parameters) {
-		return new (this.constructor as any)(parameters).navigate(PageNavigationStrategy.Page, true)
+		return new (this.constructor as any)(parameters).navigate(NavigationStrategy.Page, true)
 	}
 }

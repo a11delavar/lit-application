@@ -90,6 +90,8 @@ export abstract class Application extends NonInertableComponent {
 		window?.dispatchEvent(new Event('Application.initialized'))
 		await Application.beforeRouteHooks.execute()
 		this.shallRenderRouter = true
+		await this.updateComplete
+		window?.dispatchEvent(new Event('Application.routed'))
 	}
 
 	protected get documentTitle() {

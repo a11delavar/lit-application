@@ -1,7 +1,8 @@
 import { component, html, state } from '@a11d/lit'
-import { DialogComponent } from './index.js'
+import { DialogComponent, route } from './index.js'
 
 @component('demo-dialog-sample')
+@route('/dialog-sample')
 export class DialogSample extends DialogComponent<{ readonly message: string }, string> {
 	@state() private secondsRemaining = 5
 	private intervalId = -1

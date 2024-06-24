@@ -1,6 +1,6 @@
 import { Router as RouterControllerBase } from '@lit-labs/router'
 import { ReactiveControllerHost } from '@a11d/lit'
-import { PageComponent } from '../index.js'
+import { type Routable } from './Routable.js'
 import { Router } from './Router.js'
 
 export class RouterController extends RouterControllerBase {
@@ -16,20 +16,20 @@ export class RouterController extends RouterControllerBase {
 		this.host = args[0]
 	}
 
-	private currentPage?: PageComponent<any>
+	private currentRoutable?: Routable
 
 	private importDecoratorRoutesIfAvailable() {
 		const decoratorRoutes = [...Router.container]
 			.filter(([, { routerHostConstructor }]) => this.host.constructor === routerHostConstructor || this.host.constructor.prototype instanceof routerHostConstructor)
-			.map(([route, { pageConstructor }]) => ({ route, pageConstructor }))
+			.map(([route, { routableConstructor }]) => ({ route, routableConstructor }))
 
-		for (const { pageConstructor, route } of decoratorRoutes) {
+		for (const { routableConstructor, route } of decoratorRoutes) {
 			this.routes.push({
 				path: route,
 				render: p => {
-					return this.currentPage?.parameters === p && this.currentPage?.constructor === pageConstructor
-						? this.currentPage
-						: this.currentPage = new pageConstructor(p)
+					return this.currentRoutable?.parameters === p && this.currentRoutable?.constructor === routableConstructor
+						? this.currentRoutable
+						: this.currentRoutable = new routableConstructor(p)
 				}
 			})
 		}

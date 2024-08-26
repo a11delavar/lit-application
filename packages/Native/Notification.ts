@@ -32,7 +32,7 @@ export class Notification extends NotificationComponent {
 				title: action.title,
 				action: action.title
 			})),
-		})
+		} as any)
 	}
 
 	private fallbackToAlert() {

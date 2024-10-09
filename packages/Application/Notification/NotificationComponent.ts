@@ -32,8 +32,8 @@ type NonTypedNotificationWithErrorParameters =
 	| [error: Error, ...actions: Array<NotificationAction>]
 
 function normalizeNonTypedNotificationParameters(...parameters: NonTypedNotificationParameters) {
-	return typeof parameters[0] !== 'string' ? parameters[0] : {
-		message: parameters[0],
+	return typeof parameters[0] !== 'string' && Symbol.toPrimitive in parameters[0] === false ? parameters[0] : {
+		message: `${parameters[0]}`,
 		actions: parameters.slice(1) as Array<NotificationAction>,
 	}
 }

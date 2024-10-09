@@ -26,7 +26,6 @@ describe('NotificationComponent', () => {
 	const action = { title: 'Test', handleClick: () => { } }
 
 	for (const { method, type } of all) {
-
 		it(`should proxy "${method}" with shortened parameters to "notify" with correct parameters`, async () => {
 			spyOn(TestNotificationComponent, 'notify').and.callThrough()
 
@@ -51,6 +50,20 @@ describe('NotificationComponent', () => {
 				type,
 				message: 'Test',
 				actions: [action],
+			})
+		})
+
+		it('should support non-string messages having the [Symbol.toPrimitive] method', async () => {
+			spyOn(TestNotificationComponent, 'notify').and.callThrough()
+
+			await TestNotificationComponent[method]({
+				[Symbol.toPrimitive]: () => 'Test',
+			} as unknown as string, action)
+
+			expect(TestNotificationComponent.notify).toHaveBeenCalledWith({
+				type,
+				message: 'Test',
+				actions: [action]
 			})
 		})
 	}

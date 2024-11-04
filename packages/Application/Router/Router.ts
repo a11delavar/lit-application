@@ -1,4 +1,4 @@
-import { compile, match } from 'path-to-regexp'
+import { compile, match, parse } from 'path-to-regexp'
 import { RoutesContainer } from './RoutesContainer.js'
 import { type Routable } from './Routable.js'
 
@@ -16,7 +16,26 @@ export class Router {
 	/** Returns the path that matches the given routable. */
 	static getPathOf(routable: Routable) {
 		const route = this.container.getByRoutable(routable)
-		return route === undefined ? undefined : compile(route)(routable.parameters)
+
+		if (route === undefined) {
+			return undefined
+		}
+
+		const path = compile(route)(routable.parameters)
+
+		const query = new URLSearchParams()
+		const routeKeys = !route ? [] : parse(route)
+			.map(x => typeof x === 'object' ? x.name : undefined)
+			.filter(name => typeof name === 'string')
+			.filter(Boolean)
+		const parametersKeys = Object.keys(routable.parameters ?? {})
+		for (const queryString of parametersKeys.filter(key => !routeKeys.includes(key))) {
+			query.set(queryString, routable.parameters[queryString] as string)
+		}
+
+		return [path, query.toString()]
+			.filter(Boolean)
+			.join('?')
 	}
 
 	/** Sets the path to the one that matches the given routable. */

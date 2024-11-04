@@ -44,7 +44,7 @@ export class RoutesContainer extends Map<string, RouteMetadata> {
 		}
 	}
 
-	[Symbol.iterator]() {
+	override[Symbol.iterator]() {
 		return this.entries()
 	}
 }

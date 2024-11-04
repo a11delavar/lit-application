@@ -187,12 +187,12 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		this.dialogElement.handleAction = this.handleAction
 		this.dialogElement.requestPopup?.subscribe(() => this.pop())
 
-		if (window.location.pathname === Router.getPathOf(this)) {
+		if (Router.path === Router.getPathOf(this)) {
 			this.dialogElement.boundToWindow = true
 		}
 
 		if (this.dialogElement.poppable &&
-			window.location.pathname !== Router.getPathOf(this) &&
+			Router.path !== Router.getPathOf(this) &&
 			DialogComponent.poppableConfirmationStrategy.value !== DialogConfirmationStrategy.Dialog
 		) {
 			this.pop(DialogComponent.poppableConfirmationStrategy.value)
@@ -222,7 +222,6 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			[DialogActionKey.Cancellation, this.cancellationAction],
 		])
 
-		// eslint-disable-next-line no-restricted-syntax
 		const action = actionByKey.get(actionKey)?.bind(this)
 
 		if (!action) {

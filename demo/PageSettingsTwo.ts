@@ -1,5 +1,5 @@
 import { component, html } from '@a11d/lit'
-import { PageComponent, route } from '@a11d/lit-application'
+import { PageComponent, route } from './index.js'
 import { PageSettings } from './PageSettings.js'
 
 @component('demo-page-settings-two')

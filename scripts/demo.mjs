@@ -3,7 +3,7 @@
 // import { context } from 'esbuild'
 import { createServer } from 'esbuild-server'
 import { TscWatchClient } from 'tsc-watch'
-import { mkdirSync, writeFileSync } from 'fs'
+import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import open from 'open'
 
 const directory = './out_serve'
@@ -15,6 +15,8 @@ new TscWatchClient().start('--noEmit')
 // 	outdir: './out_test',
 // 	entryPoints: ['./test/index.ts'],
 // })).watch()
+
+rmSync(directory, { recursive: true, force: true })
 
 mkdirSync(directory, { recursive: true })
 

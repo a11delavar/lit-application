@@ -1,8 +1,0 @@
-{
-	"type": "module",
-	"dependencies": {
-		"@a11d/lit": "x",
-		"@a11d/lit-application": "file:../packages/Application",
-		"@a11d/lit-application-native": "file:../packages/Native"
-	}
-}

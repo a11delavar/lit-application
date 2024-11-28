@@ -1,5 +1,5 @@
-export * from '@a11d/lit-application'
-export * as Native from '@a11d/lit-application-native'
+export * from '../packages/Application/index.js'
+export * as Native from '../packages/Native/index.js'
 export * from './DialogSample.js'
 export * from './PageHome.js'
 export * from './PageSettingsOne.js'

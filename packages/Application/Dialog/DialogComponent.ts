@@ -61,6 +61,12 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return this.dialogElement.cancellationActionElement
 	}
 
+	get opener(): Window & typeof globalThis {
+		return !this.dialogElement.boundToWindow
+			? window
+			: window.opener ?? window
+	}
+
 	constructor(readonly parameters: T) {
 		super()
 	}

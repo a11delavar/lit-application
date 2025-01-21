@@ -2,10 +2,6 @@ import type { ApiAuthenticator } from './ApiAuthenticator.js'
 import type { ApiValueConstructor } from './ApiValueConstructor.js'
 import type { HttpError } from './HttpError.js'
 
-if (('structuredClone' in globalThis) === false) {
-	import('@ungap/structured-clone').then(structuredClone => globalThis.structuredClone = structuredClone.default as any)
-}
-
 export type HttpFetchMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'HEAD'
 
 type HttpFetchOptions = {

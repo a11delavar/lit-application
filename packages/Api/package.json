@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/api",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"description": "Tools for building API SDKs",
 	"repository": {
 		"type": "git",
@@ -26,10 +26,6 @@
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@a11d/constructor": "x",
-		"@ungap/structured-clone": "^1.2.0"
-	},
-	"devDependencies": {
-		"@types/ungap__structured-clone": "^0.3.0"
+		"@a11d/constructor": "x"
 	}
 }

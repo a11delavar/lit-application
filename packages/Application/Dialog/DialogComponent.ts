@@ -114,7 +114,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		reject: (reason: Error) => void,
 	]
 
-	protected async confirmAsDialog() {
+	private async confirmAsDialog() {
 		const host = await DialogComponent.getHost()
 		if (this.isConnected === false) {
 			host.appendChild(this)
@@ -124,7 +124,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		})
 	}
 
-	protected async confirmAsPopup(strategy: PopupConfirmationStrategy) {
+	private async confirmAsPopup(strategy: PopupConfirmationStrategy) {
 		const path = Router.getPathOf(this)
 
 		if (!path) {
@@ -144,6 +144,8 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			throw new Error('Something went wrong while opening the dialog.')
 		}
 
+		this.cloned(other)
+
 		// Copy the dialog's properties to the dialog in the new window
 		const propertiesToCopy = [...(this.constructor as unknown as typeof DialogComponent).elementProperties.keys()]
 		// @ts-expect-error property is a key of the elementProperties map
@@ -154,11 +156,13 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return other.confirmAsDialog()
 	}
 
+	protected cloned(other: DialogComponent<T, TResult>) { other }
+
 	protected async pop(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog> = DialogConfirmationStrategy.Tab) {
 		this.open = false
 		const [resolve, reject] = this._confirmationPromiseExecutor ?? []
 		try {
-			const value = await this.confirm(strategy) as TResult
+			const value = await this.confirmAsPopup(strategy) as TResult
 			resolve?.(value)
 		} catch (error) {
 			reject?.(error as Error)

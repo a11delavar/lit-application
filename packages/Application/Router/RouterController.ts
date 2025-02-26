@@ -2,6 +2,7 @@ import { Router as RouterControllerBase } from '@lit-labs/router'
 import { ReactiveControllerHost } from '@a11d/lit'
 import { type Routable } from './Routable.js'
 import { Router } from './Router.js'
+import { equals } from '@a11d/equals'
 
 export class RouterController extends RouterControllerBase {
 	protected readonly host: ReactiveControllerHost & HTMLElement
@@ -28,7 +29,7 @@ export class RouterController extends RouterControllerBase {
 				path: route,
 				render: p => {
 					const parameters = { ...p, ...Router.queryParameters }
-					return this.currentRoutable?.parameters === parameters && this.currentRoutable?.constructor === routableConstructor
+					return this.currentRoutable?.constructor === routableConstructor && Object[equals](this.currentRoutable?.parameters, parameters)
 						? this.currentRoutable
 						: this.currentRoutable = new routableConstructor(parameters)
 				}

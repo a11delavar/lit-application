@@ -3,6 +3,7 @@ import { RouteMatchMode, Router, NavigationStrategy, type Routable } from './ind
 
 type Parameters = {
 	component: Routable
+	navigationStrategy?: NavigationStrategy
 	matchMode?: RouteMatchMode
 	selectionChangeHandler?(this: Element, selected: boolean): void
 	invocationHandler?(): void
@@ -16,6 +17,7 @@ function getParameters(...parameters: ShorthandParametersOrParameters): Paramete
 	return !(parameters[0] instanceof HTMLElement) ? parameters[0] : {
 		component: parameters[0],
 		matchMode: RouteMatchMode.All,
+		navigationStrategy: undefined,
 		selectionChangeHandler: undefined,
 		invocationHandler: undefined,
 	}
@@ -92,6 +94,8 @@ class RouterLinkDirective extends AsyncDirective {
 	private invoke(pointerEvent: PointerEvent) {
 		const getStrategy = () => {
 			switch (true) {
+				case this.parameters.navigationStrategy !== undefined:
+					return this.parameters.navigationStrategy
 				case pointerEvent.ctrlKey || pointerEvent.metaKey || pointerEvent.type === 'auxclick':
 					return NavigationStrategy.Tab
 				case pointerEvent.shiftKey:

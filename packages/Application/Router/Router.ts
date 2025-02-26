@@ -23,14 +23,15 @@ export class Router {
 
 		const path = compile(route)(routable.parameters)
 
-		const query = new URLSearchParams()
 		const routeKeys = !route ? [] : parse(route)
 			.map(x => typeof x === 'object' ? x.name : undefined)
 			.filter(name => typeof name === 'string')
 			.filter(Boolean)
 		const parametersKeys = Object.keys(routable.parameters ?? {})
+
+		const query = new URLSearchParams()
 		for (const queryString of parametersKeys.filter(key => !routeKeys.includes(key))) {
-			query.set(queryString, routable.parameters[queryString] as string)
+			query.set(queryString, encodeURIComponent(routable.parameters[queryString] as string))
 		}
 
 		return [path, query.toString()]
@@ -66,7 +67,21 @@ export class Router {
 
 	static get path() { return window.location.pathname + window.location.search }
 	static set path(value) {
-		window.history.pushState(null, '', value)
-		window.dispatchEvent(new PopStateEvent('popstate'))
+		const navigate = () => {
+			window.history.pushState(null, '', value)
+			window.dispatchEvent(new PopStateEvent('popstate'))
+		}
+		if ('startViewTransition' in document) {
+			document.startViewTransition(() => navigate())
+		} else {
+			navigate()
+		}
+	}
+
+	static get queryParameters() {
+		return Object.fromEntries(
+			[...new URLSearchParams(window.location.search).entries()]
+				.map(([key, value]) => [key, decodeURIComponent(value)])
+		)
 	}
 }

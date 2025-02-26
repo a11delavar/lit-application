@@ -1,14 +1,13 @@
-/* eslint-disable no-console */
 // @ts-check
 // import { context } from 'esbuild'
 import { createServer } from 'esbuild-server'
-import { TscWatchClient } from 'tsc-watch'
+// import { TscWatchClient } from 'tsc-watch'
 import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import open from 'open'
 
 const directory = './out_serve'
 
-new TscWatchClient().start('--noEmit')
+// new TscWatchClient().start('--noEmit')
 
 // (await context({
 // 	bundle: true,

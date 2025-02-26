@@ -27,9 +27,10 @@ export class RouterController extends RouterControllerBase {
 			this.routes.push({
 				path: route,
 				render: p => {
-					return this.currentRoutable?.parameters === p && this.currentRoutable?.constructor === routableConstructor
+					const parameters = { ...p, ...Router.queryParameters }
+					return this.currentRoutable?.parameters === parameters && this.currentRoutable?.constructor === routableConstructor
 						? this.currentRoutable
-						: this.currentRoutable = new routableConstructor(p)
+						: this.currentRoutable = new routableConstructor(parameters)
 				}
 			})
 		}

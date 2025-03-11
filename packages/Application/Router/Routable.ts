@@ -4,6 +4,7 @@ export enum NavigationStrategy { Page, Tab, Window }
 
 export interface Routable<T extends RoutableParameters = any> extends HTMLElement {
 	readonly parameters: T
+	readonly heading: string
 	navigate(strategy?: NavigationStrategy, force?: boolean): unknown
 }
 

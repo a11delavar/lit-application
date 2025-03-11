@@ -12,8 +12,6 @@ export type DialogErrorHandler =
 	| ((error: Error) => void | Promise<void>)
 
 export interface Dialog extends Page {
-	heading: string
-
 	open: boolean
 
 	readonly topLayerElement: ApplicationTopLayer

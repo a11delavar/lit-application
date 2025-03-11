@@ -1,4 +1,5 @@
-import { Component, literal } from '@a11d/lit'
+import { Component, literal, type PropertyValues } from '@a11d/lit'
+import { label } from '@a11d/metadata'
 import { querySymbolizedElement, WindowHelper, WindowOpenMode, HookSet, Router, RouteMatchMode, NavigationStrategy, type Routable, type RoutableParameters } from '../index.js'
 import { Page } from './index.js'
 
@@ -39,6 +40,11 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 	override async connectedCallback() {
 		await PageComponent.connectingHooks.execute(this)
 		super.connectedCallback()
+	}
+
+	protected override firstUpdated(props: PropertyValues<this>) {
+		this.pageElement.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
+		super.firstUpdated(props)
 	}
 
 	protected refresh(parameters = this.parameters) {

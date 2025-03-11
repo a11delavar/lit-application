@@ -209,6 +209,8 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			return
 		}
 
+		this.dialogElement.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
+
 		this.open = true
 		super.firstUpdated(props)
 	}

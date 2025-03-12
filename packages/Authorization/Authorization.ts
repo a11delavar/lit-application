@@ -1,50 +1,44 @@
-import { HttpErrorCode, DialogComponent, PageComponent, PageError, NotificationComponent } from '@a11d/lit-application'
+import { HttpErrorCode, DialogComponent, PageComponent, PageError, NotificationComponent, type Routable } from '@a11d/lit-application'
+import { createMetadataDecorator } from '@a11d/metadata'
 import { LocalStorage } from '@a11d/local-storage'
 
-type AuthorizableComponent = DialogComponent<any, any> | PageComponent<any>
-
-export const requiresAuthorization = <TConstructor extends Constructor<AuthorizableComponent>>(...authorizations: Array<string>) => {
-	return (Constructor: TConstructor) => {
-		Authorization.addAuthorizationsByComponent(Constructor, authorizations)
-	}
+export const requiresAuthorization = createMetadataDecorator(Symbol('requiresAuthorization')) as {
+	(value: Array<string>): (target: Constructor<Routable<any>>) => void
+	get(constructor: Constructor<Routable<any>>): Array<string> | undefined
 }
 
 export class Authorization {
 	private static readonly storage = new LocalStorage('LitApplication.Authorizations', new Array<string>())
-	private static readonly authorizationsByComponent = new Map<Constructor<AuthorizableComponent>, Array<string>>()
 
-	static addAuthorizationsByComponent(component: Constructor<AuthorizableComponent>, authorizations: Array<string>) {
-		this.authorizationsByComponent.set(component, authorizations)
+	private static get values() { return Authorization.storage.value }
+	private static set values(value) { Authorization.storage.value = value }
+
+	static grant(...authorizations: Array<string>) {
+		this.values = [...authorizations, ...this.values]
 	}
 
-	static authorizeComponent(component: AuthorizableComponent) {
-		const ComponentConstructor = component.constructor as Constructor<AuthorizableComponent>
-		const isAuthorized = Authorization.authorized(...Authorization.authorizationsByComponent.get(ComponentConstructor) ?? [])
-		if (isAuthorized === false) {
-			if (component instanceof PageComponent) {
-				component = new PageError({ error: HttpErrorCode.Unauthorized })
-			} else {
-				NotificationComponent.notifyAndThrowError(new Error('🔒 Access denied'))
-			}
-		}
+	static revoke(...authorizations: Array<string>) {
+		this.values = this.values.filter(p => authorizations.includes(p) === false)
 	}
 
-	static authorized(...authorizations: Array<string>) {
-		return authorizations.every(p => Authorization.storage.value.includes(p))
+	static has(...authorizations: Array<string>) {
+		return authorizations.every(p => this.values.includes(p))
 	}
 
-	static authorize(...authorizations: Array<string>) {
-		Authorization.storage.value = [
-			...authorizations,
-			...Authorization.storage.value,
-		]
-	}
-
-	static unauthorize(...authorizations: Array<string>) {
-		Authorization.storage.value =
-			Authorization.storage.value.filter(p => authorizations.includes(p) === false)
+	static isAuthorized(routable: Routable) {
+		const requiredAuthorizations = requiresAuthorization.get(routable.constructor as Constructor<Routable<any>>) ?? []
+		return Authorization.has(...requiredAuthorizations)
 	}
 }
 
-PageComponent.connectingHooks.add(page => Authorization.authorizeComponent(page))
-DialogComponent.connectingHooks.add(dialog => Authorization.authorizeComponent(dialog))
+PageComponent.connectingHooks.add(page => {
+	if (!Authorization.isAuthorized(page)) {
+		new PageError({ error: HttpErrorCode.Unauthorized }).navigate()
+	}
+})
+
+DialogComponent.connectingHooks.add(dialog => {
+	if (!Authorization.isAuthorized(dialog)) {
+		NotificationComponent.notifyAndThrowError(new Error('🔒 Access denied'))
+	}
+})

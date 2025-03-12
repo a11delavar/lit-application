@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/lit-application-authorization",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"description": "Lit-based native application shell authorization module.",
 	"repository": {
 		"type": "git",
@@ -31,6 +31,7 @@
 	},
 	"dependencies": {
 		"@a11d/lit-application": "x",
+		"@a11d/metadata": "x",
 		"tslib": "x"
 	}
 }

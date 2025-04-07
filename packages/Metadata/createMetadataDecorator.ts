@@ -17,7 +17,7 @@ export function createMetadataDecorator(key: symbol) {
 			: Reflect.getMetadata(key, constructor.prototype, propertyKey)
 	}
 
-	metadata.getByKeyPath = function <T>(constructor: Constructor<T>, keyPath: KeyPathOf<T>) {
+	metadata.getByKeyPath = function <T>(constructor: Constructor<T>, keyPath: KeyPath.Of<T>) {
 		const keys = keyPath.split('.')
 		const key = keys.pop() as string
 		const parent = keys.reduce((previousType, key) => type.get(previousType, key), constructor)

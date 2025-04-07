@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/metadata",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A set of behavior-less metadata decorators.",
 	"repository": {
 		"type": "git",
@@ -31,7 +31,7 @@
 	"dependencies": {
 		"tslib": "x",
 		"reflect-metadata": "0.x",
-		"@a11d/key-path": "1.x",
+		"@a11d/key-path": "2.x",
 		"@a11d/constructor": "x"
 	}
 }

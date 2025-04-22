@@ -19,7 +19,8 @@
 		"test": "node ./scripts/test.mjs && karma start --single-run",
 		"clean": "node ./scripts/clean.mjs",
 		"release": "node ./scripts/release.mjs",
-		"release-all": "node ./scripts/release-all.mjs"
+		"release-all": "node ./scripts/release-all.mjs",
+		"watch": "npm-watch"
 	},
 	"watch": {
 		"dev": {

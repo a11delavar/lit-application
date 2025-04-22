@@ -50,4 +50,15 @@ describe('LocalStorage', () => {
 
 		expect(storage.value).toBe('new value modified')
 	})
+
+	it('should handle "undefined" as it is not JSON serializable', () => {
+		const storage = new LocalStorage<string | undefined>('test-undefined', undefined)
+
+		expect(storage.value).toBeUndefined()
+
+		storage.value = 'test'
+		storage.value = undefined
+
+		expect(storage.value).toBeUndefined()
+	})
 })

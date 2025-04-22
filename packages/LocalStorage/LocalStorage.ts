@@ -25,13 +25,17 @@ export class LocalStorage<T> {
 
 		try {
 			return JSON.parse(value, this.reviver)
-		} catch (e) {
+		} catch {
 			return value as unknown as T
 		}
 	}
 
 	set value(obj: T) {
-		window.localStorage.setItem(this.name, JSON.stringify(obj))
+		if (obj === undefined) {
+			window.localStorage.removeItem(this.name)
+		} else {
+			window.localStorage.setItem(this.name, JSON.stringify(obj))
+		}
 		this.changed.dispatch(obj)
 		LocalStorage.changed.dispatch(this)
 	}

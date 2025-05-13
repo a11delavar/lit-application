@@ -1,7 +1,6 @@
 import { type Component } from '@a11d/lit'
-import { Router } from './Router.js'
 import { Application } from '../Application.js'
-import { type RoutableConstructor } from './Routable.js'
+import { RoutableComponent, type RoutableComponentConstructor } from './RoutableComponent.js'
 
 type RouteParameters =
 	| [...routes: Array<string>]
@@ -19,10 +18,10 @@ function getParameters(...parameters: RouteParameters) {
 }
 
 export const route = (...parameters: RouteParameters) => {
-	return (routableConstructor: RoutableConstructor) => {
+	return (routableConstructor: RoutableComponentConstructor) => {
 		const { routerHostConstructor, routes } = getParameters(...parameters)
 		for (const route of routes) {
-			Router.container.set(route, { routerHostConstructor, routableConstructor })
+			RoutableComponent.container.set(route, { routerHostConstructor, routableConstructor })
 		}
 	}
 }

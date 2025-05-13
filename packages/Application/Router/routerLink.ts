@@ -1,22 +1,22 @@
 import { AsyncDirective, directive, type ElementPart, noChange, type PartInfo, PartType } from '@a11d/lit'
-import { RouteMatchMode, Router, NavigationStrategy, type Routable } from './index.js'
+import { UrlMatchMode, NavigationStrategy, type RoutableComponent } from './index.js'
 
 type Parameters = {
-	component: Routable
+	component: RoutableComponent<any>
 	navigationStrategy?: NavigationStrategy
-	matchMode?: RouteMatchMode
+	matchMode?: UrlMatchMode
 	selectionChangeHandler?(this: Element, selected: boolean): void
 	invocationHandler?(): void
 }
 
 type ShorthandParametersOrParameters =
-	| [component: Routable]
+	| [component: RoutableComponent<any>]
 	| [parameters: Parameters]
 
 function getParameters(...parameters: ShorthandParametersOrParameters): Parameters {
 	return !(parameters[0] instanceof HTMLElement) ? parameters[0] : {
 		component: parameters[0],
-		matchMode: RouteMatchMode.All,
+		matchMode: UrlMatchMode.All,
 		navigationStrategy: undefined,
 		selectionChangeHandler: undefined,
 		invocationHandler: undefined,
@@ -51,8 +51,7 @@ class RouterLinkDirective extends AsyncDirective {
 			this.executeSelectionChange()
 		}
 
-		const path = Router.getPathOf(this.parameters.component)
-		this.element.setAttribute('href', path ?? '#')
+		this.element.setAttribute('href', this.parameters.component.url?.path ?? '#')
 
 		return super.update(part, parameters)
 	}
@@ -113,7 +112,7 @@ class RouterLinkDirective extends AsyncDirective {
 	}
 
 	private executeSelectionChange() {
-		const selected = Router.match(this.parameters.component, this.parameters.matchMode)
+		const selected = this.parameters.component.urlMatches({ mode: this.parameters.matchMode })
 		this.element.toggleAttribute('data-router-selected', selected)
 
 		if (this.parameters.selectionChangeHandler) {

@@ -8,7 +8,7 @@ export class PageSettingsOne extends PageComponent {
 	protected override get template() {
 		return html`
 			<lit-page heading='Settings One'>
-				Settings Page > One
+				Settings Page > One ${new Date().toLocaleString()}
 			</lit-page>
 		`
 	}

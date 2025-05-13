@@ -1,3 +1,4 @@
+import '@a11d/equals'
 export * from './utilities/index.js'
 export * from './Router/index.js'
 export * from './Application.js'

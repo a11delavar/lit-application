@@ -1,6 +1,6 @@
-import { Component, eventListener, type PropertyValues } from '@a11d/lit'
+import { eventListener, type PropertyValues } from '@a11d/lit'
 import { LocalStorage } from '@a11d/local-storage'
-import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, type Routable, NavigationStrategy, Router } from '../index.js'
+import { Application, HookSet, querySymbolizedElement, RoutableComponent, WindowHelper, WindowOpenMode, Key, NavigationStrategy } from '../index.js'
 import { type Dialog, DialogActionKey, DialogCancelledError } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
@@ -9,7 +9,11 @@ export type DialogResult<TResult> = TResult | Error
 
 export type DialogAction<TResult> = DialogResult<TResult> | PromiseLike<DialogResult<TResult>>
 
-export enum DialogConfirmationStrategy { Dialog = NavigationStrategy.Page, Tab = NavigationStrategy.Tab, Window = NavigationStrategy.Window }
+export enum DialogConfirmationStrategy {
+	Dialog = NavigationStrategy.Page,
+	Tab = NavigationStrategy.Tab,
+	Window = NavigationStrategy.Window
+}
 
 export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 
@@ -20,7 +24,7 @@ export abstract class DialogComponentErrorHandler {
 
 const dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
 
-export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends Component implements Routable {
+export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends RoutableComponent<T> {
 	static readonly connectingHooks = new HookSet<DialogComponent<any, any>>()
 
 	private static readonly errorHandlers = new Map<string, Constructor<DialogComponentErrorHandler>>()
@@ -67,10 +71,6 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			: window.opener ?? window
 	}
 
-	constructor(readonly parameters: T) {
-		super()
-	}
-
 	@eventListener({ target: window, type: 'beforeunload' })
 	protected async handleBeforeUnload() {
 		if (this.dialogElement.boundToWindow) {
@@ -98,7 +98,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		super.connectedCallback()
 	}
 
-	navigate(strategy = NavigationStrategy.Page, force = false) {
+	override navigate(strategy = NavigationStrategy.Page, force = false) {
 		force
 		return this.confirm(strategy as unknown as DialogConfirmationStrategy)
 	}
@@ -125,14 +125,12 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	}
 
 	private async confirmAsPopup(strategy: PopupConfirmationStrategy) {
-		const path = Router.getPathOf(this)
-
-		if (!path) {
+		if (!this.url) {
 			throw new Error('No @route decorator found on dialog component.')
 		}
 
 		// Open a new window at the dialog's path
-		const popup = await WindowHelper.open(path, strategy === DialogConfirmationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
+		const popup = await WindowHelper.open(this.url, strategy === DialogConfirmationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
 
 		// Wait for the router to navigate to the dialog
 		await new Promise(r => popup?.addEventListener('Application.routed', r))
@@ -193,16 +191,13 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
-	protected override firstUpdated(props: PropertyValues) {
+	protected override firstUpdated(props: PropertyValues<this>) {
 		this.dialogElement.handleAction = this.handleAction
 		this.dialogElement.requestPopup?.subscribe(() => this.pop())
-
-		if (Router.path === Router.getPathOf(this)) {
-			this.dialogElement.boundToWindow = true
-		}
+		this.dialogElement.boundToWindow = this.boundToWindow
 
 		if (this.dialogElement.poppable &&
-			Router.path !== Router.getPathOf(this) &&
+			this.urlMatches() === false &&
 			DialogComponent.poppableConfirmationStrategy.value !== DialogConfirmationStrategy.Dialog
 		) {
 			this.pop(DialogComponent.poppableConfirmationStrategy.value)

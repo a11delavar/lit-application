@@ -1,12 +1,12 @@
 import type { Component } from '@a11d/lit'
-import type { Routable, RoutableConstructor } from './Routable.js'
+import type { RoutableComponentConstructor } from './RoutableComponent.js'
 
 type RouterHost = Component
 type RouterHostConstructor = Constructor<RouterHost>
 
 type RouteMetadata = {
 	routerHostConstructor: RouterHostConstructor
-	routableConstructor: RoutableConstructor
+	routableConstructor: RoutableComponentConstructor
 }
 
 /**
@@ -21,11 +21,6 @@ export class RoutesContainer extends Map<string, RouteMetadata> {
 	override get(key: string) {
 		key = key.split(this.basePath)[1]!
 		return super.get(key)
-	}
-
-	getByRoutable(routable: Routable) {
-		const [route] = [...this].find(([, { routableConstructor }]) => routableConstructor === routable.constructor) ?? []
-		return route
 	}
 
 	override entries(): IterableIterator<[string, RouteMetadata]> {

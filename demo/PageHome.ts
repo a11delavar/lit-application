@@ -1,5 +1,5 @@
 import { component, html } from '@a11d/lit'
-import { NotificationComponent, PageComponent, PageSettings, route } from './index.js'
+import { NotificationComponent, PageComponent, PageSettings, route, viewTransitionName } from './index.js'
 import { DialogSample } from './DialogSample.js'
 
 @component('demo-page-home')
@@ -8,8 +8,9 @@ export class PageHome extends PageComponent {
 	protected override get template() {
 		return html`
 			<lit-page heading='Home 4' fullHeight>
+				<div ${viewTransitionName('square')} style='width: 100px; height: 100px; background: red; '></div>
 				<div>
-					<h1>Home Page</h1>
+					<h1 ${viewTransitionName('heading')}>Home Page</h1>
 					<button @click=${this.confirmDialog}>Open sample dialog</button>
 					<button @click=${this.openPage}>Open sample page of sub router</button>
 					<button @click=${this.sendNotification}>Send sample notification</button>

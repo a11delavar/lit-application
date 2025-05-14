@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/lit-application",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"description": "Lit-based application shell.",
 	"repository": {
 		"type": "git",

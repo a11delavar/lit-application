@@ -113,8 +113,6 @@ class RouterLinkDirective extends AsyncDirective {
 
 	private executeSelectionChange() {
 		const selected = this.parameters.component.urlMatches({ mode: this.parameters.matchMode })
-		console.log(selected);
-
 		this.element.toggleAttribute('data-router-selected', selected)
 
 		if (this.parameters.selectionChangeHandler) {

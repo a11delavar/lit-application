@@ -1,4 +1,4 @@
-import { Component, queryConnectedInstances, state } from '@a11d/lit'
+import { Component, html, queryConnectedInstances, state, staticHtml, unsafeStatic, type HTMLTemplateResult } from '@a11d/lit'
 import { equals } from '@a11d/equals'
 import { compile, match, parse } from 'path-to-regexp'
 import { WindowHelper, WindowOpenMode } from '../utilities/WindowHelper.js'
@@ -20,15 +20,22 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 	static get routes() { return this._routes.map(route => RoutableComponent.basePath + route) }
 	static set routes(value) { this._routes = value }
 
-	@queryConnectedInstances() private static readonly connectedInstances: Set<RoutableComponent<any>>
+	static render(p: Record<string, string | undefined>) {
+		const tagName = customElements.getName(this as any)!
+		const tag = unsafeStatic(tagName)
+		const query = Object.fromEntries(RoutableComponent.url.searchParams)
+		return html`${staticHtml`<${tag} .parameters=${{ ...p, ...query }}></${tag}>`}`
+	}
 
-	private static get boundComponent() {
+	@queryConnectedInstances() static readonly connectedInstances: Set<RoutableComponent<any>>
+
+	static get boundComponent() {
 		return [...RoutableComponent.connectedInstances].at(0)
 	}
 
 	static get url() { return new URL(globalThis.location.toString()) }
 
-	private static setUrl(value: URL, force = false) {
+	static setUrl(value: URL, force = false) {
 		if (value === undefined) {
 			return
 		}
@@ -149,4 +156,5 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 export type RoutableComponentConstructor = Constructor<RoutableComponent<any>> & {
 	host: AbstractConstructor<HTMLElement> | Constructor<HTMLElement>
 	routes: Array<string>
+	render: (p: Record<string, string | undefined>) => HTMLTemplateResult
 }

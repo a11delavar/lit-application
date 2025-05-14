@@ -18,6 +18,10 @@ export abstract class PageComponent<T extends PageParameters = void> extends Rou
 		}
 	}
 
+	override async navigate(...args: Parameters<RoutableComponent['navigate']>) {
+		await super.navigate(...args)
+	}
+
 	@querySymbolizedElement(pageElementConstructorSymbol) readonly pageElement!: Page & HTMLElement
 
 	override async connectedCallback() {

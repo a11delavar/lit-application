@@ -1,5 +1,5 @@
 import { component, html, style } from '@a11d/lit'
-import { PageComponent, route, RouterController } from './index.js'
+import { PageComponent, route, RouterController, viewTransitionName } from './index.js'
 
 @component('demo-page-settings')
 @route('/settings{/:subRoute}?')
@@ -11,7 +11,8 @@ export class PageSettings extends PageComponent<void | { readonly subRoute: stri
 	protected override get template() {
 		return html`
 			<lit-page heading='Settings'>
-				<h1>Settings Page</h1>
+				<h1 ${viewTransitionName('heading')}>Settings Page</h1>
+				<div ${viewTransitionName('square')} style='margin-left: 100px; width: 100px; height: 100px; background: blue;'></div>
 
 				<div ${style({ display: 'flex' })}>
 					<div>

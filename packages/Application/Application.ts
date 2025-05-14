@@ -2,7 +2,7 @@ import { property, css, html, state } from '@a11d/lit'
 import { RootCssInjectorController } from '@a11d/root-css-injector'
 import { NonInertableComponent } from '@a11d/non-inertable-component'
 import { HookSet, PageError, RouterController } from './index.js'
-import { HttpErrorCode, queryInstanceElement } from './utilities/index.js'
+import { HttpErrorCode, queryInstanceElement, ViewTransitionNameDirective } from './utilities/index.js'
 import { ApplicationTopLayer } from './ApplicationTopLayer.js'
 
 export const application = () => {
@@ -112,7 +112,13 @@ export abstract class Application extends NonInertableComponent {
 	}
 
 	protected get pageHostTemplate() {
+		const styles = [...ViewTransitionNameDirective.container].map(name => `&::part(${name}) { view-transition-name: ${name}; }`).join('\n')
 		return html`
+			<style>
+				lit-page-host > * {
+					${styles}
+				}
+			</style>
 			<lit-page-host @pageHeadingChange=${(e: CustomEvent<string>) => this.pageHeading = e.detail}>
 				${!this.shallRenderRouter ? this.pageLoadingTemplate : this.router.outlet()}
 			</lit-page-host>

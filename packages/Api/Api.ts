@@ -113,6 +113,6 @@ export class Api {
 		const [isJson, json] = JSON.tryParse(responseText,
 			(_, value) => [...this.valueConstructors].find(converter => converter.shallConstruct(value))?.construct(value) ?? value
 		)
-		return isJson ? json : responseText
+		return isJson ? json : responseText as T
 	}
 }

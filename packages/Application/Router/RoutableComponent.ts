@@ -6,10 +6,7 @@ import { Application } from '../Application.js'
 
 export type RoutableParameters = void | Record<string, string | number | undefined>
 
-export enum UrlMatchMode {
-	All = 'all',
-	IgnoreParameters = 'ignore-parameters',
-}
+export type UrlMatchMode = 'all' | 'ignore-parameters'
 
 export enum NavigationStrategy { Page, Tab, Window }
 
@@ -118,7 +115,6 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 	urlMatches(options?: { mode?: UrlMatchMode, url?: URL }) {
 		options ??= {}
 		options.url ??= RoutableComponent.url
-		options.mode ??= UrlMatchMode.All
 
 		const route = this.route
 		const m = route === undefined ? false : match(route)(options.url.pathname)
@@ -127,7 +123,7 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 			return false
 		}
 
-		if (options.mode === UrlMatchMode.IgnoreParameters) {
+		if (options.mode === 'ignore-parameters') {
 			return true
 		}
 
@@ -136,7 +132,7 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 			...Object.fromEntries(options.url.searchParams)
 		}
 
-		return Object[equals](this.parameters, parameters)
+		return Object[equals](this.parameters ?? {}, parameters)
 	}
 
 	protected updateUrl(force = false) {

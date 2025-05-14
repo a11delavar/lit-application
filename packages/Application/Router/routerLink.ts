@@ -1,5 +1,5 @@
 import { AsyncDirective, directive, type ElementPart, noChange, type PartInfo, PartType } from '@a11d/lit'
-import { UrlMatchMode, NavigationStrategy, type RoutableComponent, type RoutableComponentConstructor } from './index.js'
+import { type UrlMatchMode, NavigationStrategy, type RoutableComponent, type RoutableComponentConstructor } from './index.js'
 
 type Parameters = {
 	component: RoutableComponent<any>
@@ -16,7 +16,7 @@ type ShorthandParametersOrParameters =
 function getParameters(...parameters: ShorthandParametersOrParameters): Parameters {
 	return !(parameters[0] instanceof HTMLElement) ? parameters[0] : {
 		component: parameters[0],
-		matchMode: UrlMatchMode.All,
+		matchMode: 'all',
 		navigationStrategy: undefined,
 		selectionChangeHandler: undefined,
 		invocationHandler: undefined,
@@ -113,6 +113,8 @@ class RouterLinkDirective extends AsyncDirective {
 
 	private executeSelectionChange() {
 		const selected = this.parameters.component.urlMatches({ mode: this.parameters.matchMode })
+		console.log(selected);
+
 		this.element.toggleAttribute('data-router-selected', selected)
 
 		if (this.parameters.selectionChangeHandler) {

@@ -1,6 +1,10 @@
-import { RoutableComponent, UrlMatchMode } from './RoutableComponent.js'
+import { RoutableComponent, type UrlMatchMode } from './RoutableComponent.js'
 import { route } from './route.js'
 import { component } from '@a11d/lit'
+
+@route('/')
+@component('test-routable-homepage')
+class HomePage extends RoutableComponent { }
 
 @route('/routable-with-numeric-id/:id')
 @component('test-routable-with-numeric-id')
@@ -20,6 +24,7 @@ class WithoutRoute extends RoutableComponent { }
 describe('RoutableComponent', () => {
 	describe('routes', () => {
 		it('should return the routes of the component', () => {
+			expect(HomePage.routes).toEqual(['/'])
 			expect(WithNumericId.routes).toEqual(['/routable-with-numeric-id/:id'])
 			expect(WithSubRoute.routes).toEqual(['/routable-with-sub-route{/:subRoute}?'])
 			expect(WithNonRouteParameter.routes).toEqual(['/routable-with-non-route-parameter'])
@@ -27,6 +32,7 @@ describe('RoutableComponent', () => {
 
 		it('should return the routes of the component with base path', () => {
 			RoutableComponent.basePath = '/base-path'
+			expect(HomePage.routes).toEqual(['/base-path/'])
 			expect(WithNumericId.routes).toEqual(['/base-path/routable-with-numeric-id/:id'])
 			expect(WithSubRoute.routes).toEqual(['/base-path/routable-with-sub-route{/:subRoute}?'])
 			expect(WithNonRouteParameter.routes).toEqual(['/base-path/routable-with-non-route-parameter'])
@@ -40,6 +46,7 @@ describe('RoutableComponent', () => {
 		})
 
 		it('should return the path that matches the given routable - PageWithNumericId', () => {
+			expect(new HomePage().url!.path).toBe('/')
 			expect(new WithNumericId({ id: '1' }).url!.path).toBe('/routable-with-numeric-id/1')
 			expect(new WithSubRoute({ subRoute: 'sub-route' }).url!.path).toBe('/routable-with-sub-route/sub-route')
 			expect(new WithSubRoute({}).url!.path).toBe('/routable-with-sub-route')
@@ -56,6 +63,7 @@ describe('RoutableComponent', () => {
 
 		describe('mode: all', () => {
 			it('should return true when parameters absent', () => {
+				expect(new HomePage().urlMatches({ url: url('/') })).toBe(true)
 				expect(new WithSubRoute({}).urlMatches({ url: url('/routable-with-sub-route') })).toBe(true)
 			})
 
@@ -76,7 +84,7 @@ describe('RoutableComponent', () => {
 		})
 
 		describe('mode: ignore-parameters', () => {
-			const mode = UrlMatchMode.IgnoreParameters
+			const mode: UrlMatchMode = 'ignore-parameters'
 			it('should return true if the given routable matches the route', () => {
 				expect(new WithNumericId({ id: 1 }).urlMatches({ mode, url: url('/routable-with-numeric-id/1') })).toBe(true)
 				expect(new WithNumericId({ id: 1 }).urlMatches({ mode, url: url('/routable-with-numeric-id/2') })).toBe(true)

@@ -1,13 +1,13 @@
-import { Component, literal, type PropertyValues } from '@a11d/lit'
+import { literal, type PropertyValues } from '@a11d/lit'
 import { label } from '@a11d/metadata'
-import { querySymbolizedElement, WindowHelper, WindowOpenMode, HookSet, Router, RouteMatchMode, NavigationStrategy, type Routable, type RoutableParameters } from '../index.js'
+import { querySymbolizedElement, RoutableComponent, HookSet, type RoutableParameters } from '../index.js'
 import { type Page } from './index.js'
 
 export type PageParameters = RoutableParameters
 
 const pageElementConstructorSymbol = Symbol('PageComponent.PageElementConstructor')
 
-export abstract class PageComponent<T extends PageParameters = void> extends Component implements Routable {
+export abstract class PageComponent<T extends PageParameters = void> extends RoutableComponent<T> {
 	static readonly connectingHooks = new HookSet<PageComponent<any>>()
 
 	static defaultPageElementTag = literal`lit-page`
@@ -18,24 +18,11 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 		}
 	}
 
-	async navigate(strategy = NavigationStrategy.Page, force = false) {
-		if (force === false && Router.match(this, RouteMatchMode.All)) {
-			return
-		}
-
-		if (strategy === NavigationStrategy.Page) {
-			Router.setPathBy(this)
-		} else {
-			const url = window.location.origin + Router.getPathOf(this)
-			await WindowHelper.openAndFocus(url, strategy === NavigationStrategy.Window ? WindowOpenMode.Window : WindowOpenMode.Tab)
-		}
+	override async navigate(...args: Parameters<RoutableComponent['navigate']>) {
+		await super.navigate(...args)
 	}
 
 	@querySymbolizedElement(pageElementConstructorSymbol) readonly pageElement!: Page & HTMLElement
-
-	constructor(readonly parameters: T) {
-		super()
-	}
 
 	override async connectedCallback() {
 		await PageComponent.connectingHooks.execute(this)
@@ -45,9 +32,5 @@ export abstract class PageComponent<T extends PageParameters = void> extends Com
 	protected override firstUpdated(props: PropertyValues<this>) {
 		this.pageElement.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
 		super.firstUpdated(props)
-	}
-
-	protected refresh(parameters = this.parameters) {
-		return new (this.constructor as any)(parameters).navigate(NavigationStrategy.Page, true)
 	}
 }

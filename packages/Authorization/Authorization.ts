@@ -1,10 +1,10 @@
-import { HttpErrorCode, DialogComponent, PageComponent, PageError, NotificationComponent, type Routable } from '@a11d/lit-application'
+import { HttpErrorCode, DialogComponent, PageComponent, PageError, NotificationComponent, type RoutableComponentConstructor, type RoutableComponent } from '@a11d/lit-application'
 import { createMetadataDecorator } from '@a11d/metadata'
 import { LocalStorage } from '@a11d/local-storage'
 
 export const requiresAuthorization = createMetadataDecorator(Symbol('requiresAuthorization')) as {
-	(value: Array<string>): (target: Constructor<Routable<any>>) => void
-	get(constructor: Constructor<Routable<any>>): Array<string> | undefined
+	(value: Array<string>): (target: RoutableComponentConstructor) => void
+	get(constructor: RoutableComponentConstructor): Array<string> | undefined
 }
 
 export class Authorization {
@@ -25,8 +25,8 @@ export class Authorization {
 		return authorizations.every(p => this.values.includes(p))
 	}
 
-	static isAuthorized(routable: Routable) {
-		const requiredAuthorizations = requiresAuthorization.get(routable.constructor as Constructor<Routable<any>>) ?? []
+	static isAuthorized(routable: RoutableComponent) {
+		const requiredAuthorizations = requiresAuthorization.get(routable.constructor as RoutableComponentConstructor) ?? []
 		return Authorization.has(...requiredAuthorizations)
 	}
 }

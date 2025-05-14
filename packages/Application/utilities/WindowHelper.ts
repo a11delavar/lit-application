@@ -3,13 +3,13 @@ export enum WindowOpenMode { Tab, Window }
 export class WindowHelper {
 	private static readonly windowSizeReductionMultiplier = 0.9
 
-	static open(path = window.location.pathname, mode = WindowOpenMode.Tab) {
+	static open(location = new URL(globalThis.location.toString()), mode = WindowOpenMode.Tab) {
 		return new Promise<Window>((resolve, reject) => {
 			if (window.matchMedia('(display-mode: standalone)').matches && mode === WindowOpenMode.Tab && !manifest?.display_override?.includes('tabbed')) {
 				mode = WindowOpenMode.Window
 			}
 
-			const newWindow = window.open(path, undefined, mode === WindowOpenMode.Tab ? '' : 'popup')
+			const newWindow = window.open(location, undefined, mode === WindowOpenMode.Tab ? '' : 'popup')
 			if (!newWindow) {
 				return reject(new Error('Failed to open a window, probably because the permission is denied.'))
 			}

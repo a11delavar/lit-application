@@ -1,4 +1,4 @@
-import { LitElement } from '@a11d/lit'
+import { type LitElement } from '@a11d/lit'
 
 export function queryInstanceElement() {
 	return (prototype: AbstractConstructor<LitElement>, propertyKey: string) => {

@@ -1,4 +1,4 @@
-import { CSSResult, ReactiveController, ReactiveControllerHost } from '@a11d/lit'
+import { type CSSResult, type ReactiveController, type ReactiveControllerHost } from '@a11d/lit'
 import { RootCssInjector } from './RootCssInjector.js'
 
 export class RootCssInjectorController implements ReactiveController {

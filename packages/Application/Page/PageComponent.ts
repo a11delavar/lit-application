@@ -1,7 +1,7 @@
 import { Component, literal, type PropertyValues } from '@a11d/lit'
 import { label } from '@a11d/metadata'
 import { querySymbolizedElement, WindowHelper, WindowOpenMode, HookSet, Router, RouteMatchMode, NavigationStrategy, type Routable, type RoutableParameters } from '../index.js'
-import { Page } from './index.js'
+import { type Page } from './index.js'
 
 export type PageParameters = RoutableParameters
 

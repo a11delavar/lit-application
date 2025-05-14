@@ -1,7 +1,7 @@
 JSON.tryParse = function (...parameters: Parameters<typeof JSON.parse>) {
 	try {
 		return [true, JSON.parse(...parameters)]
-	} catch (e) {
+	} catch {
 		return [false, undefined]
 	}
 }

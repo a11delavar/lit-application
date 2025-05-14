@@ -1,4 +1,4 @@
-import { Component } from '@a11d/lit'
+import { type Component } from '@a11d/lit'
 import { Router } from './Router.js'
 import { Application } from '../Application.js'
 import { type RoutableConstructor } from './Routable.js'

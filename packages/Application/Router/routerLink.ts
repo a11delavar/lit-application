@@ -1,4 +1,4 @@
-import { AsyncDirective, directive, ElementPart, noChange, PartInfo, PartType } from '@a11d/lit'
+import { AsyncDirective, directive, type ElementPart, noChange, type PartInfo, PartType } from '@a11d/lit'
 import { RouteMatchMode, Router, NavigationStrategy, type Routable } from './index.js'
 
 type Parameters = {

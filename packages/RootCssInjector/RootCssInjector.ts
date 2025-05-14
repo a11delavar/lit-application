@@ -1,4 +1,4 @@
-import { CSSResult, isServer } from '@a11d/lit'
+import { type CSSResult, isServer } from '@a11d/lit'
 
 export class RootCssInjector {
 	static inject(styles: CSSResult, styleElement?: HTMLStyleElement) {

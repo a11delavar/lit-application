@@ -66,7 +66,7 @@ export abstract class DialogAuthenticator<Account extends object> extends Dialog
 
 		try {
 			return this.authenticate()
-		} catch (error) {
+		} catch {
 			return super.confirm(strategy)
 		}
 	}

@@ -1,4 +1,4 @@
-import { component, css, html, HTMLTemplateResult, staticHtml, style } from '@a11d/lit'
+import { component, css, html, type HTMLTemplateResult, staticHtml, style } from '@a11d/lit'
 import { HttpError, HttpErrorCode } from '../index.js'
 import { route } from '../Router/route.js'
 import { PageComponent } from './PageComponent.js'

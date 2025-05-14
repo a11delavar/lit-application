@@ -1,5 +1,5 @@
 import { component } from '@a11d/lit'
-import { Notification as NotificationObject, NotificationComponent, NotificationType } from '@a11d/lit-application'
+import { type Notification as NotificationObject, NotificationComponent, NotificationType } from '@a11d/lit-application'
 
 @component('lit-notification')
 @NotificationComponent.defaultComponent()

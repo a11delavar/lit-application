@@ -1,5 +1,5 @@
 import { ComponentTestFixture } from '@a11d/lit-testing'
-import { Notification, NotificationComponent, NotificationType } from './NotificationComponent.js'
+import { type Notification, NotificationComponent, NotificationType } from './NotificationComponent.js'
 import { component } from '@a11d/lit'
 
 describe('NotificationComponent', () => {

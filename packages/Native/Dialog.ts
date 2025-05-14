@@ -1,5 +1,5 @@
 import { component, html, css, property, Component, state, query, style, event } from '@a11d/lit'
-import { Dialog as IDialog, DialogActionKey, DialogComponent, ApplicationTopLayer, type DialogErrorHandler } from '@a11d/lit-application'
+import { type Dialog as IDialog, DialogActionKey, DialogComponent, type ApplicationTopLayer, type DialogErrorHandler } from '@a11d/lit-application'
 
 const queryActionElement = (slotName: string) => {
 	return (prototype: Component, propertyKey: string) => {

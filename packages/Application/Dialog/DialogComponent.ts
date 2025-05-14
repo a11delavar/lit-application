@@ -1,7 +1,7 @@
-import { Component, eventListener, PropertyValues } from '@a11d/lit'
+import { Component, eventListener, type PropertyValues } from '@a11d/lit'
 import { LocalStorage } from '@a11d/local-storage'
 import { Application, HookSet, querySymbolizedElement, WindowHelper, WindowOpenMode, Key, type Routable, NavigationStrategy, Router } from '../index.js'
-import { Dialog, DialogActionKey, DialogCancelledError } from './index.js'
+import { type Dialog, DialogActionKey, DialogCancelledError } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
 

@@ -1,5 +1,5 @@
 import { Router as RouterControllerBase } from '@lit-labs/router'
-import { ReactiveControllerHost } from '@a11d/lit'
+import { type ReactiveControllerHost } from '@a11d/lit'
 import { type Routable } from './Routable.js'
 import { Router } from './Router.js'
 import { equals } from '@a11d/equals'

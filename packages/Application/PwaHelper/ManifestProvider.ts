@@ -20,6 +20,6 @@ Application?.connectingHooks.add(async () => {
 
 
 declare global {
-	// eslint-disable-next-line
+
 	const manifest: Manifest | undefined
 }

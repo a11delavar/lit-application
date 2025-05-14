@@ -1,5 +1,5 @@
 import { component, html, css, property, Component, event } from '@a11d/lit'
-import { Page as IPage, PageComponent } from '@a11d/lit-application'
+import { type Page as IPage, PageComponent } from '@a11d/lit-application'
 
 /** @fires pageHeadingChange */
 @component('lit-page')

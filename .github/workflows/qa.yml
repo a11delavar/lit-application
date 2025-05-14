@@ -1,0 +1,32 @@
+name: 🔍 Quality Assurance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, review_requested, ready_for_review, synchronize]
+
+jobs:
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test
+  lint:
+    name: 📝 Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run lint

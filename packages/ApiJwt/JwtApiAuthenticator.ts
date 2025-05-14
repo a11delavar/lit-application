@@ -1,4 +1,4 @@
-import { apiAuthenticator, ApiAuthenticator, FetchAction } from '@a11d/api'
+import { apiAuthenticator, type ApiAuthenticator, type FetchAction } from '@a11d/api'
 
 type JwtApiAuthenticatorOptions = {
 	readonly refresh?: (refreshToken: string) => Promise<string>

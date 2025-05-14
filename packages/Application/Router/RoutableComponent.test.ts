@@ -18,6 +18,22 @@ class WithNonRouteParameter extends RoutableComponent<{ readonly keyword: string
 class WithoutRoute extends RoutableComponent { }
 
 describe('RoutableComponent', () => {
+	describe('routes', () => {
+		it('should return the routes of the component', () => {
+			expect(WithNumericId.routes).toEqual(['/routable-with-numeric-id/:id'])
+			expect(WithSubRoute.routes).toEqual(['/routable-with-sub-route{/:subRoute}?'])
+			expect(WithNonRouteParameter.routes).toEqual(['/routable-with-non-route-parameter'])
+		})
+
+		it('should return the routes of the component with base path', () => {
+			RoutableComponent.basePath = '/base-path'
+			expect(WithNumericId.routes).toEqual(['/base-path/routable-with-numeric-id/:id'])
+			expect(WithSubRoute.routes).toEqual(['/base-path/routable-with-sub-route{/:subRoute}?'])
+			expect(WithNonRouteParameter.routes).toEqual(['/base-path/routable-with-non-route-parameter'])
+			RoutableComponent.basePath = ''
+		})
+	})
+
 	describe('url', () => {
 		it('should return undefined if the given routable does not match any route', () => {
 			expect(new WithoutRoute().url).toBeUndefined()

@@ -6,7 +6,7 @@ export class RouterController extends RouterControllerBase {
 	protected readonly host: ReactiveControllerHost & HTMLElement
 
 	override hostConnected() {
-		this.importDecoratorRoutesIfAvailable()
+		this.importRoutableComponents()
 		super.hostConnected()
 	}
 
@@ -15,24 +15,19 @@ export class RouterController extends RouterControllerBase {
 		this.host = args[0]
 	}
 
-	private importDecoratorRoutesIfAvailable() {
-		const decoratorRoutes = [...RoutableComponent.container]
-			.filter(([, { routerHostConstructor }]) => this.host.constructor === routerHostConstructor || this.host.constructor.prototype instanceof routerHostConstructor)
-			.map(([route, { routableConstructor }]) => ({ route, routableConstructor }))
-
-		for (const { routableConstructor, route } of decoratorRoutes) {
-			const tagName = customElements.getName(routableConstructor)
-			if (!tagName) {
-				return
-			}
-			const tag = unsafeStatic(tagName)
-			this.routes.push({
-				path: route,
-				render: p => {
-					const query = Object.fromEntries(RoutableComponent.url.searchParams)
-					return staticHtml`<${tag} .parameters=${{ ...p, ...query }}></${tag}>`
-				}
-			})
-		}
+	private importRoutableComponents() {
+		this.routes.push(
+			...[...RoutableComponent.container]
+				.filter(Constructor => this.host.constructor === Constructor.host || this.host.constructor.prototype instanceof Constructor.host)
+				.flatMap(Constructor => Constructor.routes.map(route => ({
+					path: route,
+					render: (p: Record<string, string | undefined>) => {
+						const tagName = customElements.getName(Constructor)!
+						const tag = unsafeStatic(tagName)
+						const query = Object.fromEntries(RoutableComponent.url.searchParams)
+						return staticHtml`<${tag} .parameters=${{ ...p, ...query }}></${tag}>`
+					}
+				})))
+		)
 	}
 }

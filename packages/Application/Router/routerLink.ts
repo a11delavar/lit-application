@@ -1,5 +1,5 @@
 import { AsyncDirective, directive, type ElementPart, noChange, type PartInfo, PartType } from '@a11d/lit'
-import { UrlMatchMode, NavigationStrategy, type RoutableComponent } from './index.js'
+import { UrlMatchMode, NavigationStrategy, type RoutableComponent, type RoutableComponentConstructor } from './index.js'
 
 type Parameters = {
 	component: RoutableComponent<any>
@@ -105,7 +105,7 @@ class RouterLinkDirective extends AsyncDirective {
 		}
 		const strategy = getStrategy()
 
-		const component = new (this.parameters.component.constructor as any)(this.parameters.component.parameters)
+		const component = new (this.parameters.component.constructor as RoutableComponentConstructor)(this.parameters.component.parameters)
 		component.navigate(strategy, strategy !== NavigationStrategy.Page)
 
 		this.parameters.invocationHandler?.()

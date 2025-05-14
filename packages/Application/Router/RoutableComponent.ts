@@ -1,8 +1,8 @@
 import { Component, queryConnectedInstances, state } from '@a11d/lit'
 import { equals } from '@a11d/equals'
 import { compile, match, parse } from 'path-to-regexp'
-import { RoutesContainer } from './RoutesContainer.js'
 import { WindowHelper, WindowOpenMode } from '../utilities/WindowHelper.js'
+import { Application } from '../Application.js'
 
 export type RoutableParameters = void | Record<string, string | number | undefined>
 
@@ -14,10 +14,14 @@ export enum UrlMatchMode {
 export enum NavigationStrategy { Page, Tab, Window }
 
 export abstract class RoutableComponent<T extends RoutableParameters = void> extends Component {
-	static readonly container = new RoutesContainer()
+	static basePath = ''
+	static readonly container = new Set<RoutableComponentConstructor>()
 
-	static get basePath() { return RoutableComponent.container.basePath }
-	static set basePath(value) { RoutableComponent.container.basePath = value }
+	static host: AbstractConstructor<HTMLElement> | Constructor<HTMLElement> = Application
+
+	private static _routes = new Array<string>()
+	static get routes() { return this._routes.map(route => RoutableComponent.basePath + route) }
+	static set routes(value) { this._routes = value }
 
 	@queryConnectedInstances() private static readonly connectedInstances: Set<RoutableComponent<any>>
 
@@ -61,8 +65,7 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 	}
 
 	get route() {
-		const [route] = [...RoutableComponent.container].find(([, { routableConstructor }]) => routableConstructor === this.constructor) ?? []
-		return route
+		return (this.constructor as RoutableComponentConstructor).routes?.at(0)
 	}
 
 	get boundToWindow(): boolean {
@@ -143,8 +146,11 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 	}
 
 	protected refresh(parameters = { ...this.parameters }) {
-		return new (this.constructor as any)(parameters).navigate(NavigationStrategy.Page, true)
+		return new (this.constructor as RoutableComponentConstructor)(parameters).navigate(NavigationStrategy.Page, true)
 	}
 }
 
-export type RoutableComponentConstructor = Constructor<RoutableComponent<any>>
+export type RoutableComponentConstructor = Constructor<RoutableComponent<any>> & {
+	host: AbstractConstructor<HTMLElement> | Constructor<HTMLElement>
+	routes: Array<string>
+}

@@ -30,7 +30,9 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 	@queryConnectedInstances() static readonly connectedInstances: Set<RoutableComponent<any>>
 
 	static get boundComponent() {
-		return [...RoutableComponent.connectedInstances].at(0)
+		return [...RoutableComponent.connectedInstances]
+			.filter(instance => instance.urlMatches({ mode: 'ignore-parameters' }))
+			.at(0)
 	}
 
 	static get url() { return new URL(globalThis.location.toString()) }

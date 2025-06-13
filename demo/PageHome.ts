@@ -8,7 +8,7 @@ export class PageHome extends PageComponent {
 	protected override get template() {
 		return html`
 			<lit-page heading='Home 4' fullHeight>
-				<div ${viewTransitionName('square')} style='width: 100px; height: 100px; background: red; '></div>
+				<div ${viewTransitionName('square')} style='width: 100px; height: 100px; background: red; background-image: url("https://camo.githubusercontent.com/c2fd2f94aa55544327fc8ed8901aedb2eec8e3535243452b43646eb8086efe1a/68747470733a2f2f796176757a63656c696b65722e6769746875622e696f2f73616d706c652d696d616765732f696d6167652d34342e6a7067")'></div>
 				<div>
 					<h1 ${viewTransitionName('heading')}>Home Page</h1>
 					<button @click=${this.confirmDialog}>Open sample dialog</button>

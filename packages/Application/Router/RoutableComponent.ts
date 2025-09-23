@@ -141,7 +141,10 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 			...Object.fromEntries(options.url.searchParams)
 		}
 
-		return Object[equals](this.parameters ?? {}, parameters)
+		return Object[equals](
+			Object.fromEntries(Object.entries(this.parameters ?? {}).map(([k, v]) => [k, v?.toString()])),
+			parameters
+		)
 	}
 
 	protected updateUrl(force = false) {

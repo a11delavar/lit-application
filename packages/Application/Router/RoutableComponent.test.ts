@@ -11,7 +11,7 @@ class HomePage extends RoutableComponent { }
 
 @route('/with-numeric-id/:id')
 @component('test-with-numeric-id')
-class WithNumericId extends RoutableComponent<{ readonly id: number | string, readonly view?: 'details' | 'edit' }> { }
+class WithNumericId extends RoutableComponent<{ readonly id: number, readonly view?: 'details' | 'edit' }> { }
 
 @route('/with-sub-route{/:subRoute}?')
 @component('test-with-sub-route')
@@ -29,7 +29,7 @@ class WithCatchAll extends RoutableComponent { }
 @component('test-sub-catch-all')
 class SubCatchAll extends RoutableComponent { }
 
-fdescribe('RoutableComponent', () => {
+describe('RoutableComponent', () => {
 	describe('routes', () => {
 		it('should return the routes of the component', () => {
 			expect(HomePage.routes).toEqual(['/'])
@@ -37,7 +37,7 @@ fdescribe('RoutableComponent', () => {
 			expect(WithSubRoute.routes).toEqual(['/with-sub-route{/:subRoute}?'])
 			expect(WithNonRouteParameter.routes).toEqual(['/with-non-route-parameter'])
 			expect(WithCatchAll.routes).toEqual(['/catch-all/(.*)?'])
-			expect(SubCatchAll.routes).toEqual(['/catch-all/sub-route'])
+			expect(SubCatchAll.routes).toEqual(['/catch-all/sub/route'])
 		})
 
 		it('should return the routes of the component with base path', () => {
@@ -47,7 +47,7 @@ fdescribe('RoutableComponent', () => {
 			expect(WithSubRoute.routes).toEqual(['/base-path/with-sub-route{/:subRoute}?'])
 			expect(WithNonRouteParameter.routes).toEqual(['/base-path/with-non-route-parameter'])
 			expect(WithCatchAll.routes).toEqual(['/base-path/catch-all/(.*)?'])
-			expect(SubCatchAll.routes).toEqual(['/base-path/catch-all/sub-route'])
+			expect(SubCatchAll.routes).toEqual(['/base-path/catch-all/sub/route'])
 			RoutableComponent.basePath = ''
 		})
 	})
@@ -59,14 +59,14 @@ fdescribe('RoutableComponent', () => {
 
 		it('should return the path that matches the given routable - PageWithNumericId', () => {
 			expect(new HomePage().url!.path).toBe('/')
-			expect(new WithNumericId({ id: '1' }).url!.path).toBe('/with-numeric-id/1')
+			expect(new WithNumericId({ id: 1 }).url!.path).toBe('/with-numeric-id/1')
 			expect(new WithSubRoute({ subRoute: 'sub-route' }).url!.path).toBe('/with-sub-route/sub-route')
 			expect(new WithSubRoute({}).url!.path).toBe('/with-sub-route')
 			expect(new WithCatchAll().url!.path).toBe('/catch-all')
 			expect(new SubCatchAll().url!.path).toBe('/catch-all/sub/route')
 		})
 
-		fit('should put parameters part of the catch-all route in the path', () => {
+		it('should put parameters part of the catch-all route in the path', () => {
 			expect(new WithCatchAll({ '0': 'sub/route' } as any).url!.path).toBe('/catch-all/sub/route')
 		})
 
@@ -86,10 +86,10 @@ fdescribe('RoutableComponent', () => {
 			})
 
 			it('should return true when parameters match', () => {
-				expect(new WithNumericId({ id: '1' }).urlMatches({ url: url('/with-numeric-id/1') })).toBe(true)
+				expect(new WithNumericId({ id: 1 }).urlMatches({ url: url('/with-numeric-id/1') })).toBe(true)
 				expect(new WithSubRoute({ subRoute: 'sub-route' }).urlMatches({ url: url('/with-sub-route/sub-route') })).toBe(true)
 				expect(new WithNonRouteParameter({ keyword: 'test' }).urlMatches({ url: url('/with-non-route-parameter?keyword=test') })).toBe(true)
-				expect(new WithNumericId({ id: '1', view: 'details' }).urlMatches({ url: url('/with-numeric-id/1?view=details') })).toBe(true)
+				expect(new WithNumericId({ id: 1, view: 'details' }).urlMatches({ url: url('/with-numeric-id/1?view=details') })).toBe(true)
 			})
 
 			it('should return false if the given routable does not match the route', () => {

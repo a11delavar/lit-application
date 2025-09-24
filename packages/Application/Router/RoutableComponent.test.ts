@@ -74,6 +74,12 @@ describe('RoutableComponent', () => {
 			expect(new WithNonRouteParameter({ keyword: 'test' }).url!.path).toBe('/with-non-route-parameter?keyword=test')
 			expect(new WithNumericId({ id: 1, view: 'details' }).url!.path).toBe('/with-numeric-id/1?view=details')
 		})
+
+		it('should encode the parameters in the query string', () => {
+			expect(new WithNonRouteParameter({ keyword: 'test test' }).url!.path).toBe('/with-non-route-parameter?keyword=test+test')
+			expect(new WithNonRouteParameter({ keyword: 'test+test' }).url!.path).toBe('/with-non-route-parameter?keyword=test%2Btest')
+			expect(new WithNonRouteParameter({ keyword: 'tést' }).url!.path).toBe('/with-non-route-parameter?keyword=t%C3%A9st')
+		})
 	})
 
 	describe('urlMatches', () => {

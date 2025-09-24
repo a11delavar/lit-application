@@ -151,11 +151,13 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	}
 
 	protected cloned(other: DialogComponent<T, TResult>) {
-		// Copy the dialog's properties to the dialog in the new window
-		const propertiesToCopy = [...(this.constructor as unknown as typeof DialogComponent).elementProperties.keys()]
-		// @ts-expect-error property is a key of the elementProperties map
-		propertiesToCopy.forEach(property => other[property] = this[property])
-		other.requestUpdate()
+		if (this.isConnected) {
+			// Copy the dialog's properties to the dialog in the new window
+			const propertiesToCopy = [...(this.constructor as unknown as typeof DialogComponent).elementProperties.keys()]
+			// @ts-expect-error property is a key of the elementProperties map
+			propertiesToCopy.forEach(property => other[property] = this[property])
+			other.requestUpdate()
+		}
 	}
 
 	protected async pop(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog> = DialogConfirmationStrategy.Tab) {

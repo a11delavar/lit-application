@@ -1,5 +1,5 @@
 import { component, css, html, style } from '@a11d/lit'
-import { application, Application, routerLink, PageHome, PageSettings } from './index.js'
+import { application, Application, routerLink, PageHome, PageSettings, DialogSample } from './index.js'
 
 @application()
 @component('demo-application')
@@ -32,6 +32,7 @@ export class Demo extends Application {
 				<nav ${style({ padding: '1em', background: 'rgba(128, 128, 128, 0.15)' })}>
 					<a href='' ${routerLink(new PageHome)}>Home</a>
 					<a href='' ${routerLink({ component: new PageSettings, matchMode: 'ignore-parameters' })}>Settings</a>
+					<a href='' ${routerLink({ component: new DialogSample({ message: 'From Navbar' }) })}>Dialog</a>
 				</nav>
 			</header>
 		`

@@ -100,7 +100,9 @@ class RouterLinkDirective extends AsyncDirective {
 				case pointerEvent.shiftKey:
 					return NavigationStrategy.Window
 				default:
-					return NavigationStrategy.Page
+					// It's important not to default to `NavigationStrategy.Page` here
+					// so the default logic for complex scenarios (e.g. poppable dialogs) can be applied
+					return undefined
 			}
 		}
 		const strategy = getStrategy()

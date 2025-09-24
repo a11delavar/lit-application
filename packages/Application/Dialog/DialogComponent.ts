@@ -98,8 +98,11 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		super.connectedCallback()
 	}
 
-	override navigate(strategy = NavigationStrategy.Page, force = false) {
+	override navigate(strategy?: NavigationStrategy, force?: boolean) {
 		force
+		strategy ??= !this.poppable
+			? NavigationStrategy.Page
+			: DialogComponent.poppableConfirmationStrategy.value as unknown as NavigationStrategy
 		return this.confirm(strategy as unknown as DialogConfirmationStrategy)
 	}
 
@@ -144,17 +147,16 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 		this.cloned(other)
 
+		return other.confirmAsDialog()
+	}
+
+	protected cloned(other: DialogComponent<T, TResult>) {
 		// Copy the dialog's properties to the dialog in the new window
 		const propertiesToCopy = [...(this.constructor as unknown as typeof DialogComponent).elementProperties.keys()]
 		// @ts-expect-error property is a key of the elementProperties map
 		propertiesToCopy.forEach(property => other[property] = this[property])
-
 		other.requestUpdate()
-
-		return other.confirmAsDialog()
 	}
-
-	protected cloned(other: DialogComponent<T, TResult>) { other }
 
 	protected async pop(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog> = DialogConfirmationStrategy.Tab) {
 		this.open = false
@@ -191,19 +193,15 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
+	get poppable() {
+		return !!this.route && !this.urlMatches()
+	}
+
 	protected override firstUpdated(props: PropertyValues<this>) {
 		this.dialogElement.handleAction = this.handleAction
 		this.dialogElement.requestPopup?.subscribe(() => this.pop())
+		this.dialogElement.poppable = this.poppable
 		this.dialogElement.boundToWindow = this.boundToWindow
-
-		if (this.dialogElement.poppable &&
-			this.urlMatches() === false &&
-			DialogComponent.poppableConfirmationStrategy.value !== DialogConfirmationStrategy.Dialog
-		) {
-			this.pop(DialogComponent.poppableConfirmationStrategy.value)
-			return
-		}
-
 		this.dialogElement.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
 
 		this.open = true

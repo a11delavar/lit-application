@@ -27,11 +27,11 @@ export class Dialog extends Component implements IDialog {
 	@property({ updated(this: Dialog) { this.pageHeadingChange.dispatch(this.heading) } }) heading = ''
 	@property() primaryButtonText?: string
 	@property() secondaryButtonText?: string
-	@property({ type: Boolean }) poppable?: boolean
-	@property({ type: Boolean, reflect: true }) boundToWindow?: boolean
 	@property({ type: Boolean }) preventCancellationOnEscape?: boolean
 	@property({ type: Boolean }) primaryOnEnter?: boolean
 	@property() errorHandler?: DialogErrorHandler
+	@state() poppable?: boolean
+	@state() boundToWindow?: boolean
 
 	@state({ updated(this: Dialog, value: boolean) {
 		if (value) {
@@ -54,17 +54,15 @@ export class Dialog extends Component implements IDialog {
 		return css`
 			h1 { margin: 0; }
 
-			dialog::backdrop {
-				background-color: var(--lit-dialog-backdrop-color, rgba(0, 0, 0, 0.5));
-			}
+			dialog {
+				&::backdrop {
+					background-color: var(--lit-dialog-backdrop-color, rgba(0, 0, 0, 0.5));
+				}
 
-			:host([boundToWindow]) dialog::backdrop {
-				background-color: var(--lit-dialog-backdrop-color, rgba(234, 234, 234, 1));
-			}
-
-			@media (prefers-color-scheme: dark) {
-				:host([boundToWindow]) dialog::backdrop {
-					background-color: var(--lit-dialog-backdrop-color, rgba(16, 16, 16, 1));
+				&[data-bound] {
+					&::backdrop {
+						background-color: var(--lit-dialog-backdrop-color, light-dark(rgba(234, 234, 234, 1), rgba(16, 16, 16, 1)));
+					}
 				}
 			}
 		`
@@ -72,7 +70,7 @@ export class Dialog extends Component implements IDialog {
 
 	protected override get template() {
 		return html`
-			<dialog part='dialog' @cancel=${(e: Event) => e.preventDefault()}>
+			<dialog part='dialog' ?data-bound=${this.boundToWindow} @cancel=${(e: Event) => e.preventDefault()}>
 				<div ${style({ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' })}>
 					<div ${style({ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '4px' })}>
 						<h1>${this.heading}</h1>

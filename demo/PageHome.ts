@@ -19,7 +19,7 @@ export class PageHome extends PageComponent {
 	}
 
 	private async confirmDialog() {
-		const result1 = await new DialogSample({ message: 'Message 1' }).confirm()
+		const result1 = await new DialogSample({ message: 'Message 1' }).navigate()
 		NotificationComponent.notifySuccess(`The result was "${result1}"`)
 	}
 

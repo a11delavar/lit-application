@@ -2,7 +2,7 @@
 import { exec } from 'child_process'
 import { promisify } from 'util'
 
-export async function run(command, directory) {
+export async function run(command: string, directory?: string) {
 	const { stdout, stderr } = await promisify(exec)(command, { cwd: directory })
 	if (stderr) {
 		throw new Error(stderr)

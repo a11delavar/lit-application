@@ -1,7 +1,6 @@
-// @ts-check
 import * as FileSystem from 'fs'
 import Path from 'path'
-import { run } from './run.mjs'
+import { run } from './run.ts'
 
 export class Packages {
 	/** @readonly */
@@ -11,7 +10,7 @@ export class Packages {
 		return Packages.getPackageJsonPathsByDirectory(Packages.directory)
 	}
 
-	static getPackageJsonPathsByDirectory(directory) {
+	static getPackageJsonPathsByDirectory(directory: string): Array<string> {
 		const files = FileSystem.readdirSync(directory)
 		return files.flatMap(file => {
 			const fullPath = Path.resolve(directory, file)
@@ -22,10 +21,10 @@ export class Packages {
 			if (fullPath.endsWith('package.json') && !fullPath.includes('node_modules')) {
 				return fullPath
 			}
-		}).filter(Boolean)
+		}).filter(Boolean) as Array<string>
 	}
 
-	static getPath(packageName) {
+	static getPath(packageName: string) {
 		const p = Packages.getPackageJsonPaths().find(path => JSON.parse(FileSystem.readFileSync(path, 'utf8')).name === packageName)
 		if (!p) {
 			throw new Error(`Could not find package ${packageName}`)
@@ -44,17 +43,17 @@ export class Packages {
 		})
 	}
 
-	static getDirectory(packageName) {
+	static getDirectory(packageName: string) {
 		const path = Packages.getPath(packageName)
 		return Path.dirname(path)
 	}
 
-	static getContent(packageName) {
+	static getContent(packageName: string) {
 		const path = Packages.getPath(packageName)
 		return JSON.parse(FileSystem.readFileSync(path, 'utf8'))
 	}
 
-	static async release(packageName, versionBumpType) {
+	static async release(packageName: string, versionBumpType: string) {
 		await run('npm run clean')
 		const packageDirectory = Packages.getDirectory(packageName)
 		await run('npm install', packageDirectory)
@@ -63,9 +62,9 @@ export class Packages {
 			throw new Error('Do not include the --preid flag in the version bump type. Use "prerelease" instead.')
 		}
 		const isPreRelease = versionBumpType.startsWith('pre')
-		// eslint-disable-next-line no-console, no-undef
+		// eslint-disable-next-line no-console
 		console.log(await run(`npm version --loglevel=error ${versionBumpType.replace('prepatch', 'prerelease')} ${!isPreRelease ? '' : '--preid=preview'}`, packageDirectory))
-		// eslint-disable-next-line no-console, no-undef
+		// eslint-disable-next-line no-console
 		console.log(await run(`npm publish --loglevel=error --access public ${!isPreRelease ? '' : '--tag preview'}`, packageDirectory))
 		await run('npm run clean')
 	}
@@ -77,7 +76,7 @@ export class Packages {
 			try {
 				await Packages.release(packageName, versionBumpType)
 			} catch (error) {
-				// eslint-disable-next-line no-console, no-undef
+				// eslint-disable-next-line no-console
 				console.error(error)
 			}
 		}

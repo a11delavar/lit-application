@@ -1,4 +1,3 @@
-// @ts-check
 // import { context } from 'esbuild'
 import { createServer } from 'esbuild-server'
 // import { TscWatchClient } from 'tsc-watch'

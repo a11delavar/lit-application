@@ -100,13 +100,13 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 	override navigate(strategy?: NavigationStrategy, force?: boolean) {
 		force
-		strategy ??= !this.poppable
-			? NavigationStrategy.Page
-			: DialogComponent.poppableConfirmationStrategy.value as unknown as NavigationStrategy
 		return this.confirm(strategy as unknown as DialogConfirmationStrategy)
 	}
 
-	confirm(strategy = DialogConfirmationStrategy.Dialog) {
+	confirm(strategy?: DialogConfirmationStrategy) {
+		strategy ??= !this.poppable
+			? DialogConfirmationStrategy.Dialog
+			: DialogComponent.poppableConfirmationStrategy.value
 		return strategy === DialogConfirmationStrategy.Dialog
 			? this.confirmAsDialog()
 			: this.confirmAsPopup(strategy)

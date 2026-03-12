@@ -29,7 +29,7 @@ export abstract class PageComponent<T extends PageParameters = void> extends Rou
 		super.connectedCallback()
 	}
 
-	protected override firstUpdated(props: PropertyValues<this>) {
+	protected override firstUpdated(props: PropertyValues) {
 		this.pageElement.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
 		super.firstUpdated(props)
 	}

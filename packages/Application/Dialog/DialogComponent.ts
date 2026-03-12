@@ -199,7 +199,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return !!this.route && !this.urlMatches()
 	}
 
-	protected override firstUpdated(props: PropertyValues<this>) {
+	protected override firstUpdated(props: PropertyValues) {
 		this.dialogElement.handleAction = this.handleAction
 		this.dialogElement.requestPopup?.subscribe(() => this.pop())
 		this.dialogElement.poppable = this.poppable

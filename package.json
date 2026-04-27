@@ -46,6 +46,7 @@
 		"esbuild-server": "0.x",
 		"npm-watch": "0.x",
 		"tsc-watch": "6.x",
-		"open": "x"
+		"open": "x",
+		"execa": "x"
 	}
 }

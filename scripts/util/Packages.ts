@@ -56,16 +56,16 @@ export class Packages {
 	static async release(packageName: string, versionBumpType: string) {
 		await run('npm run clean')
 		const packageDirectory = Packages.getDirectory(packageName)
-		await run('npm install', packageDirectory)
-		await run('tsc', packageDirectory)
+		await run('npm install', { directory: packageDirectory })
+		await run('tsc', { directory: packageDirectory })
 		if (versionBumpType.includes('--preid')) {
 			throw new Error('Do not include the --preid flag in the version bump type. Use "prerelease" instead.')
 		}
 		const isPreRelease = versionBumpType.startsWith('pre')
 		// eslint-disable-next-line no-console
-		console.log(await run(`npm version --loglevel=error ${versionBumpType.replace('prepatch', 'prerelease')} ${!isPreRelease ? '' : '--preid=preview'}`, packageDirectory))
+		console.log(await run(`npm version --loglevel=error ${versionBumpType.replace('prepatch', 'prerelease')} ${!isPreRelease ? '' : '--preid=preview'}`, { directory: packageDirectory }))
 		// eslint-disable-next-line no-console
-		console.log(await run(`npm publish --loglevel=error --access public ${!isPreRelease ? '' : '--tag preview'}`, packageDirectory))
+		console.log(await run(`npm publish --loglevel=error --access public ${!isPreRelease ? '' : '--tag preview'}`, { directory: packageDirectory }))
 		await run('npm run clean')
 	}
 

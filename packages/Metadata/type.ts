@@ -10,7 +10,7 @@ export function type<Target, TKey extends keyof Target>(type: Constructor<Target
 }
 
 type.get = function (constructor: Constructor<any>, propertyKey: string) {
-	return Reflect.getMetadata(key, constructor.prototype, propertyKey)
+	return !constructor ? undefined : Reflect.getMetadata(key, constructor.prototype, propertyKey)
 }
 
 globalThis.type = type

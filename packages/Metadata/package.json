@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/metadata",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "A set of behavior-less metadata decorators.",
 	"repository": {
 		"type": "git",

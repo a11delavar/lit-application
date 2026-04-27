@@ -20,9 +20,9 @@ export function createMetadataDecorator(key: symbol) {
 	metadata.getByKeyPath = function <T>(constructor: Constructor<T>, keyPath: KeyPath.Of<T>) {
 		const keys = keyPath.split('.')
 		const key = keys.pop() as string
-		const parent = keys.reduce((previousType, key) => type.get(previousType, key), constructor)
+		const parent = keys.reduce((previousType, key) => type.get(previousType!, key), constructor)
 		if (!parent) {
-			throw new Error(`Could not resolve type for key path "${keyPath}". Ensure nested properties are decorated with @type(SubPropertyType)`)
+			return undefined
 		}
 		return metadata.get(parent, key)
 	}

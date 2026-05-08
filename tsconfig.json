@@ -6,9 +6,11 @@
 		"declarationMap": true,
 		"target": "ES2022",
 		"lib": [
+			"ES2022",
 			"DOM",
 			"DOM.Iterable"
 		],
+		"useDefineForClassFields": false,
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		"strict": true,

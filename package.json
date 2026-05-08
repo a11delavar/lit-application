@@ -47,6 +47,11 @@
 		"npm-watch": "0.x",
 		"tsc-watch": "6.x",
 		"open": "x",
-		"execa": "x"
+		"execa": "x",
+		"eslint": "x",
+		"eslint-plugin-import": "x",
+		"eslint-plugin-lit": "1.x",
+		"@typescript-eslint/eslint-plugin": "x",
+		"@typescript-eslint/parser": "x"
 	}
 }

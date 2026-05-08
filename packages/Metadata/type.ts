@@ -16,7 +16,6 @@ type.get = function (constructor: Constructor<any>, propertyKey: string) {
 globalThis.type = type
 
 declare global {
-	// eslint-disable-next-line no-var
 	var type: typeof import('./type.js').type & {
 		get: typeof import('./type.js').type.get
 	}

@@ -1,4 +1,4 @@
-# Dialog API Redesign
+# Dialog (and Page) API Redesign
 
 Status: **Agreed.** Independent of the router/parameters redesign (see `router-redesign.md`).
 
@@ -13,6 +13,8 @@ Today `DialogComponent` puppeteers the dialog element via:
 - Keyboard handling (`Enter`/`Escape`) duplicated in every `DialogComponent`
 
 This makes the dialog element (`<lit-dialog>`, `<mo-dialog>`) a dumb shell, and duplicates action-dispatch logic if you ever add a new implementation.
+
+`PageComponent` has a much smaller version of the same problem: `firstUpdated` reaches into the page element to set `heading` from the `@label` decorator, and `pageElement` is found via symbol-query. No action logic, no controller needed — just apply the same "element is self-sufficient, framework wires only what it must" principle where it pays off.
 
 ## Design
 
@@ -200,10 +202,49 @@ The `close` event always fires when the dialog closes. `confirm()` is opt-in on 
 
 This is the intentional API powering "order locked" scenarios and validation errors.
 
-## Migration steps
+## Page — same principle, much smaller scope
 
-1. **Add `DialogController`** in `@a11d/lit-application`. No existing code affected.
-2. **Update `<lit-dialog>`** — install controller, add `primaryAction`/`secondaryAction`/`cancellationAction` properties + `confirm()` + `close` event. Keep deprecated `handleAction` for one release.
-3. **Update `DialogComponent`** — delegate to controller via `dialogElement.confirm()`. Remove internal action dispatch, keyboard handlers, property-poking.
-4. **Update `<mo-dialog>`** (in 3mo) — install controller, remove `handleAction` callback property.
-5. **Remove `handleAction` from `Dialog` interface.** Internal breaking change only — affects `lit-dialog` and `mo-dialog` implementations (both owned). No user code changes.
+Pages don't need a controller. There's no action dispatch, executing state, promise plumbing, or keyboard handling. Just `heading` and the `pageHeadingChange` event.
+
+What changes for pages:
+
+- **`<lit-page>` / `<mo-page>` stay self-sufficient.** Today's interface (`heading`, `pageHeadingChange`) is fine.
+- **`PageComponent.firstUpdated` heading-poke** (`this.pageElement.heading ||= label.get(this.constructor)?.toString()`) — decide between:
+  - **Option A (minimal):** keep the one-line poke. Not worth a controller for one line.
+  - **Option B (consistent):** expose `defaultHeading` (sourced from the `@label` decorator) and have the page element read it. Cleaner architecturally but adds a mechanism for one fallback.
+
+  Decide during implementation. Not worth blocking on now.
+- **Symbol-query for `pageElement`** stays unless we replace it for dialogs. If we do, apply the same to `pageElement` for consistency.
+- **`connectingHooks`** (auth gates, etc.) unchanged.
+
+Inline pages are not a goal — pages don't usually live inside another component's template.
+
+## Plan (phased)
+
+### Phase 1 — `DialogController` foundation (this repo)
+
+1. Add `DialogController` in `@a11d/lit-application`. No existing code affected.
+2. Update `<lit-dialog>`: install controller; add `primaryAction`/`secondaryAction`/`cancellationAction` properties + `confirm()` + `close` event. Keep deprecated `handleAction` callback during deprecation window.
+3. Update `DialogComponent`: delegate to `dialogElement.confirm()`. Remove internal action dispatch, keyboard handlers, `firstUpdated` property-poking.
+4. Update tests to cover the new behavior (existing tests should continue to pass).
+
+### Phase 2 — `<mo-dialog>` migration (3mo repo)
+
+5. Install `DialogController` in `<mo-dialog>`. Remove externally-set `handleAction` callback property. Adapt `executingActionAdaptersByComponent` to react to controller's `executingAction` via Lit's reactive `updated()` cycle instead of externally-poked state.
+6. Verify downstream (`StandardDialogs`, `GenericDialog`, ebusiness dialogs).
+
+### Phase 3 — `Dialog` interface cleanup
+
+7. Remove `handleAction`, `requestPopup`, `poppable`, `boundToWindow` from `Dialog` interface. Internal breaking change only — affects `lit-dialog` and `mo-dialog` implementations (both owned).
+
+### Phase 4 — Page cleanup (small)
+
+8. Resolve the `firstUpdated` heading-poke (Option A or B above).
+9. If symbol-query was replaced for `dialogElement`, apply the same to `pageElement`.
+
+## Migration impact
+
+- **No user-code changes** in 3mo / ebusiness for the dialog refactor.
+- `<lit-dialog>` and `<mo-dialog>` consumers using only the documented API (`primaryAction`/`secondaryAction`/`cancellationAction` overrides on `DialogComponent`) are unaffected.
+- Custom `IDialog` implementations (rare — only `lit-dialog` and `mo-dialog` exist today) need to install `DialogController`.
+- Pages need essentially no consumer migration.

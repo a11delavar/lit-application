@@ -1,10 +1,10 @@
 
 class Test<P> {
-  declare readonly parameters: P  // ← anchors P to the instance shape
+	declare readonly parameters: P  // ← anchors P to the instance shape
 
-  static open<T extends Test<any>>(this: new () => T, params: T['parameters']) {
-	params
-  }
+	static open<T extends Test<any>>(this: new () => T, params: T['parameters']) {
+		params
+	}
 }
 class SubText extends Test<{ id: number }> {}
 

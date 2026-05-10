@@ -1,15 +1,15 @@
-import { DialogComponent, DialogComponentErrorHandler } from '../DialogComponent.js'
+import { DialogErrorHandler, dialogErrorHandler } from '../dialogErrorHandler.js'
 import { NotificationComponent } from '../../Notification/NotificationComponent.js'
 
-@DialogComponent.errorHandler('notification', true)
-export class DialogComponentNotificationErrorHandler extends DialogComponentErrorHandler {
+@dialogErrorHandler('notification', true)
+export class DialogComponentNotificationErrorHandler extends DialogErrorHandler {
 	override handle(error: Error) {
 		return NotificationComponent.notifyError(error.message)
 	}
 }
 
 declare global {
-	interface DialogComponentErrorHandlers {
+	interface DialogErrorHandlers {
 		'notification': DialogComponentNotificationErrorHandler
 	}
 }

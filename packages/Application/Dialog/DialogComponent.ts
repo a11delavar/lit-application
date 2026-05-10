@@ -1,6 +1,6 @@
 import { eventListener, type PropertyValues } from '@a11d/lit'
 import { LocalStorage } from '@a11d/local-storage'
-import { Application, HookSet, querySymbolizedElement, RoutableComponent, WindowHelper, WindowOpenMode, Key, NavigationStrategy } from '../index.js'
+import { Application, HookSet, querySymbolizedElement, RoutableComponent, WindowHelper, WindowOpenMode, NavigationStrategy } from '../index.js'
 import { type Dialog, DialogActionKey, DialogCancelledError } from './index.js'
 
 export type DialogParameters = void | Record<string, any>
@@ -17,31 +17,14 @@ export enum DialogConfirmationStrategy {
 
 export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 
-export abstract class DialogComponentErrorHandler {
-	constructor(protected readonly dialogComponent: DialogComponent<any, any>) { }
-	abstract handle(error: Error): void | Promise<void>
-}
-
 const dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
 
 export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends RoutableComponent<T> {
 	static readonly connectingHooks = new HookSet<DialogComponent<any, any>>()
 
-	private static readonly errorHandlers = new Map<string, Constructor<DialogComponentErrorHandler>>()
-	private static defaultErrorHandler: Constructor<DialogComponentErrorHandler>
-
 	static dialogElement() {
 		return (constructor: Constructor<Dialog>) => {
 			(constructor as any)[dialogElementConstructorSymbol] = true
-		}
-	}
-
-	static errorHandler(key: string, isDefault = false) {
-		return (ErrorHandlerConstructor: Constructor<DialogComponentErrorHandler>) => {
-			DialogComponent.errorHandlers.set(key, ErrorHandlerConstructor)
-			if (isDefault) {
-				DialogComponent.defaultErrorHandler = ErrorHandlerConstructor
-			}
 		}
 	}
 
@@ -73,23 +56,8 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 	@eventListener({ target: window, type: 'beforeunload' })
 	protected async handleBeforeUnload() {
-		if (this.dialogElement.boundToWindow) {
-			await this.handleAction(DialogActionKey.Cancellation)
-		}
-	}
-
-	@eventListener({ target: window, type: 'keydown' })
-	protected async handleKeyDown(e: KeyboardEvent) {
-		if (Application.topLayer !== this.dialogElement.topLayerElement) {
-			return
-		}
-
-		if (this.dialogElement.primaryOnEnter === true && e.key === Key.Enter) {
-			await this.handleAction(DialogActionKey.Primary)
-		}
-
-		if (!this.dialogElement.preventCancellationOnEscape && e.key === Key.Escape) {
-			await this.handleAction(DialogActionKey.Cancellation)
+		if (this.dialogElement?.boundToWindow) {
+			await this.dialogElement.controller.executeAction(DialogActionKey.Cancellation).catch(() => undefined)
 		}
 	}
 
@@ -112,19 +80,14 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			: this.confirmAsPopup(strategy)
 	}
 
-	private _confirmationPromiseExecutor?: [
-		resolve: (value: TResult) => void,
-		reject: (reason: Error) => void,
-	]
-
-	private async confirmAsDialog() {
+	private async confirmAsDialog(): Promise<TResult> {
 		const host = await DialogComponent.getHost()
 		if (this.isConnected === false) {
 			host.appendChild(this)
 		}
-		return new Promise<TResult>((resolve, reject) => {
-			this._confirmationPromiseExecutor = [resolve, reject]
-		})
+		// `firstUpdated` wires the dialog element's controller; wait for it.
+		await this.updateComplete
+		return this.dialogElement.confirm<TResult>().finally(() => this.remove())
 	}
 
 	private async confirmAsPopup(strategy: PopupConfirmationStrategy) {
@@ -161,37 +124,19 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	}
 
 	protected async pop(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog> = DialogConfirmationStrategy.Tab) {
-		this.open = false
-		const [resolve, reject] = this._confirmationPromiseExecutor ?? []
+		this.dialogElement.controller.dismiss()
 		try {
 			const value = await this.confirmAsPopup(strategy) as TResult
-			resolve?.(value)
+			this.dialogElement.controller.close(value)
 		} catch (error) {
-			reject?.(error as Error)
+			this.dialogElement.controller.close(error as Error)
 		}
 	}
 
 	protected close(result: TResult | Error) {
-		this.open = false
-
-		const [resolve, reject] = this._confirmationPromiseExecutor ?? []
-		if (result instanceof Error) {
-			reject?.(result)
-		} else {
-			resolve?.(result)
-		}
-
-		this.remove()
-
+		this.dialogElement.controller.close(result)
 		if (this.dialogElement.boundToWindow) {
 			window.close()
-		}
-	}
-
-	private get open() { return this.dialogElement.open ?? false }
-	private set open(value) {
-		if (this.dialogElement) {
-			this.dialogElement.open = value
 		}
 	}
 
@@ -200,13 +145,14 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	}
 
 	protected override firstUpdated(props: PropertyValues) {
-		this.dialogElement.handleAction = this.handleAction
-		this.dialogElement.requestPopup?.subscribe(() => this.pop())
-		this.dialogElement.poppable = this.poppable
-		this.dialogElement.boundToWindow = this.boundToWindow
-		this.dialogElement.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
-
-		this.open = true
+		const dialog = this.dialogElement
+		dialog.primaryAction = () => this.primaryAction()
+		dialog.secondaryAction = () => this.secondaryAction()
+		dialog.cancellationAction = () => this.cancellationAction()
+		dialog.requestPopup?.subscribe(() => this.pop())
+		dialog.poppable = this.poppable
+		dialog.boundToWindow = this.boundToWindow
+		dialog.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
 		super.firstUpdated(props)
 	}
 
@@ -220,54 +166,5 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 
 	protected cancellationAction(): DialogAction<TResult> {
 		return new DialogCancelledError(this)
-	}
-
-	protected readonly handleAction = async (actionKey: DialogActionKey) => {
-		const actionByKey = new Map([
-			[DialogActionKey.Primary, this.primaryAction],
-			[DialogActionKey.Secondary, this.secondaryAction],
-			[DialogActionKey.Cancellation, this.cancellationAction],
-		])
-
-		const action = actionByKey.get(actionKey)?.bind(this)
-
-		if (!action) {
-			throw new Error(`No action for key ${actionKey}`)
-		}
-
-		try {
-			this.dialogElement.executingAction = actionKey
-			const result = await action()
-			if (!this.dialogElement.manualClose || actionKey === DialogActionKey.Cancellation) {
-				this.close(result)
-			}
-		} catch (e: any) {
-			this.handleError(e)
-			throw e
-		} finally {
-			this.dialogElement.executingAction = undefined
-		}
-	}
-
-	protected handleError(error: Error) {
-		if (error instanceof DialogCancelledError) {
-			return
-		}
-
-		if (!this.dialogElement.errorHandler) {
-			return new DialogComponent.defaultErrorHandler(this).handle(error)
-		}
-
-		if (typeof this.dialogElement.errorHandler === 'string') {
-			const ErrorHandlerConstructor = DialogComponent.errorHandlers.get(this.dialogElement.errorHandler)
-
-			if (!ErrorHandlerConstructor) {
-				throw new Error(`No error handler for key ${this.dialogElement.errorHandler}`)
-			}
-
-			return new ErrorHandlerConstructor(this).handle(error)
-		}
-
-		this.dialogElement.errorHandler(error)
 	}
 }

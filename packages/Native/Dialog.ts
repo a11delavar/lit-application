@@ -1,5 +1,5 @@
-import { component, html, css, property, Component, state, query, style, event } from '@a11d/lit'
-import { type Dialog as IDialog, DialogActionKey, DialogComponent, type ApplicationTopLayer, type DialogErrorHandler } from '@a11d/lit-application'
+import { component, html, css, property, Component, state, query, style, event, type PropertyValues } from '@a11d/lit'
+import { type Dialog as IDialog, DialogActionKey, DialogComponent, type ApplicationTopLayer, type DialogErrorHandler, DialogController, type DialogControllerAction } from '@a11d/lit-application'
 
 const queryActionElement = (slotName: string) => {
 	return (prototype: Component, propertyKey: string) => {
@@ -17,38 +17,67 @@ const queryActionElement = (slotName: string) => {
  * @slot primaryAction - The primary action element of the dialog.
  * @slot secondaryAction - The secondary action element of the dialog.
  * @slot cancellationAction - The cancellation action element of the dialog.
+ *
+ * @fires close - Fired when the dialog closes; `event.detail` is the resolved
+ *                value (or thrown `Error`).
  */
 @component('lit-dialog')
 @DialogComponent.dialogElement()
 export class Dialog extends Component implements IDialog {
+	readonly controller = new DialogController(this)
+
 	@event({ bubbles: true, composed: true, cancelable: true }) readonly pageHeadingChange!: EventDispatcher<string>
 	@event() readonly requestPopup!: EventDispatcher
+	@event() readonly close!: EventDispatcher<unknown>
 
 	@property({ updated(this: Dialog) { this.pageHeadingChange.dispatch(this.heading) } }) heading = ''
 	@property() primaryButtonText?: string
 	@property() secondaryButtonText?: string
+
+	@property({ type: Boolean }) open = false
+	@state() executingAction?: DialogActionKey
+
 	@property({ type: Boolean }) preventCancellationOnEscape?: boolean
 	@property({ type: Boolean }) primaryOnEnter?: boolean
+	@property({ type: Boolean }) manualClose?: boolean
 	@property() errorHandler?: DialogErrorHandler
+
+	@property({ attribute: false }) primaryAction?: () => DialogControllerAction<unknown>
+	@property({ attribute: false }) secondaryAction?: () => DialogControllerAction<unknown>
+	@property({ attribute: false }) cancellationAction?: () => DialogControllerAction<unknown>
+
 	@state() poppable?: boolean
 	@state() boundToWindow?: boolean
 
-	@state({ updated(this: Dialog, value: boolean) {
-		if (value) {
-			this.dialogElement.showModal()
-		} else {
-			setTimeout(() => this.dialogElement.close())
-		}
-	} }) open = false
+	confirm<T = unknown>() {
+		return this.controller.confirm<T>()
+	}
 
-	@query('dialog') readonly dialogElement!: HTMLDialogElement
+	/**
+	 * @deprecated Forwards to `controller.executeAction`. Will be removed in a
+	 * future release once `mo-dialog` migrates to `DialogController`.
+	 */
+	handleAction = (key: DialogActionKey) => this.controller.executeAction(key)
+
+	@query('dialog') readonly nativeDialogElement!: HTMLDialogElement
 	@query('lit-application-top-layer') readonly topLayerElement!: ApplicationTopLayer
 
 	@queryActionElement('primaryAction') readonly primaryActionElement: HTMLElement | undefined
 	@queryActionElement('secondaryAction') readonly secondaryActionElement: HTMLElement | undefined
 	@queryActionElement('cancellationAction') readonly cancellationActionElement: HTMLElement | undefined
 
-	handleAction!: (key: DialogActionKey) => void | Promise<void>
+	private wasOpen = false
+	protected override updated(props: PropertyValues) {
+		super.updated(props)
+		if (this.open !== this.wasOpen) {
+			this.wasOpen = this.open
+			if (this.open) {
+				this.nativeDialogElement?.showModal()
+			} else {
+				setTimeout(() => this.nativeDialogElement?.close())
+			}
+		}
+	}
 
 	static override get styles() {
 		return css`
@@ -98,7 +127,7 @@ export class Dialog extends Component implements IDialog {
 
 	protected get primaryActionElementTemplate() {
 		return html`
-			<slot name='primaryAction' @click=${() => this.handleAction(DialogActionKey.Primary)}>
+			<slot name='primaryAction' @click=${() => this.controller.executeAction(DialogActionKey.Primary).catch(() => undefined)}>
 				${!this.primaryButtonText ? html.nothing : html`<button>${this.primaryButtonText}</button>`}
 			</slot>
 		`
@@ -106,7 +135,7 @@ export class Dialog extends Component implements IDialog {
 
 	protected get secondaryActionElementTemplate() {
 		return html`
-			<slot name='secondaryAction' @click=${() => this.handleAction(DialogActionKey.Secondary)}>
+			<slot name='secondaryAction' @click=${() => this.controller.executeAction(DialogActionKey.Secondary).catch(() => undefined)}>
 				${!this.secondaryButtonText ? html.nothing : html`<button>${this.secondaryButtonText}</button>`}
 			</slot>
 		`
@@ -114,7 +143,7 @@ export class Dialog extends Component implements IDialog {
 
 	protected get cancellationActionElementTemplate() {
 		return html`
-			<slot name='cancellationAction' @click=${() => this.handleAction(DialogActionKey.Cancellation)}>
+			<slot name='cancellationAction' @click=${() => this.controller.executeAction(DialogActionKey.Cancellation).catch(() => undefined)}>
 				<button>✖</button>
 			</slot>
 		`

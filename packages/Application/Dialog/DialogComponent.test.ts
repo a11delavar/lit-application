@@ -3,8 +3,11 @@ import {
 	DialogActionKey,
 	DialogCancelledError,
 	DialogComponent,
-	DialogComponentErrorHandler,
+	DialogController,
+	DialogErrorHandler,
+	dialogErrorHandler,
 	type Dialog as IDialog,
+	type DialogControllerAction,
 } from './index.js'
 import type { ApplicationTopLayer } from '../ApplicationTopLayer.js'
 
@@ -24,8 +27,11 @@ import type { ApplicationTopLayer } from '../ApplicationTopLayer.js'
 @component('test-dialog-fake')
 @DialogComponent.dialogElement()
 class FakeDialog extends Component implements IDialog {
+	readonly controller = new DialogController(this)
+
 	@event() readonly pageHeadingChange!: EventDispatcher<string>
 	@event() readonly requestPopup!: EventDispatcher
+	@event() readonly close!: EventDispatcher<unknown>
 
 	@state() heading = ''
 	@state() open = false
@@ -33,10 +39,14 @@ class FakeDialog extends Component implements IDialog {
 	@state() boundToWindow?: boolean
 	@state() executingAction?: DialogActionKey
 
-	preventCancellationOnEscape?: boolean
-	primaryOnEnter?: boolean
-	manualClose?: boolean
+	@state() preventCancellationOnEscape?: boolean
+	@state() primaryOnEnter?: boolean
+	@state() manualClose?: boolean
 	errorHandler?: IDialog['errorHandler']
+
+	primaryAction?: () => DialogControllerAction<unknown>
+	secondaryAction?: () => DialogControllerAction<unknown>
+	cancellationAction?: () => DialogControllerAction<unknown>
 
 	primaryActionElement: HTMLElement | undefined
 	secondaryActionElement: HTMLElement | undefined
@@ -44,7 +54,9 @@ class FakeDialog extends Component implements IDialog {
 
 	@query('lit-application-top-layer') readonly topLayerElement!: ApplicationTopLayer
 
-	handleAction!: (key: DialogActionKey) => void | Promise<void>
+	confirm<T = unknown>() { return this.controller.confirm<T>() }
+
+	handleAction = (key: DialogActionKey) => this.controller.executeAction(key)
 
 	protected override get template() {
 		return html`<lit-application-top-layer></lit-application-top-layer>`
@@ -52,8 +64,8 @@ class FakeDialog extends Component implements IDialog {
 }
 FakeDialog
 
-@DialogComponent.errorHandler('test-default', true)
-class CapturingDefaultHandler extends DialogComponentErrorHandler {
+@dialogErrorHandler('test-default', true)
+class CapturingDefaultHandler extends DialogErrorHandler {
 	static lastError?: Error
 	static reset() { CapturingDefaultHandler.lastError = undefined }
 	override handle(error: Error) { CapturingDefaultHandler.lastError = error }
@@ -126,7 +138,7 @@ describe('DialogComponent', () => {
 			const Dialog = defineDialog<string>({ primary: () => 'ok' })
 			const { dialog, promise } = await open(Dialog)
 
-			await dialog.handleAction(DialogActionKey.Primary)
+			await dialog.handleAction!(DialogActionKey.Primary)
 
 			await expectAsync(promise).toBeResolvedTo('ok')
 		})
@@ -136,7 +148,7 @@ describe('DialogComponent', () => {
 			const Dialog = defineDialog({ primary: () => error })
 			const { dialog, promise } = await open(Dialog)
 
-			await dialog.handleAction(DialogActionKey.Primary)
+			await dialog.handleAction!(DialogActionKey.Primary)
 
 			await expectAsync(promise).toBeRejectedWith(error)
 		})
@@ -145,7 +157,7 @@ describe('DialogComponent', () => {
 			const Dialog = defineDialog()
 			const { dialog, promise } = await open(Dialog)
 
-			await dialog.handleAction(DialogActionKey.Cancellation)
+			await dialog.handleAction!(DialogActionKey.Cancellation)
 
 			await expectAsync(promise).toBeRejectedWithError(DialogCancelledError)
 		})
@@ -154,7 +166,7 @@ describe('DialogComponent', () => {
 			const Dialog = defineDialog()
 			const { dialog, promise } = await open(Dialog)
 
-			await dialog.handleAction(DialogActionKey.Secondary)
+			await dialog.handleAction!(DialogActionKey.Secondary)
 
 			await expectAsync(promise).toBeRejectedWithError(DialogCancelledError)
 		})
@@ -167,7 +179,7 @@ describe('DialogComponent', () => {
 			const { instance, dialog, promise } = await open(Dialog)
 
 			// handleAction re-throws after handling the error; absorb so the test continues.
-			await Promise.resolve(dialog.handleAction(DialogActionKey.Primary)).catch(() => undefined)
+			await Promise.resolve(dialog.handleAction!(DialogActionKey.Primary)).catch(() => undefined)
 
 			expect(CapturingDefaultHandler.lastError).toBe(error)
 			expect(dialog.open).toBe(true)
@@ -181,7 +193,7 @@ describe('DialogComponent', () => {
 			const ThrowingDialog = defineDialog({ primary: () => { throw cancelled } })
 			const { dialog } = await open(ThrowingDialog)
 
-			await Promise.resolve(dialog.handleAction(DialogActionKey.Primary)).catch(() => undefined)
+			await Promise.resolve(dialog.handleAction!(DialogActionKey.Primary)).catch(() => undefined)
 
 			expect(CapturingDefaultHandler.lastError).toBeUndefined()
 		})
@@ -193,7 +205,7 @@ describe('DialogComponent', () => {
 			const { dialog } = await open(Dialog)
 			dialog.errorHandler = handler
 
-			await Promise.resolve(dialog.handleAction(DialogActionKey.Primary)).catch(() => undefined)
+			await Promise.resolve(dialog.handleAction!(DialogActionKey.Primary)).catch(() => undefined)
 
 			expect(handler).toHaveBeenCalledOnceWith(error)
 			expect(CapturingDefaultHandler.lastError).toBeUndefined()
@@ -206,7 +218,7 @@ describe('DialogComponent', () => {
 			const { instance, dialog, promise } = await open(Dialog)
 			dialog.manualClose = true
 
-			await dialog.handleAction(DialogActionKey.Primary)
+			await dialog.handleAction!(DialogActionKey.Primary)
 
 			expect(dialog.open).toBe(true)
 			expect(instance.isConnected).toBe(true)
@@ -218,7 +230,7 @@ describe('DialogComponent', () => {
 			const { dialog, promise } = await open(Dialog)
 			dialog.manualClose = true
 
-			await dialog.handleAction(DialogActionKey.Cancellation)
+			await dialog.handleAction!(DialogActionKey.Cancellation)
 
 			await expectAsync(promise).toBeRejectedWithError(DialogCancelledError)
 		})
@@ -238,7 +250,7 @@ describe('DialogComponent', () => {
 			const dialogRef = dialog
 
 			expect(dialog.executingAction).toBeUndefined()
-			await dialog.handleAction(DialogActionKey.Primary)
+			await dialog.handleAction!(DialogActionKey.Primary)
 
 			expect(observed).toBe(DialogActionKey.Primary)
 			expect(dialog.executingAction).toBeUndefined()
@@ -248,7 +260,7 @@ describe('DialogComponent', () => {
 			const Dialog = defineDialog({ primary: () => { throw new Error('boom') } })
 			const { dialog } = await open(Dialog)
 
-			await Promise.resolve(dialog.handleAction(DialogActionKey.Primary)).catch(() => undefined)
+			await Promise.resolve(dialog.handleAction!(DialogActionKey.Primary)).catch(() => undefined)
 
 			expect(dialog.executingAction).toBeUndefined()
 		})

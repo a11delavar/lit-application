@@ -14,13 +14,30 @@ export class ModelValueConstructor implements ApiValueConstructor<object, object
 	static readonly modelConstructorsByTypeName = new Map<string, Constructor<unknown>>()
 	static readonly typeNameKey = '@type'
 
-	shallConstruct = (value: unknown) =>
-		!!value && typeof value === 'object' && ModelValueConstructor.typeNameKey in value
+	static typeNameOf(value: object) {
+		const typeName = (value.constructor as Partial<Record<typeof ModelValueConstructor.typeNameKey, unknown>> | undefined)?.[ModelValueConstructor.typeNameKey]
+		return typeof typeName === 'string' ? typeName : undefined
+	}
+
+	shallConstruct(value: unknown) {
+		return !!value && typeof value === 'object' && ModelValueConstructor.typeNameKey in value
+	}
 
 	construct(object: object) {
 		const typeName = object[ModelValueConstructor.typeNameKey as keyof typeof object] as string
 		const Constructor = ModelValueConstructor.modelConstructorsByTypeName.get(typeName)
 		return !Constructor ? object : safeAssign(new Constructor, object)
+	}
+
+	shallDeconstruct(value: unknown) {
+		return !!value && typeof value === 'object' && ModelValueConstructor.typeNameOf(value) !== undefined
+	}
+
+	deconstruct(value: object) {
+		return {
+			[ModelValueConstructor.typeNameKey]: ModelValueConstructor.typeNameOf(value),
+			...value,
+		}
 	}
 }
 

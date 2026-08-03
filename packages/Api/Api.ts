@@ -50,18 +50,14 @@ export class Api {
 		return JSON.stringify(this.handleRequest(data))
 	}
 
-	private static handleRequest<T>(data: T, isChild = false): any {
-		data = (isChild ? structuredClone(data) : { ROOT: structuredClone(data) }) as T
-		const response = !data || typeof data !== 'object' ? data : Object.assign(
-			data,
+	private static handleRequest<T>(data: T): any {
+		const deconstructed = [...this.valueConstructors].find(converter => converter.shallDeconstruct?.(data) ?? false)?.deconstruct?.(data) ?? data
+		return deconstructed === null || typeof deconstructed !== 'object' ? deconstructed : Object.assign(
+			structuredClone(deconstructed),
 			Object.fromEntries(
-				Object.entries(data).map(([key, value]) => [
-					key,
-					this.handleRequest([...this.valueConstructors].find(converter => converter.shallDeconstruct?.(value) ?? false)?.deconstruct?.(value) ?? value, true)
-				])
+				Object.entries(deconstructed).map(([key, value]) => [key, this.handleRequest(value)])
 			)
-		) as any
-		return isChild ? response as T : response.ROOT
+		)
 	}
 
 	protected static getHeaders(method: HttpFetchMethod, route: string, body?: BodyInit): Record<string, string> {

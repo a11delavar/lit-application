@@ -28,15 +28,51 @@ class DataClassValueConstructor implements ApiValueConstructor<Data, object> {
 
 Api.valueConstructors.add(new DataClassValueConstructor)
 
+class Secret {
+	constructor(readonly text: string) { }
+}
+
+class SecretValueConstructor implements ApiValueConstructor<Secret, string> {
+	shallConstruct = (text: unknown) => typeof text === 'string' && text.startsWith('secret:')
+	construct = (text: string) => new Secret(text.slice('secret:'.length))
+
+	shallDeconstruct = (value: unknown) => value instanceof Secret
+	deconstruct = (value: Secret) => `secret:${value.text}`
+}
+
+Api.valueConstructors.add(new SecretValueConstructor)
+
 describe('Api', () => {
 	describe('deconstruction', () => {
-		it('should be done after recursive cloning', () => {
+		it('should leave the given data untouched', () => {
 			const deconstructed = Api['handleRequest'](data)
 
 			expect(deconstructed).not.toBe(data)
 			expect(deconstructed[0].date).not.toBe(data[0]?.date)
 			expect(deconstructed[1].date).not.toBe(data[1]?.date)
 			expect(deconstructed).not.toEqual(data)
+			expect(data[0]?.date).toBeInstanceOf(Date)
+		})
+
+		it('should be done before cloning', () => {
+			expect(Api['handleRequest'](new Secret('shh'))).toBe('secret:shh')
+			expect(Api['handleRequest']({ nested: { deep: new Secret('shh') } })).toEqual({ nested: { deep: 'secret:shh' } })
+			expect(Api['handleRequest']([new Secret('shh')])).toEqual(['secret:shh'])
+		})
+
+		it('should preserve the kind of walked values', () => {
+			const deconstructed = Api['handleRequest']({ items: [new Secret('a')], map: new Map })
+
+			expect(Array.isArray(deconstructed.items)).toBe(true)
+			expect(deconstructed.items).toEqual(['secret:a'])
+			expect(deconstructed.map).toBeInstanceOf(Map)
+		})
+
+		it('should pass unclaimed values through', () => {
+			expect(Api['handleRequest']('text')).toBe('text')
+			expect(Api['handleRequest'](42)).toBe(42)
+			expect(Api['handleRequest'](null)).toBe(null)
+			expect(Api['handleRequest'](undefined)).toBe(undefined)
 		})
 	})
 

@@ -68,6 +68,23 @@ describe('Api', () => {
 			expect(deconstructed.map).toBeInstanceOf(Map)
 		})
 
+		it('should preserve shared references', () => {
+			const shared = { text: 'value' }
+
+			const deconstructed = Api['handleRequest']({ a: shared, b: shared })
+
+			expect(deconstructed.a).toBe(deconstructed.b)
+		})
+
+		it('should not recurse endlessly on a cyclic graph', () => {
+			const node = { text: 'value' } as Record<string, unknown>
+			node.self = node
+
+			const deconstructed = Api['handleRequest'](node)
+
+			expect(deconstructed.self).toBe(deconstructed)
+		})
+
 		it('should pass unclaimed values through', () => {
 			expect(Api['handleRequest']('text')).toBe('text')
 			expect(Api['handleRequest'](42)).toBe(42)

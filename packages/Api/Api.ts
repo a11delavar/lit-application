@@ -50,12 +50,20 @@ export class Api {
 		return JSON.stringify(this.handleRequest(data))
 	}
 
-	private static handleRequest<T>(data: T): any {
+	private static handleRequest<T>(data: T, handled = new Map<object, any>()): any {
 		const deconstructed = [...this.valueConstructors].find(converter => converter.shallDeconstruct?.(data) ?? false)?.deconstruct?.(data) ?? data
-		return deconstructed === null || typeof deconstructed !== 'object' ? deconstructed : Object.assign(
-			structuredClone(deconstructed),
+		if (deconstructed === null || typeof deconstructed !== 'object') {
+			return deconstructed
+		}
+		if (handled.has(deconstructed)) {
+			return handled.get(deconstructed)
+		}
+		const clone = structuredClone(deconstructed)
+		handled.set(deconstructed, clone)
+		return Object.assign(
+			clone,
 			Object.fromEntries(
-				Object.entries(deconstructed).map(([key, value]) => [key, this.handleRequest(value)])
+				Object.entries(deconstructed).map(([key, value]) => [key, this.handleRequest(value, handled)])
 			)
 		)
 	}

@@ -66,6 +66,9 @@
 			"path": "./packages/Authorization"
 		},
 		{
+			"path": "./packages/Converter"
+		},
+		{
 			"path": "./packages/LocalStorage"
 		},
 		{

@@ -1,5 +1,5 @@
 import { apiValueConstructor, type ApiValueConstructor } from '@a11d/api'
-import '@a11d/is-writable'
+import * as converter from '@a11d/converter'
 
 export const model = (typeName: string) => {
 	return (Constructor: Constructor<unknown>) => {
@@ -26,7 +26,8 @@ export class ModelValueConstructor implements ApiValueConstructor<object, object
 	construct(object: object) {
 		const typeName = object[ModelValueConstructor.typeNameKey as keyof typeof object] as string
 		const Constructor = ModelValueConstructor.modelConstructorsByTypeName.get(typeName)
-		return !Constructor ? object : safeAssign(new Constructor, object)
+		// A constructor always yields an object, which the registry's `unknown` does not say.
+		return !Constructor ? object : converter.construct(Constructor as Constructor<object>, object)
 	}
 
 	shallDeconstruct(value: unknown) {
@@ -36,16 +37,7 @@ export class ModelValueConstructor implements ApiValueConstructor<object, object
 	deconstruct(value: object) {
 		return {
 			[ModelValueConstructor.typeNameKey]: ModelValueConstructor.typeNameOf(value),
-			...value,
+			...converter.deconstruct(value),
 		}
 	}
-}
-
-function safeAssign<T, U>(target: T, source: U): T & U {
-	for (const [key, value] of Object.entries(source as any)) {
-		if (Object.isWritable(target, key)) {
-			target[key as keyof T] = value as any
-		}
-	}
-	return target as T & U
 }

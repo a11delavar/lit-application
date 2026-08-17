@@ -1,4 +1,5 @@
 import { Api, type ApiValueConstructor } from '@a11d/api'
+import { converter, type Converter } from '@a11d/converter'
 import { ModelValueConstructor, model } from './ModelValueConstructor.js'
 
 @model('Data')
@@ -42,6 +43,20 @@ Api.valueConstructors.add(new PriorityValueConstructor)
 @model('Task')
 class Task {
 	private _priority = Priority.Low
+	get priority() { return this._priority }
+	set priority(value: Priority) { this._priority = value }
+}
+
+const priority: Converter<string, Priority> = {
+	construct: value => Priority.parse(value)!,
+	deconstruct: value => value.value,
+}
+
+// The same accessor pair as `Task`, except the wire spells the member without its backing underscore
+// — the case a spread cannot serve, and what member definitions exist for.
+@model('Ticket')
+class Ticket {
+	@converter({ priority }) private _priority = Priority.Low
 	get priority() { return this._priority }
 	set priority(value: Priority) { this._priority = value }
 }
@@ -137,6 +152,18 @@ describe('ModelValueConstructor', () => {
 
 			const revived = Api['handleResponse']<Task>(body)
 			expect(revived).toBeInstanceOf(Task)
+			expect(revived.priority).toBe(Priority.High)
+		})
+
+		it('should round-trip a member through the key its definition maps it to', () => {
+			const ticket = new Ticket
+			ticket.priority = Priority.High
+
+			const body = JSON.stringify(Api['handleRequest'](ticket))
+			expect(JSON.parse(body)).toEqual({ '@type': 'Ticket', priority: 'high' })
+
+			const revived = Api['handleResponse']<Ticket>(body)
+			expect(revived).toBeInstanceOf(Ticket)
 			expect(revived.priority).toBe(Priority.High)
 		})
 	})

@@ -2,9 +2,11 @@ import { HttpErrorCode, DialogComponent, PageComponent, PageError, NotificationC
 import { createMetadataDecorator } from '@a11d/metadata'
 import { LocalStorage } from '@a11d/local-storage'
 
-export const requiresAuthorization = createMetadataDecorator(Symbol('requiresAuthorization')) as {
+export const requiresAuthorization = createMetadataDecorator('requiresAuthorization') as {
 	(value: Array<string>): (target: RoutableComponentConstructor) => void
 	get(constructor: RoutableComponentConstructor): Array<string> | undefined
+	readonly override: symbol
+	resolve(routable: RoutableComponent): Array<string> | undefined
 }
 
 export class Authorization {
@@ -26,7 +28,7 @@ export class Authorization {
 	}
 
 	static isAuthorized(routable: RoutableComponent) {
-		const requiredAuthorizations = requiresAuthorization.get(routable.constructor as RoutableComponentConstructor) ?? []
+		const requiredAuthorizations = requiresAuthorization.resolve(routable) ?? []
 		return Authorization.has(...requiredAuthorizations)
 	}
 }

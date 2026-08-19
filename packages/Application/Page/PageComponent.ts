@@ -30,7 +30,7 @@ export abstract class PageComponent<T extends PageParameters = void> extends Rou
 	}
 
 	protected override firstUpdated(props: PropertyValues) {
-		this.pageElement.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
+		this.pageElement.heading ||= label.resolve(this)?.toString()
 		super.firstUpdated(props)
 	}
 }

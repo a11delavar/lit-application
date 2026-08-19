@@ -47,6 +47,40 @@ describe('PageComponent', () => {
 			})
 		})
 
+		describe('with a label override member deriving the heading from the parameters', () => {
+			@label('Products')
+			@component('test-page-with-label-override')
+			class OverridingPage extends PageComponent<{ readonly count: number }> {
+				get [label.override]() { return `Products (${this.parameters.count})` }
+				protected override get template() {
+					return html`<test-page-fake></test-page-fake>`
+				}
+			}
+
+			const fixture = new ComponentTestFixture(() => new OverridingPage({ count: 3 }))
+
+			it('seeds the heading from the override member rather than the @label metadata', () => {
+				expect(fixture.component.pageElement.heading).toBe('Products (3)')
+			})
+		})
+
+		describe('with a label override member deferring to the static metadata', () => {
+			@label('Products')
+			@component('test-page-with-deferring-label-override')
+			class DeferringPage extends PageComponent<{ readonly count: number }> {
+				get [label.override]() { return this.parameters.count === 0 ? undefined : `Products (${this.parameters.count})` }
+				protected override get template() {
+					return html`<test-page-fake></test-page-fake>`
+				}
+			}
+
+			const fixture = new ComponentTestFixture(() => new DeferringPage({ count: 0 }))
+
+			it('seeds the heading from the @label metadata when the override member yields undefined', () => {
+				expect(fixture.component.pageElement.heading).toBe('Products')
+			})
+		})
+
 		describe('without @label', () => {
 			@component('test-page-without-label')
 			class UnlabelledPage extends PageComponent {

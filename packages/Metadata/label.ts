@@ -1,6 +1,6 @@
 import { createMetadataDecorator } from './createMetadataDecorator.js'
 
-export const label = createMetadataDecorator(Symbol('label'))
+export const label = createMetadataDecorator('label')
 globalThis.label = label
 
 declare global {

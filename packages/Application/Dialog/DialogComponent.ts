@@ -204,7 +204,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		this.dialogElement.requestPopup?.subscribe(() => this.pop())
 		this.dialogElement.poppable = this.poppable
 		this.dialogElement.boundToWindow = this.boundToWindow
-		this.dialogElement.heading ||= label.get(this.constructor as Constructor<this>)?.toString()
+		this.dialogElement.heading ||= label.resolve(this)?.toString()
 
 		this.open = true
 		super.firstUpdated(props)

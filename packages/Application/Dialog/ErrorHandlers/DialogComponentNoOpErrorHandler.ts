@@ -1,12 +1,12 @@
-import { DialogComponent, DialogComponentErrorHandler } from '../DialogComponent.js'
+import { DialogErrorHandler, dialogErrorHandler } from '../dialogErrorHandler.js'
 
-@DialogComponent.errorHandler('no-op')
-export class DialogComponentNoOpErrorHandler extends DialogComponentErrorHandler {
+@dialogErrorHandler('no-op')
+export class DialogComponentNoOpErrorHandler extends DialogErrorHandler {
 	override handle() { }
 }
 
 declare global {
-	interface DialogComponentErrorHandlers {
+	interface DialogErrorHandlers {
 		'no-op': DialogComponentNoOpErrorHandler
 	}
 }

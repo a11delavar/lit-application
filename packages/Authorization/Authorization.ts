@@ -16,11 +16,15 @@ export class Authorization {
 	private static set values(value) { Authorization.storage.value = value }
 
 	static grant(...authorizations: Array<string>) {
-		this.values = [...authorizations, ...this.values]
+		this.values = [...new Set([...authorizations, ...this.values])]
 	}
 
 	static revoke(...authorizations: Array<string>) {
 		this.values = this.values.filter(p => authorizations.includes(p) === false)
+	}
+
+	static revokeAll() {
+		this.values = []
 	}
 
 	static has(...authorizations: Array<string>) {

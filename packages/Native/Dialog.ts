@@ -13,6 +13,8 @@ const queryActionElement = (slotName: string) => {
 }
 
 /**
+ * The `lit-dialog` element a `DialogComponent` renders its content in, a modal `<dialog>` with a heading and action buttons.
+ *
  * @slot - The content of the dialog.
  * @slot primaryAction - The primary action element of the dialog.
  * @slot secondaryAction - The secondary action element of the dialog.
@@ -22,13 +24,17 @@ const queryActionElement = (slotName: string) => {
 @DialogComponent.dialogElement()
 export class Dialog extends Component implements IDialog {
 	@event({ bubbles: true, composed: true, cancelable: true }) readonly pageHeadingChange!: EventDispatcher<string>
+	/** Dispatched when the user asks to pop the dialog out into its own tab or window. */
 	@event() readonly requestPopup!: EventDispatcher
 
 	@property({ updated(this: Dialog) { this.pageHeadingChange.dispatch(this.heading) } }) heading = ''
+	/** The text of the default primary button, which an element in the `primaryAction` slot replaces. */
 	@property() primaryButtonText?: string
+	/** The text of the default secondary button, which an element in the `secondaryAction` slot replaces. */
 	@property() secondaryButtonText?: string
 	@property({ type: Boolean }) preventCancellationOnEscape?: boolean
 	@property({ type: Boolean }) primaryOnEnter?: boolean
+	/** Handles the errors of the actions, as the key of a registered error handler or as a function. */
 	@property() errorHandler?: DialogErrorHandler
 	@state() poppable?: boolean
 	@state() boundToWindow?: boolean

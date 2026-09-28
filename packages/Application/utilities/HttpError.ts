@@ -1,5 +1,6 @@
 import { HttpErrorCode } from './HttpErrorCode.js'
 
+/** An error of an HTTP status code, with the code's default message unless given another. */
 export class HttpError extends Error {
 	static readonly defaultMessageByErrorCode = new Map<HttpErrorCode, string>([
 		[HttpErrorCode.BadRequest, 'Bad Request'],

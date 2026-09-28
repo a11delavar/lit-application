@@ -1,6 +1,27 @@
 import { apiValueConstructor, type ApiValueConstructor } from '@a11d/api'
 import * as converter from '@a11d/converter'
 
+/**
+ * Registers the decorated class under a type name, so response objects with that name in `@type` become instances of it.
+ *
+ * Its instances in request bodies carry the name in `@type` in turn. Members are converted through `@a11d/converter`, so
+ * `@converter` declarations apply.
+ *
+ * @example
+ * ```ts
+ * import { Api } from '@a11d/api'
+ * import { model } from '@a11d/api-model-value-constructor'
+ *
+ * @model('Customer')
+ * export class Customer {
+ * 	name = ''
+ * }
+ *
+ * const customer = await Api.get<Customer>('/customers/1')
+ * customer instanceof Customer // true, as the response carries '@type': 'Customer'
+ * await Api.put('/customers/1', customer)
+ * ```
+ */
 export const model = (typeName: string) => {
 	return (Constructor: Constructor<unknown>) => {
 		ModelValueConstructor.modelConstructorsByTypeName.set(typeName, Constructor)
@@ -9,11 +30,14 @@ export const model = (typeName: string) => {
 	}
 }
 
+/** Constructs response objects whose `@type` names a registered model as instances of it, and tags model instances in requests. */
 @apiValueConstructor()
 export class ModelValueConstructor implements ApiValueConstructor<object, object> {
+	/** The model classes by type name, filled by `@model`. */
 	static readonly modelConstructorsByTypeName = new Map<string, Constructor<unknown>>()
 	static readonly typeNameKey = '@type'
 
+	/** Returns the type name `@model` registered for the class of `value`, if any. */
 	static typeNameOf(value: object) {
 		const typeName = (value.constructor as Partial<Record<typeof ModelValueConstructor.typeNameKey, unknown>> | undefined)?.[ModelValueConstructor.typeNameKey]
 		return typeof typeName === 'string' ? typeName : undefined

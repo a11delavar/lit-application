@@ -1,10 +1,14 @@
 {
 	"name": "@a11d/non-inertable-component",
-	"version": "0.1.0",
-	"description": "A non-inertable Lit component",
+	"version": "0.1.1",
+	"description": "A Lit base class for components that cannot be made inert, removing any inert attribute as soon as it is set.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/a11delavar/lit-application.git"
+		"url": "https://github.com/a11delavar/lit-application",
+		"directory": "packages/NonInertableComponent"
+	},
+	"bugs": {
+		"url": "https://github.com/a11delavar/lit-application/issues"
 	},
 	"keywords": [
 		"lit",
@@ -14,20 +18,15 @@
 	],
 	"author": "a11delavar",
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/a11delavar/lit-application/issues"
-	},
-	"homepage": "https://github.com/a11delavar/lit-application#readme",
+	"homepage": "https://github.com/a11delavar/lit-application/tree/main/packages/NonInertableComponent",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": [
-		"dist"
+		"dist",
+		"CHANGELOG.md"
 	],
-	"scripts": {
-		"build": "tsc"
-	},
-	"dependencies": {
+	"peerDependencies": {
 		"@a11d/lit": "x"
 	},
 	"devDependencies": {

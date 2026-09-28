@@ -1,5 +1,4 @@
-import { RoutableComponent, type UrlMatchMode } from './RoutableComponent.js'
-import { route } from './route.js'
+import { RoutableComponent, route, type UrlMatchMode } from '../index.js'
 import { component } from '@a11d/lit'
 
 @component('test-without-route')

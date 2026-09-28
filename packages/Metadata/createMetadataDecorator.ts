@@ -7,6 +7,25 @@
  * The description is passed through to the underlying `Symbol(description)` and is therefore,
  * exactly as there, optional and purely diagnostic - it is what tells the decorators' symbols
  * apart in devtools, error messages and test output.
+ *
+ * @example
+ * ```ts
+ * import { createMetadataDecorator, type } from '@a11d/metadata'
+ *
+ * const unit = createMetadataDecorator('unit')
+ *
+ * class Dimensions {
+ * 	@unit('cm') width = 0
+ * }
+ *
+ * class Product {
+ * 	@unit('kg') weight = 0
+ * 	@type(Dimensions) dimensions = new Dimensions
+ * }
+ *
+ * unit.get(Product, 'weight') // 'kg'
+ * unit.getByKeyPath(Product, 'dimensions.width') // 'cm'
+ * ```
  */
 export function createMetadataDecorator(description?: string) {
 	// Widened explicitly, as the inferred `unique symbol` type would be function-local
@@ -19,12 +38,14 @@ export function createMetadataDecorator(description?: string) {
 		}
 	}
 
+	/** Returns the metadata decorated onto a class, or onto one of its properties when `propertyKey` is given. */
 	metadata.get = function (constructor: Constructor<any>, propertyKey?: string) {
 		return propertyKey === undefined
 			? Reflect.getMetadata(key, constructor)
 			: Reflect.getMetadata(key, constructor.prototype, propertyKey)
 	}
 
+	/** Returns the metadata of a nested property by its dot-separated key path, walking through properties decorated with `@type`. */
 	metadata.getByKeyPath = function <T>(constructor: Constructor<T>, keyPath: KeyPath.Of<T>) {
 		const keys = keyPath.split('.')
 		const key = keys.pop() as string

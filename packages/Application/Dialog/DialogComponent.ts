@@ -3,20 +3,30 @@ import { LocalStorage } from '@a11d/local-storage'
 import { Application, HookSet, querySymbolizedElement, RoutableComponent, WindowHelper, WindowOpenMode, Key, NavigationStrategy } from '../index.js'
 import { type Dialog, DialogActionKey, DialogCancelledError } from './index.js'
 
+/** The parameters of a dialog, passed to its constructor and mapped to its URL if it has a route. */
 export type DialogParameters = void | Record<string, any>
 
+/** The outcome of a dialog action: the result resolving the confirmation, or an `Error` rejecting it. */
 export type DialogResult<TResult> = TResult | Error
 
+/** What a dialog action returns: a `DialogResult`, or a promise of one. */
 export type DialogAction<TResult> = DialogResult<TResult> | PromiseLike<DialogResult<TResult>>
 
+/** Where a dialog opens: in place, or popped out into a new tab or window. */
 export enum DialogConfirmationStrategy {
 	Dialog = NavigationStrategy.Page,
 	Tab = NavigationStrategy.Tab,
 	Window = NavigationStrategy.Window
 }
 
+/** The confirmation strategies that pop a dialog out into a new tab or window. */
 export type PopupConfirmationStrategy = Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog>
 
+/**
+ * The base class of a handler for the errors thrown by dialog actions, registered with `DialogComponent.errorHandler()`.
+ *
+ * Declare its key in the global `DialogComponentErrorHandlers` interface for dialog elements to refer to it by `errorHandler`.
+ */
 export abstract class DialogComponentErrorHandler {
 	constructor(protected readonly dialogComponent: DialogComponent<any, any>) { }
 	abstract handle(error: Error): void | Promise<void>
@@ -24,18 +34,29 @@ export abstract class DialogComponentErrorHandler {
 
 const dialogElementConstructorSymbol = Symbol('DialogComponent.DialogElementConstructor')
 
+/**
+ * The base class of a dialog, opened by `confirm`, which resolves with the dialog's result once it closes.
+ *
+ * Its template renders a dialog element, such as `lit-dialog`, whose heading defaults to the component's `label` metadata.
+ * An action resolves `confirm` with the value it returns or rejects it with the `Error` it returns, and cancelling rejects it
+ * with a `DialogCancelledError`. An error thrown by an action keeps the dialog open and goes to the dialog element's `errorHandler`.
+ * A dialog with a `@route` can also pop out into a tab or window.
+ */
 export abstract class DialogComponent<T extends DialogParameters = void, TResult = void> extends RoutableComponent<T> {
+	/** Hooks awaited with each dialog before it connects. */
 	static readonly connectingHooks = new HookSet<DialogComponent<any, any>>()
 
 	private static readonly errorHandlers = new Map<string, Constructor<DialogComponentErrorHandler>>()
 	private static defaultErrorHandler: Constructor<DialogComponentErrorHandler>
 
+	/** Marks the decorated element class as a dialog element, which `dialogElement` finds in a dialog component's render root. */
 	static dialogElement() {
 		return (constructor: Constructor<Dialog>) => {
 			(constructor as any)[dialogElementConstructorSymbol] = true
 		}
 	}
 
+	/** Registers the decorated class as the error handler of the key, and as the default one if `isDefault` is set. */
 	static errorHandler(key: string, isDefault = false) {
 		return (ErrorHandlerConstructor: Constructor<DialogComponentErrorHandler>) => {
 			DialogComponent.errorHandlers.set(key, ErrorHandlerConstructor)
@@ -45,12 +66,15 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
+	/** The strategy poppable dialogs open with unless `confirm` is given one, persisted in local storage. */
 	static readonly poppableConfirmationStrategy = new LocalStorage<DialogConfirmationStrategy>('DialogComponent.PoppableConfirmationStrategy', DialogConfirmationStrategy.Dialog)
 
+	/** Resolves the element dialogs are appended to, the application's top layer by default. */
 	static getHost() {
 		return Promise.resolve(Application.topLayer)
 	}
 
+	/** The dialog element in the render root; accessing it throws when there is none. */
 	@querySymbolizedElement(dialogElementConstructorSymbol) readonly dialogElement!: Dialog & HTMLElement
 
 	get primaryActionElement() {
@@ -65,6 +89,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return this.dialogElement.cancellationActionElement
 	}
 
+	/** The window that opened the window the dialog popped out into, or the current window otherwise. */
 	get opener(): Window & typeof globalThis {
 		return !this.dialogElement.boundToWindow
 			? window
@@ -98,11 +123,13 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		super.connectedCallback()
 	}
 
+	/** Opens the dialog like `confirm`, taking the navigation strategy as the confirmation strategy. */
 	override navigate(strategy?: NavigationStrategy, force?: boolean) {
 		force
 		return this.confirm(strategy as unknown as DialogConfirmationStrategy)
 	}
 
+	/** Opens the dialog and resolves with its result once it closes; poppable dialogs open with `poppableConfirmationStrategy` by default. */
 	confirm(strategy?: DialogConfirmationStrategy) {
 		strategy ??= !this.poppable
 			? DialogConfirmationStrategy.Dialog
@@ -150,6 +177,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return other.confirmAsDialog()
 	}
 
+	/** Copies the reactive properties of this dialog to its counterpart in the window it pops out into; override it to copy more. */
 	protected cloned(other: DialogComponent<T, TResult>) {
 		if (this.isConnected) {
 			// Copy the dialog's properties to the dialog in the new window
@@ -160,6 +188,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
+	/** Closes the dialog and reopens it in a new tab or window, whose result then settles the original confirmation. */
 	protected async pop(strategy: Exclude<DialogConfirmationStrategy, DialogConfirmationStrategy.Dialog> = DialogConfirmationStrategy.Tab) {
 		this.open = false
 		const [resolve, reject] = this._confirmationPromiseExecutor ?? []
@@ -171,6 +200,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
+	/** Closes the dialog, resolving its confirmation with the result, or rejecting it if the result is an `Error`. */
 	protected close(result: TResult | Error) {
 		this.open = false
 
@@ -195,6 +225,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
+	/** Whether the dialog can pop out into a tab or window, which requires a route that the current URL does not match. */
 	get poppable() {
 		return !!this.route && !this.urlMatches()
 	}
@@ -210,18 +241,22 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		super.firstUpdated(props)
 	}
 
+	/** Returns the result to close the dialog with when its primary action is invoked; throws unless overridden. */
 	protected primaryAction(): DialogAction<TResult> {
 		throw new Error('Not implemented.')
 	}
 
+	/** Returns the result to close the dialog with when its secondary action is invoked; cancels the dialog by default. */
 	protected secondaryAction(): DialogAction<TResult> {
 		return this.cancellationAction()
 	}
 
+	/** Returns the result to close the dialog with when it is cancelled, a `DialogCancelledError` by default. */
 	protected cancellationAction(): DialogAction<TResult> {
 		return new DialogCancelledError(this)
 	}
 
+	/** Runs the action of the key and closes the dialog with its result, unless `manualClose` keeps it open. */
 	protected readonly handleAction = async (actionKey: DialogActionKey) => {
 		const actionByKey = new Map([
 			[DialogActionKey.Primary, this.primaryAction],
@@ -249,6 +284,7 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		}
 	}
 
+	/** Passes an error thrown by an action to the dialog element's `errorHandler`, or to the default error handler without one. */
 	protected handleError(error: Error) {
 		if (error instanceof DialogCancelledError) {
 			return

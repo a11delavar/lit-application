@@ -1,5 +1,4 @@
-import { createMetadataDecorator } from './createMetadataDecorator.js'
-import { type } from './type.js'
+import { createMetadataDecorator, type } from './index.js'
 
 const meta = createMetadataDecorator('meta')
 

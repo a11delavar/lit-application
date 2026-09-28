@@ -1,3 +1,4 @@
+/** The `beforeinstallprompt` event, dispatched when the browser offers to install the application. */
 export interface BeforeInstallPromptEvent extends Event {
 	readonly platforms: Array<string>
 	readonly userChoice: Promise<{
@@ -7,6 +8,7 @@ export interface BeforeInstallPromptEvent extends Event {
 	prompt(): Promise<void>
 }
 
+/** Registers service workers, and prompts to install the application as a progressive web app. */
 export class PwaHelper {
 	private static pwaPrompt?: BeforeInstallPromptEvent
 
@@ -17,10 +19,12 @@ export class PwaHelper {
 		})
 	}
 
+	/** The service worker container, if the browser supports service workers. */
 	static get serviceWorkerContainer() {
 		return navigator.serviceWorker as ServiceWorkerContainer | undefined
 	}
 
+	/** Registers the service worker at the path for the whole origin and prompts to install the application, logging any error. */
 	static async registerServiceWorker(absolutePath: string) {
 		try {
 			await this.serviceWorkerContainer?.register(absolutePath, { scope: '/' })

@@ -1,9 +1,15 @@
 import { Component, component, css, html, queryConnectedInstances } from '@a11d/lit'
 
+/**
+ * The layer above the pages that hosts dialogs and notifications, rendered by the application and inside each dialog element.
+ *
+ * Elements left in a top layer when it disconnects move to the most recently connected one that remains.
+ */
 @component('lit-application-top-layer')
 export class ApplicationTopLayer extends Component {
 	@queryConnectedInstances() private static readonly instances: Set<ApplicationTopLayer>
 
+	/** The most recently connected top layer, or `document.body` when none is connected. */
 	static get instance() {
 		const instances = [...ApplicationTopLayer.instances]
 		return instances[instances.length - 1] ?? document.body

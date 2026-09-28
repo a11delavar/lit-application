@@ -1,10 +1,14 @@
 {
 	"name": "@a11d/api-model-value-constructor",
-	"version": "1.3.0",
-	"description": "A value-constructor extension for @a11d/api which facilitates mapping incoming objects to classes.",
+	"version": "1.3.1",
+	"description": "An extension of @a11d/api for reviving @type-tagged objects as model classes and back, built on @a11d/converter.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/a11delavar/lit-application.git"
+		"url": "https://github.com/a11delavar/lit-application",
+		"directory": "packages/ApiModelValueConstructor"
+	},
+	"bugs": {
+		"url": "https://github.com/a11delavar/lit-application/issues"
 	},
 	"keywords": [
 		"sdk",
@@ -15,22 +19,18 @@
 	],
 	"author": "a11delavar",
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/a11delavar/lit-application/issues"
-	},
-	"homepage": "https://github.com/a11delavar/lit-application#readme",
+	"homepage": "https://github.com/a11delavar/lit-application/tree/main/packages/ApiModelValueConstructor",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": [
-		"dist"
+		"dist",
+		"CHANGELOG.md"
 	],
-	"scripts": {
-		"build": "tsc"
-	},
 	"dependencies": {
 		"@a11d/constructor": "x",
 		"@a11d/api": "x",
-		"@a11d/converter": "x"
+		"@a11d/converter": "x",
+		"tslib": "x"
 	}
 }

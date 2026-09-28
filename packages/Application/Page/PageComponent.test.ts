@@ -1,8 +1,7 @@
 import { Component, component, event, html, property } from '@a11d/lit'
 import { ComponentTestFixture } from '@a11d/lit-testing'
 import { label } from '@a11d/metadata'
-import { PageComponent } from './PageComponent.js'
-import { type Page } from './Page.js'
+import { PageComponent, type Page } from '../index.js'
 
 @component('test-page-fake')
 @PageComponent.pageElement()

@@ -2,16 +2,39 @@ import { type Converter, type ConverterKey, converters } from './Converter.js'
 import { define, type ConverterOptions } from './ConverterDefinitions.js'
 
 /**
- * One decorator, told apart by what it decorates — a legacy decorator receives only the target for a
- * class and a key as well for a member:
+ * Registers the decorated converter class under a key, or applies a converter to the decorated member.
  *
+ * On a member, it takes a registered key, an inline `Converter`, a map of the payload keys the member maps against, or
+ * separate `in` and `out` definitions of those.
+ *
+ * @example
  * ```ts
- * @converter('bit')                            // class: registers it under the key
- * class BitConverter implements Converter<'0' | '1' | undefined, boolean | undefined> { … }
+ * import { construct, converter, deconstruct, type Converter } from '@a11d/converter'
  *
- * @converter('bit') isDone!: boolean            // member: applies the registered converter
- * @converter({ construct: value => … }) note!: string  // member: applies an inline one
- * @converter({ in: { done: 'bit' }, out: { isdone: 'bit' } }) isDone!: boolean
+ * @converter('bit')
+ * class BitConverter implements Converter<'0' | '1', boolean> {
+ * 	construct(value: '0' | '1') {
+ * 		return value === '1'
+ * 	}
+ *
+ * 	deconstruct(value: boolean) {
+ * 		return value ? '1' : '0'
+ * 	}
+ * }
+ *
+ * declare global {
+ * 	interface ConvertersByKeys {
+ * 		'bit': BitConverter
+ * 	}
+ * }
+ *
+ * class Task {
+ * 	@converter({ done: 'bit' }) isDone = false
+ * 	@converter({ construct: (value: string) => value.trim() }) title = ''
+ * }
+ *
+ * const task = construct(Task, { done: '1', title: ' Write the docs ' })
+ * deconstruct(task) // { title: 'Write the docs', done: '1' }
  * ```
  */
 export const converter = (options: ConverterKey | ConverterOptions) => {

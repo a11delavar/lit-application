@@ -1,49 +1,10 @@
 {
-	"compileOnSave": true,
-	"compilerOptions": {
-		"incremental": true,
-		"declaration": true,
-		"declarationMap": true,
-		"target": "ES2022",
-		"lib": [
-			"ES2022",
-			"DOM",
-			"DOM.Iterable"
-		],
-		"useDefineForClassFields": false,
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
-		"strict": true,
-		"importHelpers": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"allowSyntheticDefaultImports": true,
-		"resolveJsonModule": true,
-		"noEmitOnError": true,
-		"experimentalDecorators": true,
-		"forceConsistentCasingInFileNames": true,
-		"noUncheckedIndexedAccess": true,
-		"noImplicitOverride": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"isolatedModules": true,
-		"plugins": [
-			{
-				"name": "ts-lit-plugin",
-				"strict": true,
-				"rules": {
-					"no-missing-import": "off",
-					"no-unclosed-tag": "error",
-					"no-incompatible-type-binding": "warning",
-					"no-incompatible-property-type": "warning"
-				}
-			}
-		]
-	},
+	"extends": "./tsconfig.base.json",
 	"files": [],
 	"references": [
+		{
+			"path": "./scripts"
+		},
 		{
 			"path": "./packages/Api"
 		},
@@ -72,6 +33,9 @@
 			"path": "./packages/LocalStorage"
 		},
 		{
+			"path": "./packages/Metadata"
+		},
+		{
 			"path": "./packages/Native"
 		},
 		{
@@ -79,6 +43,6 @@
 		},
 		{
 			"path": "./packages/RootCssInjector"
-		},
-	],
+		}
+	]
 }

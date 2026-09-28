@@ -1,5 +1,5 @@
 import { ComponentTestFixture } from '@a11d/lit-testing'
-import { type Notification, NotificationComponent, NotificationType } from './NotificationComponent.js'
+import { type Notification, NotificationComponent, NotificationType } from '../index.js'
 import { component } from '@a11d/lit'
 
 describe('NotificationComponent', () => {
@@ -27,7 +27,7 @@ describe('NotificationComponent', () => {
 
 	for (const { method, type } of all) {
 		it(`should proxy "${method}" with shortened parameters to "notify" with correct parameters`, async () => {
-			spyOn(TestNotificationComponent, 'notify').and.callThrough()
+			vi.spyOn(TestNotificationComponent, 'notify')
 
 			await TestNotificationComponent[method]('Test', action)
 
@@ -39,7 +39,7 @@ describe('NotificationComponent', () => {
 		})
 
 		it(`should proxy "${method}" with full parameters to "notify" with correct parameters`, async () => {
-			spyOn(TestNotificationComponent, 'notify').and.callThrough()
+			vi.spyOn(TestNotificationComponent, 'notify')
 
 			await TestNotificationComponent[method]({
 				message: 'Test',
@@ -54,7 +54,7 @@ describe('NotificationComponent', () => {
 		})
 
 		it('should support non-string messages having the [Symbol.toPrimitive] method', async () => {
-			spyOn(TestNotificationComponent, 'notify').and.callThrough()
+			vi.spyOn(TestNotificationComponent, 'notify')
 
 			await TestNotificationComponent[method]({
 				[Symbol.toPrimitive]: () => 'Test',
@@ -70,7 +70,7 @@ describe('NotificationComponent', () => {
 
 	describe('notifyAndThrowError', () => {
 		it('should throw and proxy on shorthand parameters with error', () => {
-			spyOn(TestNotificationComponent, 'notify').and.callThrough()
+			vi.spyOn(TestNotificationComponent, 'notify')
 			const error = new Error('Test')
 
 			expect(() => TestNotificationComponent.notifyAndThrowError(error, action)).toThrow(error)
@@ -82,7 +82,7 @@ describe('NotificationComponent', () => {
 		})
 
 		it('should throw and proxy on shorthand parameters with error-message', () => {
-			spyOn(TestNotificationComponent, 'notify').and.callThrough()
+			vi.spyOn(TestNotificationComponent, 'notify')
 			const errorMessage = 'Test'
 
 			expect(() => TestNotificationComponent.notifyAndThrowError(errorMessage, action)).toThrow(new Error(errorMessage))
@@ -94,7 +94,7 @@ describe('NotificationComponent', () => {
 		})
 
 		it('should throw and proxy on shorthand parameters with notification parameters', () => {
-			spyOn(TestNotificationComponent, 'notify').and.callThrough()
+			vi.spyOn(TestNotificationComponent, 'notify')
 
 			expect(() => TestNotificationComponent.notifyAndThrowError({
 				message: 'Test',

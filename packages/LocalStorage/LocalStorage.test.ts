@@ -1,4 +1,4 @@
-import { LocalStorage } from './LocalStorage'
+import { LocalStorage } from './LocalStorage.js'
 
 describe('LocalStorage', () => {
 	afterEach(() => localStorage.clear())
@@ -16,12 +16,12 @@ describe('LocalStorage', () => {
 	it('should automatically be added to the container', () => {
 		const storage = new LocalStorage('test', 'default')
 
-		expect(LocalStorage.container.has(storage)).toBeTrue()
+		expect(LocalStorage.container.has(storage)).toBe(true)
 	})
 
 	it('should dispatch the "changed" event when the value is set', () => {
 		const storage = new LocalStorage('test', 'default')
-		const callback = jasmine.createSpy()
+		const callback = vi.fn()
 
 		storage.changed.subscribe(callback)
 		storage.value = 'new value'
@@ -30,7 +30,7 @@ describe('LocalStorage', () => {
 	})
 
 	it('should dispatch the global "changed" event when the value is set using static method', () => {
-		const callback = jasmine.createSpy()
+		const callback = vi.fn()
 		const storage1 = new LocalStorage('test1', 'default1')
 		const storage2 = new LocalStorage('test2', 'default2')
 

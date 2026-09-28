@@ -2,6 +2,7 @@ import { LitElement } from '@a11d/lit'
 import { Application } from '../Application.js'
 import { NonInertableComponent } from '@a11d/non-inertable-component'
 
+/** The kinds of notifications. */
 export enum NotificationType {
 	Info = 'info',
 	Success = 'success',
@@ -9,12 +10,14 @@ export enum NotificationType {
 	Error = 'error',
 }
 
+/** A notification to show: its message, with an optional type and actions. */
 export type Notification = {
 	type?: NotificationType
 	message: string
 	actions?: Array<NotificationAction>
 }
 
+/** An action of a notification, with the title of its button and what clicking it does. */
 type NotificationAction = {
 	title: string
 	handleClick: () => void | PromiseLike<void>
@@ -38,11 +41,18 @@ function normalizeNonTypedNotificationParameters(...parameters: NonTypedNotifica
 	}
 }
 
+/**
+ * The base class of the element showing notifications, whose static `notify` methods send them.
+ *
+ * Implement `show` to show the `notification`, and register the implementation with `@NotificationComponent.defaultComponent()`.
+ * Each notification gets its own instance, appended to the application's top layer while it is shown.
+ */
 export abstract class NotificationComponent extends NonInertableComponent {
 	static readonly shownNotifications = new Set<Notification>()
 
 	private static DefaultComponentConstructor?: Constructor<NotificationComponent>
 
+	/** Registers the decorated class as the component that notifications sent through `NotificationComponent` are shown with. */
 	static defaultComponent = () => {
 		return <T extends NotificationComponent>(Constructor: Constructor<T>) => {
 			NotificationComponent.DefaultComponentConstructor = Constructor
@@ -65,6 +75,7 @@ export abstract class NotificationComponent extends NonInertableComponent {
 		return this.notify({ type: NotificationType.Error, ...normalizeNonTypedNotificationParameters(...parameters) })
 	}
 
+	/** Shows an error notification, then throws the given error, or an `Error` with the given message. */
 	static notifyAndThrowError(...parameters: NonTypedNotificationWithErrorParameters) {
 		let error: Error
 		if (parameters[0] instanceof Error) {
@@ -81,6 +92,7 @@ export abstract class NotificationComponent extends NonInertableComponent {
 		throw error
 	}
 
+	/** Shows the notification with this class, or with the default component if called on `NotificationComponent` itself. */
 	static async notify(notification: Notification) {
 		const notificationComponent = this !== NotificationComponent
 			? new (this as unknown as Constructor<NotificationComponent>)()
@@ -107,6 +119,8 @@ export abstract class NotificationComponent extends NonInertableComponent {
 		NotificationComponent.shownNotifications.add(notification)
 	}
 
+	/** The notification to show, set before `show` is called. */
 	abstract notification: Notification
+	/** Shows the `notification`, resolving once it is done showing. */
 	abstract show(): Promise<void>
 }

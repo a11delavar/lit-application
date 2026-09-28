@@ -14,45 +14,36 @@
 	},
 	"homepage": "https://github.com/a11delavar/lit-application#readme",
 	"scripts": {
-		"start": "node ./scripts/demo.ts",
-		"dev": "node ./scripts/test.ts",
-		"build": "node node_modules/typescript7/bin/tsc -p ./packages/Application/tsconfig.json && node node_modules/typescript7/bin/tsc -p ./packages/Native/tsconfig.json",
-		"test": "node ./scripts/test.ts && karma start --single-run",
+		"start": "vite demo",
+		"demo:build": "vite build demo",
+		"dev": "vitest --project chromium",
+		"test": "vitest run",
 		"lint": "eslint \"**/*.ts\"",
-		"typescript": "node node_modules/typescript7/bin/tsc --build --noEmit",
+		"typescript": "node ./node_modules/typescript7/bin/tsc --build --noEmit && node ./node_modules/typescript7/bin/tsc -p packages/tsconfig.json && node ./node_modules/typescript7/bin/tsc -p demo/tsconfig.json",
+		"build": "node ./node_modules/typescript7/bin/tsc --build",
 		"clean": "node ./scripts/clean.ts",
+		"bump": "node ./scripts/bump.ts",
+		"peers": "node ./scripts/peers.ts",
 		"release": "node ./scripts/release.ts",
-		"release-all": "node ./scripts/release-all.ts",
-		"watch": "npm-watch"
-	},
-	"watch": {
-		"dev": {
-			"patterns": [
-				"packages"
-			],
-			"extensions": "ts"
-		}
+		"changelog": "node ./scripts/changelog.ts",
+		"readme": "node ./scripts/readme.ts"
 	},
 	"devDependencies": {
+		"@3mo/commit-analyzer": "x",
 		"@a11d/eslint-config": "x",
-		"@types/jasmine": "x",
+		"@lit/task": "1.x",
+		"@types/node": "26.x",
 		"@typescript-eslint/eslint-plugin": "x",
 		"@typescript-eslint/parser": "x",
-		"esbuild": "0.x",
-		"esbuild-server": "0.x",
+		"@vitest/browser-playwright": "5.x",
 		"eslint": "x",
 		"eslint-plugin-import": "x",
 		"eslint-plugin-lit": "1.x",
 		"execa": "x",
-		"karma": "x",
-		"karma-chrome-launcher": "x",
-		"karma-firefox-launcher": "x",
-		"karma-helpful-reporter": "x",
-		"karma-jasmine": "x",
-		"npm-watch": "0.x",
-		"open": "x",
-		"tsc-watch": "6.x",
+		"playwright": "1.x",
 		"typescript": "6.x",
-		"typescript7": "npm:typescript@7.x"
+		"typescript7": "npm:typescript@7.x",
+		"vite": "6.x",
+		"vitest": "5.x"
 	}
 }

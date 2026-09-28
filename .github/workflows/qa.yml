@@ -2,42 +2,43 @@ name: 🔍 Quality Assurance
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-  pull_request:
-    types: [opened, reopened, review_requested, ready_for_review, synchronize]
+  workflow_call:
 
 jobs:
-  typescript:
+  type-check:
     name: 🏗️ Type Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
-      with:
-        node-version: 26.x
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run typescript
-  test:
-    name: 🧪 Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: 26.x
           cache: 'npm'
       - run: npm ci
-      - run: npm run test
+      - run: npm run typescript
+
   lint:
     name: 📝 Lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
-      with:
-        node-version: 26.x
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run lint
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 26.x
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run peers
+
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 26.x
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox
+      - run: npm run test

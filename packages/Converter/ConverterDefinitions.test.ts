@@ -13,7 +13,7 @@ describe('extractDirections', () => {
 	})
 
 	it('should keep the two directions independent', () => {
-		const directions = extractDirections({ in: { done: 'bit' }, out: { isdone: 'bit' } }, 'isDone')
+		const directions = extractDirections({ in: { done: upper }, out: { isdone: upper } }, 'isDone')
 
 		expect([...directions.in.keys()]).toEqual(['done'])
 		expect([...directions.out.keys()]).toEqual(['isdone'])

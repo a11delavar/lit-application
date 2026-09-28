@@ -1,10 +1,5 @@
-import { Packages } from './util/index.ts'
-import FileSystem from 'fs'
-import path from 'path'
+import { Package } from './util/index.ts'
+import { promises as FileSystem } from 'fs'
+import Path from 'path'
 
-for (const directory of Packages.getAllDirectories()) {
-	const distDirectory = path.join(directory, 'dist')
-	if (FileSystem.existsSync(distDirectory)) {
-		FileSystem.rmSync(distDirectory, { recursive: true })
-	}
-}
+await Promise.all(Package.all.map(p => FileSystem.rm(Path.join(p.path, 'dist'), { recursive: true, force: true })))

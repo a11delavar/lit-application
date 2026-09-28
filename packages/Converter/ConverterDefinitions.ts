@@ -6,6 +6,7 @@ export type ConverterOption = ConverterKeys | Converter | undefined
 /** One direction: a single option for the member's own key, or a map of the keys it maps against. */
 export type ConverterDefinition = ConverterOption | Record<string, ConverterOption>
 
+/** What `@converter` takes on a member: one definition for both directions, or separate `in` and `out` definitions. */
 export type ConverterOptions = ConverterDefinition | {
 	in?: ConverterDefinition
 	out?: ConverterDefinition
@@ -60,6 +61,7 @@ function directionOf(definition: ConverterDefinition, key: PropertyKey): Map<str
 	}))
 }
 
+/** Resolves the converter options of a member into the keys and converters it reads from and writes to. */
 export function extractDirections(options: ConverterOptions, key: PropertyKey): ConverterDirections {
 	if (isOption(options)) {
 		const direction = directionOf(options, key)
@@ -85,6 +87,7 @@ export function extractDirections(options: ConverterOptions, key: PropertyKey): 
 	return { in: direction, out: new Map(direction) }
 }
 
+/** Records the converter options of a member on its class, rejecting a second member that deconstructs into the same key. */
 export function define(prototype: object, key: PropertyKey, options: ConverterOptions) {
 	const definitions = ownDefinitionsOf(prototype.constructor)
 	const directions = extractDirections(options, key)

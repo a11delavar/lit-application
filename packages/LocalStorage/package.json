@@ -1,30 +1,32 @@
 {
 	"name": "@a11d/local-storage",
-	"version": "1.1.0",
-	"description": "A simple, strongly-typed local-storage wrapper",
+	"version": "1.1.1",
+	"description": "A utility for keeping a typed value in local storage, with a default, JSON serialization and change events.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/a11delavar/lit-application.git"
+		"url": "https://github.com/a11delavar/lit-application",
+		"directory": "packages/LocalStorage"
+	},
+	"bugs": {
+		"url": "https://github.com/a11delavar/lit-application/issues"
 	},
 	"keywords": [
 		"local-storage"
 	],
 	"author": "a11delavar",
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/a11delavar/lit-application/issues"
-	},
-	"homepage": "https://github.com/a11delavar/lit-application#readme",
+	"homepage": "https://github.com/a11delavar/lit-application/tree/main/packages/LocalStorage",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": [
-		"dist"
+		"dist",
+		"CHANGELOG.md"
 	],
-	"scripts": {
-		"build": "tsc"
-	},
 	"dependencies": {
 		"tslib": "x"
+	},
+	"peerDependencies": {
+		"@a11d/lit": "x"
 	}
 }

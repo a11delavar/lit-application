@@ -1,3 +1,5 @@
+import './path.js'
+
 describe('URL', () => {
 	describe('path', () => {
 		it('should return the path of the URL', () => {

@@ -1,11 +1,17 @@
 import { AsyncDirective, directive, type ElementPart, noChange, type PartInfo, PartType } from '@a11d/lit'
 import { type UrlMatchMode, NavigationStrategy, type RoutableComponent, type RoutableComponentConstructor } from './index.js'
 
+/** The options of `routerLink`. */
 type Parameters = {
+	/** The component to navigate to, whose URL becomes the element's `href`. */
 	component: RoutableComponent<any>
+	/** Where to navigate, overriding the strategy implied by the modifier keys of the click. */
 	navigationStrategy?: NavigationStrategy
+	/** How the URL must match the component's for the element to be selected, `all` by default. */
 	matchMode?: UrlMatchMode
+	/** Called on the element with whether it is selected, initially and whenever the URL changes. */
 	selectionChangeHandler?(this: Element, selected: boolean): void
+	/** Called whenever the element is clicked, once the navigation started. */
 	invocationHandler?(): void
 }
 
@@ -123,4 +129,10 @@ class RouterLinkDirective extends AsyncDirective {
 	}
 }
 
+/**
+ * Navigates to a routable component when the element is clicked, and marks the element `data-router-selected` while its URL matches.
+ *
+ * Ctrl-, Cmd- and middle-clicks open the component in a new tab and Shift-clicks in a new window, unless a `navigationStrategy`
+ * is given.
+ */
 export const routerLink = directive(RouterLinkDirective)

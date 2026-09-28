@@ -1,3 +1,4 @@
+/** The web app manifest of the application, as linked in the document's head. */
 export type Manifest = {
 	readonly name: string
 	readonly short_name: string
@@ -11,6 +12,7 @@ export type Manifest = {
 	readonly version?: string
 }
 
+/** An icon of the web app manifest. */
 export type ManifestIcon = {
 	readonly src: string
 	readonly sizes: string

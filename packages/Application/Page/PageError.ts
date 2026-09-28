@@ -3,6 +3,7 @@ import { HttpError, HttpErrorCode } from '../index.js'
 import { route } from '../Router/route.js'
 import { PageComponent } from './PageComponent.js'
 
+/** The page showing an HTTP error, routed at `/error/:error` and rendered by the application when no route matches. */
 @component('lit-page-error')
 @route('/error/:error')
 export class PageError extends PageComponent<{ readonly error: HttpErrorCode, readonly message?: string }> {

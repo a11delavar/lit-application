@@ -1,6 +1,7 @@
 import { DialogComponent, DialogComponentErrorHandler } from '../DialogComponent.js'
 import { NotificationComponent } from '../../Notification/NotificationComponent.js'
 
+/** The default `notification` dialog error handler, which shows errors as error notifications. */
 @DialogComponent.errorHandler('notification', true)
 export class DialogComponentNotificationErrorHandler extends DialogComponentErrorHandler {
 	override handle(error: Error) {

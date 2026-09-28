@@ -1,6 +1,12 @@
 import { component } from '@a11d/lit'
 import { type Notification as NotificationObject, NotificationComponent, NotificationType } from '@a11d/lit-application'
 
+/**
+ * Shows notifications as system notifications, falling back to `alert` where they are unsupported or not permitted.
+ *
+ * Importing the package registers it as the default notification component, which `NotificationComponent.notifySuccess` and
+ * its siblings show through.
+ */
 @component('lit-notification')
 @NotificationComponent.defaultComponent()
 export class Notification extends NotificationComponent {

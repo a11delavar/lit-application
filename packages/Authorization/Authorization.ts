@@ -2,6 +2,30 @@ import { HttpErrorCode, DialogComponent, PageComponent, PageError, NotificationC
 import { createMetadataDecorator } from '@a11d/metadata'
 import { LocalStorage } from '@a11d/local-storage'
 
+/**
+ * Requires the user to be granted every given authorization before the decorated page or dialog opens.
+ *
+ * A page the user is not authorized for navigates to an error page instead, and such a dialog notifies about the denial and
+ * throws. An instance can require other authorizations through its `requiresAuthorization.override` member.
+ *
+ * @example
+ * ```ts
+ * import { component, html } from '@a11d/lit'
+ * import { PageComponent, route } from '@a11d/lit-application'
+ * import { Authorization, requiresAuthorization } from '@a11d/lit-application-authorization'
+ *
+ * @component('app-page-invoices')
+ * @route('/invoices')
+ * @requiresAuthorization(['invoices.read'])
+ * export class PageInvoices extends PageComponent {
+ * 	protected override get template() {
+ * 		return html`<lit-page heading='Invoices'></lit-page>`
+ * 	}
+ * }
+ *
+ * Authorization.grant('invoices.read')
+ * ```
+ */
 export const requiresAuthorization = createMetadataDecorator('requiresAuthorization') as {
 	(value: Array<string>): (target: RoutableComponentConstructor) => void
 	get(constructor: RoutableComponentConstructor): Array<string> | undefined
@@ -9,6 +33,7 @@ export const requiresAuthorization = createMetadataDecorator('requiresAuthorizat
 	resolve(routable: RoutableComponent): Array<string> | undefined
 }
 
+/** Holds the authorizations granted to the user, kept in local storage, and tells whether a page or dialog is authorized. */
 export class Authorization {
 	private static readonly storage = new LocalStorage('LitApplication.Authorizations', new Array<string>())
 
@@ -27,10 +52,12 @@ export class Authorization {
 		this.values = []
 	}
 
+	/** Tells whether every given authorization is granted. */
 	static has(...authorizations: Array<string>) {
 		return authorizations.every(p => this.values.includes(p))
 	}
 
+	/** Tells whether every authorization the given page or dialog requires is granted. */
 	static isAuthorized(routable: RoutableComponent) {
 		const requiredAuthorizations = requiresAuthorization.resolve(routable) ?? []
 		return Authorization.has(...requiredAuthorizations)

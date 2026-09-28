@@ -8,9 +8,7 @@ Object.defineProperty(URL.prototype, 'path', {
 
 declare global {
 	interface URL {
-		/**
-		 * Returns the path of the URL.
-		 */
+		/** The `pathname` followed by the `search` of the URL. */
 		readonly path: string
 	}
 }

@@ -1,3 +1,4 @@
+/** The HTTP status codes of client and server errors. */
 export enum HttpErrorCode {
 	BadRequest = 400,
 	Unauthorized = 401,

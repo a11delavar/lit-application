@@ -2,6 +2,12 @@ import { type ReactiveControllerHost } from '@a11d/lit'
 import { Router as RouterControllerBase } from '@lit-labs/router'
 import { RoutableComponent } from './RoutableComponent.js'
 
+/**
+ * The router rendering the component whose route matches the URL, extending the `Router` of `@lit-labs/router`.
+ *
+ * When its host connects, it adds the routes of each `@route` component whose host is the host's class or a base class of it:
+ * the application for top-level pages, or a page for the components nested in it.
+ */
 export class RouterController extends RouterControllerBase {
 	protected readonly host: ReactiveControllerHost & HTMLElement
 

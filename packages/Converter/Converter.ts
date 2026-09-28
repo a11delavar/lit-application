@@ -1,6 +1,7 @@
 import '@a11d/constructor'
 
 declare global {
+	/** The registered converters by key, which a consumer declares to restrict `ConverterKey` to those keys. */
 	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 	interface ConvertersByKeys { }
 }
@@ -62,6 +63,7 @@ export class CompositeConverter<Deconstructed = any, Constructed = any> implemen
 	}
 }
 
+/** The converters registered by key, filled by `@converter` on a class and looked up for the keys a member names. */
 export const converters = new class extends Map<ConverterKey, Converter> {
 	getOrThrow(key: ConverterKey) {
 		const converter = this.get(key)

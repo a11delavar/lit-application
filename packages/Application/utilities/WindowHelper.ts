@@ -1,8 +1,11 @@
+/** Whether `WindowHelper` opens a location in a new tab or in a popup window. */
 export enum WindowOpenMode { Tab, Window }
 
+/** Opens locations of the application in new tabs or popup windows. */
 export class WindowHelper {
 	private static readonly windowSizeReductionMultiplier = 0.9
 
+	/** Opens the location, the current one by default, and resolves with the new window once its application is initialized. */
 	static open(location = new URL(globalThis.location.toString()), mode = WindowOpenMode.Tab) {
 		return new Promise<Window>((resolve, reject) => {
 			if (window.matchMedia('(display-mode: standalone)').matches && mode === WindowOpenMode.Tab && !manifest?.display_override?.includes('tabbed')) {

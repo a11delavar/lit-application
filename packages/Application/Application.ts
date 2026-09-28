@@ -5,6 +5,7 @@ import { HookSet, PageError, RouterController } from './index.js'
 import { HttpErrorCode, queryInstanceElement } from './utilities/index.js'
 import { ApplicationTopLayer } from './ApplicationTopLayer.js'
 
+/** Appends an instance of the decorated `Application` subclass to the document body, unless one is already there. */
 export const application = () => {
 	return <T extends Application>(ApplicationConstructor: Constructor<T>) => {
 		if (!(ApplicationConstructor as unknown as typeof Application).instance) {
@@ -13,12 +14,56 @@ export const application = () => {
 	}
 }
 
+/**
+ * The base class of an application, which renders the page matching the URL and hosts dialogs and notifications in its top layer.
+ *
+ * It renders into its light DOM and injects its static `styles` into the document. It connects once its `connectingHooks` have run,
+ * renders `pageLoadingTemplate` until its `beforeRouteHooks` have run, and then the page matching the URL, dispatching the
+ * `Application.connected`, `Application.initialized` and `Application.routed` window events in that order. Pages and dialogs
+ * render into page and dialog elements provided by an implementation such as `@a11d/lit-application-native`.
+ *
+ * @example
+ * ```ts
+ * import { component, html } from '@a11d/lit'
+ * import { application, Application, DialogComponent, PageComponent, route } from '@a11d/lit-application'
+ * import '@a11d/lit-application-native'
+ *
+ * @component('app-dialog-greeting')
+ * export class DialogGreeting extends DialogComponent<{ readonly name: string }> {
+ * 	protected override get template() {
+ * 		return html`<lit-dialog heading='Greeting' primaryButtonText='OK'>Hello, ${this.parameters.name}!</lit-dialog>`
+ * 	}
+ *
+ * 	protected override primaryAction() { }
+ * }
+ *
+ * @component('app-page-home')
+ * @route('/')
+ * export class PageHome extends PageComponent {
+ * 	protected override get template() {
+ * 		return html`
+ * 			<lit-page heading='Home'>
+ * 				<button @click=${() => new DialogGreeting({ name: 'Ada' }).confirm()}>Greet</button>
+ * 			</lit-page>
+ * 		`
+ * 	}
+ * }
+ *
+ * @application()
+ * @component('app-application')
+ * export class App extends Application { }
+ * ```
+ */
 export abstract class Application extends NonInertableComponent {
+	/** Hooks awaited before the application connects, such as to load configuration. */
 	static readonly connectingHooks = new HookSet()
+	/** Hooks awaited after the application first renders and before its router renders the first page. */
 	static readonly beforeRouteHooks = new HookSet()
 
+	/** The most recently connected top layer, or `document.body` without one, where dialogs and notifications are appended. */
 	static get topLayer() { return ApplicationTopLayer.instance }
 
+	/** The application element in the document, if any. */
 	@queryInstanceElement() static readonly instance?: Application
 
 	static override get styles() {
@@ -61,8 +106,10 @@ export abstract class Application extends NonInertableComponent {
 		`
 	}
 
+	/** The heading of the current page, kept in the document title. */
 	@property({ updated(this: Application) { document.title = this.documentTitle } }) pageHeading?: string
 
+	/** The router rendering the page whose route matches the URL, or `PageError` with `NotFound` when none does. */
 	readonly router = new RouterController(this, [],
 		{
 			fallback: {
@@ -94,6 +141,7 @@ export abstract class Application extends NonInertableComponent {
 		window?.dispatchEvent(new Event('Application.routed'))
 	}
 
+	/** The document title, joining the page heading and the manifest's `short_name`. */
 	protected get documentTitle() {
 		return [this.pageHeading, manifest?.short_name].filter(Boolean).join(' | ')
 	}
@@ -104,6 +152,7 @@ export abstract class Application extends NonInertableComponent {
 		`
 	}
 
+	/** The page host followed by the top layer; override it to render navigation or a footer around them. */
 	protected get bodyTemplate() {
 		return html`
 			${this.pageHostTemplate}
@@ -119,6 +168,7 @@ export abstract class Application extends NonInertableComponent {
 		`
 	}
 
+	/** Rendered in place of the page until the `beforeRouteHooks` have run; nothing by default. */
 	protected get pageLoadingTemplate() {
 		return html.nothing
 	}

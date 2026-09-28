@@ -21,5 +21,6 @@ Application?.connectingHooks.add(async () => {
 
 declare global {
 
+	/** The web app manifest linked in the document's head, loaded before the application connects. */
 	const manifest: Manifest | undefined
 }

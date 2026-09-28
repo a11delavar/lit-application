@@ -11,30 +11,30 @@ describe('HookSet', () => {
 	describe('execute()', () => {
 		it('resolves immediately when no hooks are registered', async () => {
 			const hooks = new HookSet<void>()
-			await expectAsync(hooks.execute()).toBeResolved()
+			await expect(hooks.execute()).resolves.toBeUndefined()
 		})
 
 		it('passes the host argument to each registered hook', async () => {
 			const hooks = new HookSet<FakeHost>()
-			const a = jasmine.createSpy('a')
-			const b = jasmine.createSpy('b')
+			const a = vi.fn()
+			const b = vi.fn()
 			hooks.add(a).add(b)
 			const host = new FakeHost()
 			host.token = 42
 
 			await hooks.execute(host)
 
-			expect(a).toHaveBeenCalledOnceWith(host)
-			expect(b).toHaveBeenCalledOnceWith(host)
+			expect(a).toHaveBeenCalledExactlyOnceWith(host)
+			expect(b).toHaveBeenCalledExactlyOnceWith(host)
 		})
 
 		it('runs all hooks even when one rejects (allSettled semantics)', async () => {
 			const hooks = new HookSet<void>()
-			const after = jasmine.createSpy('after')
+			const after = vi.fn()
 			hooks.add(() => Promise.reject(new Error('first failed')))
 			hooks.add(after)
 
-			await expectAsync(hooks.execute()).toBeResolved()
+			await expect(hooks.execute()).resolves.toBeUndefined()
 			expect(after).toHaveBeenCalledTimes(1)
 		})
 
@@ -53,7 +53,7 @@ describe('HookSet', () => {
 
 		it('supports synchronous (non-promise) hooks', async () => {
 			const hooks = new HookSet<void>()
-			const sync = jasmine.createSpy('sync')
+			const sync = vi.fn()
 			hooks.add(sync)
 
 			await hooks.execute()

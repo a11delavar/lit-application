@@ -1,5 +1,6 @@
 import { Component, component, css, html } from '@a11d/lit'
 
+/** The element hosting the current page, rendered by the application. */
 @component('lit-page-host')
 export class PageHost extends Component {
 	static override get styles() {

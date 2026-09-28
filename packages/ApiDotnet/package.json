@@ -1,10 +1,14 @@
 {
 	"name": "@a11d/api-dotnet",
-	"version": "0.1.0",
-	"description": ".NET extensions for the @a11d/api package.",
+	"version": "0.1.1",
+	"description": "An extension of @a11d/api for .NET back ends, throwing their problem-details responses as typed errors and reviving models.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/a11delavar/lit-application.git"
+		"url": "https://github.com/a11delavar/lit-application",
+		"directory": "packages/ApiDotnet"
+	},
+	"bugs": {
+		"url": "https://github.com/a11delavar/lit-application/issues"
 	},
 	"keywords": [
 		"sdk",
@@ -13,21 +17,17 @@
 	],
 	"author": "a11delavar",
 	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/a11delavar/lit-application/issues"
-	},
-	"homepage": "https://github.com/a11delavar/lit-application#readme",
+	"homepage": "https://github.com/a11delavar/lit-application/tree/main/packages/ApiDotnet",
 	"type": "module",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"files": [
-		"dist"
+		"dist",
+		"CHANGELOG.md"
 	],
-	"scripts": {
-		"build": "tsc"
-	},
 	"dependencies": {
 		"@a11d/api": "x",
-		"@a11d/api-model-value-constructor": "x"
+		"@a11d/api-model-value-constructor": "x",
+		"tslib": "x"
 	}
 }

@@ -128,7 +128,7 @@ describe('DialogComponent', () => {
 
 			await dialog.handleAction(DialogActionKey.Primary)
 
-			await expectAsync(promise).toBeResolvedTo('ok')
+			await expect(promise).resolves.toEqual('ok')
 		})
 
 		it('rejects with the Error returned by primaryAction (return, not throw)', async () => {
@@ -138,7 +138,7 @@ describe('DialogComponent', () => {
 
 			await dialog.handleAction(DialogActionKey.Primary)
 
-			await expectAsync(promise).toBeRejectedWith(error)
+			await expect(promise).rejects.toBe(error)
 		})
 
 		it('rejects with a DialogCancelledError when the default cancellationAction runs', async () => {
@@ -147,7 +147,7 @@ describe('DialogComponent', () => {
 
 			await dialog.handleAction(DialogActionKey.Cancellation)
 
-			await expectAsync(promise).toBeRejectedWithError(DialogCancelledError)
+			await expect(promise).rejects.toBeInstanceOf(DialogCancelledError)
 		})
 
 		it('secondaryAction defaults to cancellationAction (so Secondary cancels)', async () => {
@@ -156,7 +156,7 @@ describe('DialogComponent', () => {
 
 			await dialog.handleAction(DialogActionKey.Secondary)
 
-			await expectAsync(promise).toBeRejectedWithError(DialogCancelledError)
+			await expect(promise).rejects.toBeInstanceOf(DialogCancelledError)
 		})
 	})
 
@@ -172,7 +172,7 @@ describe('DialogComponent', () => {
 			expect(CapturingDefaultHandler.lastError).toBe(error)
 			expect(dialog.open).toBe(true)
 			expect(instance.isConnected).toBe(true)
-			await expectAsync(settled(promise)).toBeResolvedTo(jasmine.objectContaining({ status: 'pending' }))
+			await expect(settled(promise)).resolves.toEqual(expect.objectContaining({ status: 'pending' }))
 		})
 
 		it('does not invoke the error handler when the thrown error is a DialogCancelledError', async () => {
@@ -188,14 +188,14 @@ describe('DialogComponent', () => {
 
 		it('routes errors to a function-typed errorHandler set on the dialog element', async () => {
 			const error = new Error('handled inline')
-			const handler = jasmine.createSpy('errorHandler')
+			const handler = vi.fn()
 			const Dialog = defineDialog({ primary: () => { throw error } })
 			const { dialog } = await open(Dialog)
 			dialog.errorHandler = handler
 
 			await Promise.resolve(dialog.handleAction(DialogActionKey.Primary)).catch(() => undefined)
 
-			expect(handler).toHaveBeenCalledOnceWith(error)
+			expect(handler).toHaveBeenCalledExactlyOnceWith(error)
 			expect(CapturingDefaultHandler.lastError).toBeUndefined()
 		})
 	})
@@ -210,7 +210,7 @@ describe('DialogComponent', () => {
 
 			expect(dialog.open).toBe(true)
 			expect(instance.isConnected).toBe(true)
-			await expectAsync(settled(promise)).toBeResolvedTo(jasmine.objectContaining({ status: 'pending' }))
+			await expect(settled(promise)).resolves.toEqual(expect.objectContaining({ status: 'pending' }))
 		})
 
 		it('still closes on Cancellation even when manualClose is set', async () => {
@@ -220,7 +220,7 @@ describe('DialogComponent', () => {
 
 			await dialog.handleAction(DialogActionKey.Cancellation)
 
-			await expectAsync(promise).toBeRejectedWithError(DialogCancelledError)
+			await expect(promise).rejects.toBeInstanceOf(DialogCancelledError)
 		})
 	})
 
@@ -262,11 +262,11 @@ describe('DialogComponent', () => {
 
 			window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
 
-			await expectAsync(promise).toBeResolvedTo('enter')
+			await expect(promise).resolves.toEqual('enter')
 		})
 
 		it('does not trigger primary on Enter when primaryOnEnter is not set', async () => {
-			const primary = jasmine.createSpy('primary').and.returnValue('x')
+			const primary = vi.fn(() => 'x')
 			const Dialog = defineDialog({ primary })
 			await open(Dialog)
 
@@ -282,11 +282,11 @@ describe('DialogComponent', () => {
 
 			window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
 
-			await expectAsync(promise).toBeRejectedWithError(DialogCancelledError)
+			await expect(promise).rejects.toBeInstanceOf(DialogCancelledError)
 		})
 
 		it('does not cancel on Escape when preventCancellationOnEscape is true', async () => {
-			const cancellation = jasmine.createSpy('cancellation').and.callFake(() => new DialogCancelledError({} as any))
+			const cancellation = vi.fn(() => new DialogCancelledError({} as any))
 			const Dialog = defineDialog({ cancellation })
 			const { dialog } = await open(Dialog)
 			dialog.preventCancellationOnEscape = true

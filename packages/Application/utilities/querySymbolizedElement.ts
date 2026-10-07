@@ -15,7 +15,7 @@ export function querySymbolizedElement(symbol: symbol) {
 					throw new Error(`${this.constructor.name}'s ${propertyKey} cannot be found.`)
 				}
 				return element
-			}
+			},
 		})
 	}
 }

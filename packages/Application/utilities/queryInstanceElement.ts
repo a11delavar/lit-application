@@ -6,7 +6,7 @@ export function queryInstanceElement() {
 		Object.defineProperty(prototype, propertyKey, {
 			get(this: AbstractConstructor<LitElement>) {
 				return [...document?.querySelectorAll('*') ?? []].find(element => element instanceof this)
-			}
+			},
 		})
 	}
 }

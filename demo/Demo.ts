@@ -111,8 +111,8 @@ export class Demo extends Application {
 				<strong>Lit Application</strong>
 				<nav class='row'>
 					<a ${routerLink({ component: new PageOrders({}), matchMode: 'ignore-parameters' })}>Orders</a>
-					<a ${routerLink(new PageReports)}>Reports</a>
-					<a ${routerLink(new PageSettings)}>Settings</a>
+					<a ${routerLink(new PageReports())}>Reports</a>
+					<a ${routerLink(new PageSettings())}>Settings</a>
 				</nav>
 				<div class='account row'>
 					${!DialogSignIn.account ? html.nothing : html`

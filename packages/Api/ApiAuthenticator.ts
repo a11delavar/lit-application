@@ -19,6 +19,6 @@ export type ApiAuthenticator = {
  */
 export const apiAuthenticator = () => {
 	return (Constructor: Constructor<ApiAuthenticator>) => {
-		Api.authenticator = new Constructor
+		Api.authenticator = new Constructor()
 	}
 }

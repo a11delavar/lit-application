@@ -3,7 +3,7 @@ Object.defineProperty(URL.prototype, 'path', {
 		return this.pathname + this.search
 	},
 	enumerable: false,
-	configurable: true
+	configurable: true,
 })
 
 declare global {

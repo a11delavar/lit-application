@@ -63,7 +63,7 @@ describe('NotificationComponent', () => {
 			expect(TestNotificationComponent.notify).toHaveBeenCalledWith({
 				type,
 				message: 'Test',
-				actions: [action]
+				actions: [action],
 			})
 		})
 	}

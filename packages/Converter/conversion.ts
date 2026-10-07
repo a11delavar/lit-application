@@ -48,7 +48,7 @@ export function construct<T extends object>(Constructor: Constructor<T>, from: o
 		delete constructed[mappedKey]
 	}
 
-	const instance = new Constructor
+	const instance = new Constructor()
 	for (const [property, value] of Object.entries(constructed)) {
 		if (Object.isWritable(instance, property)) {
 			(instance as Record<string, unknown>)[property] = value

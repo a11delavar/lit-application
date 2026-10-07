@@ -85,7 +85,7 @@ export abstract class DialogAuthenticator<Account extends object> extends Dialog
 			NotificationComponent.notifySuccess('Authenticated successfully')
 			return account
 		} catch (error: any) {
-			throw new Error(error.message ?? 'Incorrect Credentials')
+			throw new Error(error.message ?? 'Incorrect Credentials', { cause: error })
 		}
 	}
 

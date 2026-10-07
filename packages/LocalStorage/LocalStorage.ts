@@ -25,7 +25,7 @@ export class LocalStorage<T> {
 	constructor(
 		protected readonly name: string,
 		protected readonly defaultValue: T,
-		protected readonly reviver?: (key: string, value: any) => any
+		protected readonly reviver?: (key: string, value: any) => any,
 	) { LocalStorage.container.add(this) }
 
 	/** The stored value, parsed from JSON where possible, or the default when nothing is stored or on the server; `undefined` removes it. */

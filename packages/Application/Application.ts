@@ -9,7 +9,7 @@ import { ApplicationTopLayer } from './ApplicationTopLayer.js'
 export const application = () => {
 	return <T extends Application>(ApplicationConstructor: Constructor<T>) => {
 		if (!(ApplicationConstructor as unknown as typeof Application).instance) {
-			document?.body.appendChild(new ApplicationConstructor)
+			document?.body.appendChild(new ApplicationConstructor())
 		}
 	}
 }
@@ -113,9 +113,9 @@ export abstract class Application extends NonInertableComponent {
 	readonly router = new RouterController(this, [],
 		{
 			fallback: {
-				render: () => new PageError({ error: HttpErrorCode.NotFound })
-			}
-		}
+				render: () => new PageError({ error: HttpErrorCode.NotFound }),
+			},
+		},
 	)
 
 	protected readonly rootCssInjector = new RootCssInjectorController(this, (this.constructor as any).styles)

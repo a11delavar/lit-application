@@ -36,7 +36,7 @@ export class Notification extends NotificationComponent {
 		new globalThis.Notification(title, {
 			actions: this.notification.actions?.map(action => ({
 				title: action.title,
-				action: action.title
+				action: action.title,
 			})),
 		} as any)
 	}

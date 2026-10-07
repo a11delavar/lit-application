@@ -7,7 +7,7 @@ const queryActionElement = (slotName: string) => {
 			get(this: Component) {
 				const slot = this.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name=${slotName}]`)
 				return slot?.assignedElements()?.[0] ?? slot?.children[0] ?? undefined
-			}
+			},
 		})
 	}
 }

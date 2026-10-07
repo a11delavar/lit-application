@@ -77,9 +77,9 @@ A new package also needs a reference in the root `tsconfig.json`, `npm install` 
 
 ### Code style
 
-- Tabs, LF, no final newline (`.editorconfig`). Single quotes, no semicolons, `1tbs` braces, no `public` keyword, `import { type X }` for types, no `console`. Attribute values in templates use single quotes.
+- Tabs, LF, a final newline in every file (`.editorconfig`, and `eol-last` in lint). Single quotes, no semicolons, `1tbs` braces, no `public` keyword, `import { type X }` for types, no `console`. Attribute values in templates use single quotes.
 - Relative imports carry the `.js` extension.
-- Scripts that rewrite files on Windows must keep LF and add no final newline; `package.json` files keep the final newline npm writes.
+- Scripts that rewrite files on Windows must keep LF and end every file with a newline.
 
 ## The demo
 

@@ -108,7 +108,7 @@ describe('deconstruct', () => {
 			@converter({ out: { amount: { deconstruct: (value: number) => `${value},00` }, amountCopy: undefined } }) amount = 5
 		}
 
-		expect(deconstruct(new Twice)).toEqual({ amount: '5,00', amountCopy: '5,00' })
+		expect(deconstruct(new Twice())).toEqual({ amount: '5,00', amountCopy: '5,00' })
 	})
 
 	it('should not touch the instance', () => {

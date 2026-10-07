@@ -80,4 +80,4 @@ export const converters = new class extends Map<ConverterKey, Converter> {
 		}
 		return new CompositeConverter(...key.split('??').map(part => this.resolve(part.trim() as ConverterKeys)))
 	}
-}
+}()

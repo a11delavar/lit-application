@@ -16,7 +16,7 @@ export type DialogAction<TResult> = DialogResult<TResult> | PromiseLike<DialogRe
 export enum DialogConfirmationStrategy {
 	Dialog = NavigationStrategy.Page,
 	Tab = NavigationStrategy.Tab,
-	Window = NavigationStrategy.Window
+	Window = NavigationStrategy.Window,
 }
 
 /** The confirmation strategies that pop a dialog out into a new tab or window. */

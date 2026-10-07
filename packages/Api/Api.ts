@@ -90,7 +90,7 @@ export class Api {
 		}
 
 		if (data instanceof File) {
-			const form = new FormData
+			const form = new FormData()
 			form.set('file', data, data.name)
 			return form
 		}
@@ -111,8 +111,8 @@ export class Api {
 		return Object.assign(
 			clone,
 			Object.fromEntries(
-				Object.entries(deconstructed).map(([key, value]) => [key, this.handleRequest(value, handled)])
-			)
+				Object.entries(deconstructed).map(([key, value]) => [key, this.handleRequest(value, handled)]),
+			),
 		)
 	}
 
@@ -164,7 +164,7 @@ export class Api {
 
 	private static handleResponse<T>(responseText: string): T {
 		const [isJson, json] = JSON.tryParse(responseText,
-			(_, value) => [...this.valueConstructors].find(converter => converter.shallConstruct(value))?.construct(value) ?? value
+			(_, value) => [...this.valueConstructors].find(converter => converter.shallConstruct(value))?.construct(value) ?? value,
 		)
 		return isJson ? json : responseText as T
 	}

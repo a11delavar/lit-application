@@ -28,7 +28,7 @@ export class RouterController extends RouterControllerBase {
 				.flatMap(Constructor => Constructor.routes.map(route => ({
 					path: route,
 					render: (p: Record<string, string | undefined>) => Constructor.render(p),
-				})))
+				}))),
 		)
 	}
 }

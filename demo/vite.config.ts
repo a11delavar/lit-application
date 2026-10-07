@@ -23,7 +23,7 @@ function llms(): Plugin {
 		},
 		generateBundle() {
 			for (const [fileName, source] of PackageReadme.llms(Package.all, siteUrl(Package.all[0]!))) {
-				this.emitFile({ type: 'asset', fileName, source })
+				this.emitFile({ type: 'asset', fileName, source: `${source}\n` })
 			}
 		},
 		writeBundle({ dir }) {

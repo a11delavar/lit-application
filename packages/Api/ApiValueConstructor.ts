@@ -19,6 +19,6 @@ export type ApiValueConstructor<TConstructed, TDeconstructed> = {
 /** Registers an instance of the decorated class as a value constructor of `Api`. */
 export const apiValueConstructor = () => {
 	return (Constructor: Constructor<ApiValueConstructor<unknown, unknown>>) => {
-		Api.valueConstructors.add(new Constructor)
+		Api.valueConstructors.add(new Constructor())
 	}
 }

@@ -62,7 +62,7 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 			if (this.boundToWindow) {
 				this.updateUrl()
 			}
-		}
+		},
 	}) parameters: T
 
 	constructor(parameters: T) {
@@ -138,12 +138,12 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 
 		const parameters = {
 			...m.params as Record<string, string>,
-			...Object.fromEntries(options.url.searchParams)
+			...Object.fromEntries(options.url.searchParams),
 		}
 
 		return Object[equals](
 			Object.fromEntries(Object.entries(this.parameters ?? {}).map(([k, v]) => [k, v?.toString()])),
-			parameters
+			parameters,
 		)
 	}
 

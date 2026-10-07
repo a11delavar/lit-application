@@ -47,7 +47,7 @@ export const converter = (options: ConverterKey | ConverterOptions) => {
 			throw new Error('A converter class is registered under a key.')
 		}
 
-		const instance = new (target as Constructor<Converter>)
+		const instance = new (target as Constructor<Converter>)()
 		if (!instance.construct && !instance.deconstruct) {
 			throw new Error(`"${(target as Constructor<Converter>).name}" implements neither "construct" nor "deconstruct".`)
 		}

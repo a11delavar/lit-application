@@ -4,6 +4,6 @@ import { type Component } from '@a11d/lit'
 export class HookSet<TComponent extends Component | void = void> extends Set<(component: TComponent) => void | PromiseLike<void>> {
 	/** Runs every hook with the component, resolving once all of them have settled. */
 	async execute(component: TComponent) {
-		await Promise.allSettled([...this].map(hook => hook(component)))
+		await Promise.allSettled([...this].map(hook => Promise.resolve(hook(component))))
 	}
 }

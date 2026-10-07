@@ -19,12 +19,12 @@ export class WindowHelper {
 
 			newWindow.resizeTo(
 				window.outerWidth * WindowHelper.windowSizeReductionMultiplier,
-				window.outerHeight * WindowHelper.windowSizeReductionMultiplier
+				window.outerHeight * WindowHelper.windowSizeReductionMultiplier,
 			)
 
 			newWindow.moveTo(
 				window.screenX + (window.outerWidth - newWindow.outerWidth) / 2,
-				window.screenY + (window.outerHeight - newWindow.outerHeight) / 2
+				window.screenY + (window.outerHeight - newWindow.outerHeight) / 2,
 			)
 
 			newWindow.addEventListener('Application.initialized', () => resolve(newWindow), { once: true })

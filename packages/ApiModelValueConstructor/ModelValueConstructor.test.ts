@@ -38,7 +38,7 @@ class PriorityValueConstructor implements ApiValueConstructor<Priority, string> 
 	deconstruct = (value: Priority) => `priority:${value.value}`
 }
 
-Api.valueConstructors.add(new PriorityValueConstructor)
+Api.valueConstructors.add(new PriorityValueConstructor())
 
 @model('Task')
 class Task {
@@ -67,7 +67,7 @@ const rawData = [
 ]
 
 describe('ModelValueConstructor', () => {
-	const valueConstructor = new ModelValueConstructor
+	const valueConstructor = new ModelValueConstructor()
 
 	it('should signal constructable for matching types', () => {
 		expect(valueConstructor.shallConstruct(rawData)).toBe(false)
@@ -97,7 +97,7 @@ describe('ModelValueConstructor', () => {
 			expect(valueConstructor.shallDeconstruct(new Data('value1'))).toBe(true)
 			expect(valueConstructor.shallDeconstruct(new Account('someone', 'secret'))).toBe(true)
 			expect(valueConstructor.shallDeconstruct(new NotAModel('value1'))).toBe(false)
-			expect(valueConstructor.shallDeconstruct(new Date)).toBe(false)
+			expect(valueConstructor.shallDeconstruct(new Date())).toBe(false)
 			expect(valueConstructor.shallDeconstruct(undefined)).toBe(false)
 			expect(valueConstructor.shallDeconstruct(null)).toBe(false)
 			expect(valueConstructor.shallDeconstruct('Data')).toBe(false)
@@ -144,7 +144,7 @@ describe('ModelValueConstructor', () => {
 		})
 
 		it('should round-trip a field holding a value object through its own value constructor', () => {
-			const task = new Task
+			const task = new Task()
 			task.priority = Priority.High
 
 			const body = JSON.stringify(Api['handleRequest'](task))
@@ -156,7 +156,7 @@ describe('ModelValueConstructor', () => {
 		})
 
 		it('should round-trip a member through the key its definition maps it to', () => {
-			const ticket = new Ticket
+			const ticket = new Ticket()
 			ticket.priority = Priority.High
 
 			const body = JSON.stringify(Api['handleRequest'](ticket))

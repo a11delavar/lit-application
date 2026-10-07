@@ -36,7 +36,7 @@ export class Order {
 	@label('Customer') customer = ''
 	@label('Total') @converter({ totalCents: cents }) total = 0
 	@label('Status') status = OrderStatus.Open
-	@label('Placed') @converter(date) placedAt = new Date
+	@label('Placed') @converter(date) placedAt = new Date()
 }
 
 @model('Account')

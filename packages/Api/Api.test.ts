@@ -19,14 +19,14 @@ class DateValueConstructor implements ApiValueConstructor<Date, string> {
 	deconstruct = (value: Date) => value.toISOString().slice(0, 10)
 }
 
-Api.valueConstructors.add(new DateValueConstructor)
+Api.valueConstructors.add(new DateValueConstructor())
 
 class DataClassValueConstructor implements ApiValueConstructor<Data, object> {
 	shallConstruct = (data: unknown) => typeof data === 'object' && data !== null && '@type' in data && data['@type'] === 'Data'
-	construct = (data: object) => Object.assign(new Data('', new Date), data)
+	construct = (data: object) => Object.assign(new Data('', new Date()), data)
 }
 
-Api.valueConstructors.add(new DataClassValueConstructor)
+Api.valueConstructors.add(new DataClassValueConstructor())
 
 class Secret {
 	constructor(readonly text: string) { }
@@ -40,7 +40,7 @@ class SecretValueConstructor implements ApiValueConstructor<Secret, string> {
 	deconstruct = (value: Secret) => `secret:${value.text}`
 }
 
-Api.valueConstructors.add(new SecretValueConstructor)
+Api.valueConstructors.add(new SecretValueConstructor())
 
 describe('Api', () => {
 	describe('deconstruction', () => {
@@ -61,7 +61,7 @@ describe('Api', () => {
 		})
 
 		it('should preserve the kind of walked values', () => {
-			const deconstructed = Api['handleRequest']({ items: [new Secret('a')], map: new Map })
+			const deconstructed = Api['handleRequest']({ items: [new Secret('a')], map: new Map() })
 
 			expect(Array.isArray(deconstructed.items)).toBe(true)
 			expect(deconstructed.items).toEqual(['secret:a'])

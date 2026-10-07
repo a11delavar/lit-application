@@ -89,22 +89,22 @@ describe('createMetadata', () => {
 
 	describe('resolve', () => {
 		it('should fall back to the metadata statically decorated onto the class', () => {
-			expect(meta.resolve(new TestClassOne)).toBe('Test #1')
+			expect(meta.resolve(new TestClassOne())).toBe('Test #1')
 		})
 
 		it('should fall back to the metadata inherited from a parent class', () => {
-			expect(meta.resolve(new TestClassTwo)).toBe('Test #1')
+			expect(meta.resolve(new TestClassTwo())).toBe('Test #1')
 		})
 
 		it('should return undefined when neither the instance nor its class provides the metadata', () => {
-			expect(meta.resolve(new TestClassZero)).toBeUndefined()
+			expect(meta.resolve(new TestClassZero())).toBeUndefined()
 		})
 
 		it('should prefer the value of the override member over the statically decorated one', () => {
 			@meta('Static') class Overriding {
 				get [meta.override]() { return 'Instance' }
 			}
-			expect(meta.resolve(new Overriding)).toBe('Instance')
+			expect(meta.resolve(new Overriding())).toBe('Instance')
 		})
 
 		it('should resolve the override member against the state of the very instance', () => {
@@ -120,7 +120,7 @@ describe('createMetadata', () => {
 			@meta('Static') class Field {
 				[meta.override] = 'Instance'
 			}
-			expect(meta.resolve(new Field)).toBe('Instance')
+			expect(meta.resolve(new Field())).toBe('Instance')
 		})
 
 		it('should fall back to the statically decorated value when the override member yields undefined', () => {
@@ -136,14 +136,14 @@ describe('createMetadata', () => {
 			@meta('Static') class Nulled {
 				get [meta.override]() { return null }
 			}
-			expect(meta.resolve(new Nulled)).toBe('Static')
+			expect(meta.resolve(new Nulled())).toBe('Static')
 		})
 
 		it('should replace the statically decorated value instead of merging with it', () => {
 			@meta(['a', 'b']) class Replacing {
 				get [meta.override]() { return ['c'] }
 			}
-			expect(meta.resolve(new Replacing)).toEqual(['c'])
+			expect(meta.resolve(new Replacing())).toEqual(['c'])
 		})
 
 		it('should return a function-valued override as the metadata value instead of invoking it', () => {
@@ -151,7 +151,7 @@ describe('createMetadata', () => {
 			class FunctionValued {
 				get [meta.override]() { return value }
 			}
-			expect(meta.resolve(new FunctionValued)).toBe(value)
+			expect(meta.resolve(new FunctionValued())).toBe(value)
 		})
 
 		it('should let a subclass refine the override member of its parent', () => {
@@ -163,15 +163,15 @@ describe('createMetadata', () => {
 				// which `noImplicitOverride` in turn exempts.
 				get [meta.override]() { return `${super[meta.override]} & Child` }
 			}
-			expect(meta.resolve(new Child)).toBe('Parent & Child')
+			expect(meta.resolve(new Child())).toBe('Parent & Child')
 		})
 
 		it('should let a subclass introduce an override member for statically decorated inherited metadata', () => {
 			class Refining extends TestClassOne {
 				get [meta.override]() { return `${meta.get(TestClassOne)} refined` }
 			}
-			expect(meta.resolve(new TestClassOne)).toBe('Test #1')
-			expect(meta.resolve(new Refining)).toBe('Test #1 refined')
+			expect(meta.resolve(new TestClassOne())).toBe('Test #1')
+			expect(meta.resolve(new Refining())).toBe('Test #1 refined')
 		})
 
 		it('should not let two decorators sharing a description collide', () => {
@@ -190,8 +190,8 @@ describe('createMetadata', () => {
 			@meta('Meta static') @other('Other static') class Isolated {
 				get [meta.override]() { return 'Meta instance' }
 			}
-			expect(meta.resolve(new Isolated)).toBe('Meta instance')
-			expect(other.resolve(new Isolated)).toBe('Other static')
+			expect(meta.resolve(new Isolated())).toBe('Meta instance')
+			expect(other.resolve(new Isolated())).toBe('Other static')
 		})
 
 		it('should keep the metadata of a class readable once its instances carry an override member', () => {
@@ -204,7 +204,7 @@ describe('createMetadata', () => {
 			}
 			expect(meta.get(Coexisting)).toBe('Static')
 			expect(meta.get(Coexisting, 'property')).toBe('Some property')
-			expect(meta.resolve(new Coexisting)).toBe('Instance')
+			expect(meta.resolve(new Coexisting())).toBe('Instance')
 		})
 
 		it('should return undefined instead of throwing for an object without a constructor', () => {
@@ -230,7 +230,7 @@ describe('createMetadata', () => {
 
 		class Order {
 			@type(Customer)
-			@meta('Customer slot') customer = new Customer
+			@meta('Customer slot') customer = new Customer()
 		}
 
 		it('should keep the metadata of a member apart from the metadata of its value\'s class', () => {
@@ -240,7 +240,7 @@ describe('createMetadata', () => {
 
 		it('should not let the override member of the value\'s class affect the member metadata of the containing class', () => {
 			expect(meta.get(Order, 'customer')).toBe('Customer slot')
-			expect(meta.resolve(new Order)).toBeUndefined()
+			expect(meta.resolve(new Order())).toBeUndefined()
 		})
 
 		it('should resolve a member\'s value through its own class when handed the value itself', () => {
@@ -273,7 +273,7 @@ describe('createMetadata', () => {
 			@meta('Static') class WithStaticOverride {
 				static get [meta.override]() { return 'From the class object' }
 			}
-			expect(meta.resolve(new WithStaticOverride)).toBe('Static')
+			expect(meta.resolve(new WithStaticOverride())).toBe('Static')
 		})
 
 		it('CURRENTLY cannot fall back to class metadata when handed a bare constructor (generalization target)', () => {

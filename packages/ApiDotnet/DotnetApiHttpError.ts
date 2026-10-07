@@ -49,7 +49,7 @@ export class DotnetHttpError extends HttpError {
 			this.error.title,
 			!this.error.errors ? undefined : Object.values(this.error.errors)
 				.map(error => error[0])
-				.join('\n')
+				.join('\n'),
 		].filter(Boolean).join('\n')
 		throw this
 	}

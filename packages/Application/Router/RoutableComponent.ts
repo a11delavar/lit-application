@@ -109,6 +109,7 @@ export abstract class RoutableComponent<T extends RoutableParameters = void> ext
 			.filter(name => typeof name === 'string')
 			.filter(Boolean)
 		const parametersKeys = Object.keys(this.parameters ?? {})
+			.filter(key => (this.parameters as any)[key] !== undefined)
 
 		for (const queryString of parametersKeys.filter(key => !routeKeys.includes(key) && Number.isNaN(Number(key)))) {
 			url.searchParams.set(queryString, (this.parameters as any)[queryString])

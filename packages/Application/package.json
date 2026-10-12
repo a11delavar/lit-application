@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/lit-application",
-	"version": "0.11.1",
+	"version": "0.11.2",
 	"description": "An application shell for Lit, with routed pages, dialogs that resolve with their result, notifications and PWA helpers.",
 	"repository": {
 		"type": "git",

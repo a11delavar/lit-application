@@ -74,6 +74,10 @@ describe('RoutableComponent', () => {
 			expect(new WithNumericId({ id: 1, view: 'details' }).url!.path).toBe('/with-numeric-id/1?view=details')
 		})
 
+		it('should leave undefined parameters out of the query string', () => {
+			expect(new WithNumericId({ id: 1, view: undefined }).url!.path).toBe('/with-numeric-id/1')
+		})
+
 		it('should encode the parameters in the query string', () => {
 			expect(new WithNonRouteParameter({ keyword: 'test test' }).url!.path).toBe('/with-non-route-parameter?keyword=test+test')
 			expect(new WithNonRouteParameter({ keyword: 'test+test' }).url!.path).toBe('/with-non-route-parameter?keyword=test%2Btest')

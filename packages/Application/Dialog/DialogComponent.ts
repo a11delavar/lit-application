@@ -211,7 +211,18 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			resolve?.(result)
 		}
 
-		this.remove()
+		/* Removes the dialog once its element has played the motion it closes with; the confirmation does not wait for it. */
+		const removeOnceClosed = async () => {
+			await this.dialogElement.updateComplete
+			const root = this.dialogElement.shadowRoot ?? this.dialogElement
+			const animations = root instanceof ShadowRoot ? root.getAnimations() : root.getAnimations({ subtree: true })
+			await Promise.allSettled(animations
+				.filter(a => a.effect?.getComputedTiming().endTime !== Infinity)
+				.map(a => a.finished))
+			this.remove()
+		}
+
+		void removeOnceClosed()
 
 		if (this.dialogElement.boundToWindow) {
 			window.close()

@@ -12,6 +12,8 @@ npm install @a11d/local-storage
 
 ## Usage
 
+### `LocalStorage`
+
 ```ts
 import { LocalStorage } from '@a11d/local-storage'
 
@@ -21,11 +23,26 @@ colorScheme.changed.subscribe(value => document.documentElement.style.colorSchem
 colorScheme.value = 'dark'
 ```
 
+### `LocalStorageController`
+
+```ts
+import { LocalStorageController } from '@a11d/local-storage'
+
+class ProductList extends Component {
+	readonly view = new LocalStorageController<'grid' | 'list'>(this, 'ProductList.View', 'grid')
+
+	protected override get template() {
+		return html`<button @click=${() => this.view.value = 'list'}>${this.view.value}</button>`
+	}
+}
+```
+
 ## API
 
 | Name | Kind | Description |
 | --- | --- | --- |
 | `LocalStorage` | class | Keeps one typed value in local storage under a name, falling back to a default and announcing each change. |
+| `LocalStorageController` | class | Keeps one typed value in local storage like `LocalStorage` and updates its host whenever the value is set. |
 
 ## Links
 

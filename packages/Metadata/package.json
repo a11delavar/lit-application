@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/metadata",
-	"version": "0.5.1",
+	"version": "0.6.0",
 	"description": "Tools for attaching metadata to classes and members with decorators, readable by key path, built on reflect-metadata.",
 	"repository": {
 		"type": "git",

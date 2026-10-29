@@ -36,7 +36,7 @@ unit.getByKeyPath(Product, 'dimensions.width') // 'cm'
 | --- | --- | --- |
 | `createMetadataDecorator` | function | Creates a metadata decorator supporting both class and property metadata. |
 | `type` | function | Records the runtime type of a property, which lets `getByKeyPath` of a metadata decorator walk through it. |
-| `label` | const | Attaches a human-readable label to a class or one of its properties. |
+| `label` | const | Attaches a human-readable label to a class or one of its properties; `label.short` attaches a shorter form of it. |
 | `description` | const | Attaches a human-readable description to a class or one of its properties. |
 
 ## Links

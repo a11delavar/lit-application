@@ -31,11 +31,28 @@ export function createMetadataDecorator(description?: string) {
 	// Widened explicitly, as the inferred `unique symbol` type would be function-local
 	// and therefore unnameable in the inferred types of exported decorators (TS2527).
 	const key: symbol = Symbol(description)
+	// The decorated properties of each prototype, as reflect-metadata cannot list the properties holding a key.
+	const propertyKeysKey: symbol = Symbol(description)
 
 	function metadata(value: unknown) {
 		return (target: any, propertyKey?: string) => {
 			Reflect.defineMetadata(key, value, target, propertyKey!)
+			if (propertyKey !== undefined) {
+				Reflect.defineMetadata(propertyKeysKey, new Set<string>(Reflect.getOwnMetadata(propertyKeysKey, target)).add(propertyKey), target)
+			}
 		}
+	}
+
+	/** A prototype and those it inherits from, the farthest first. */
+	const lineOf = (prototype: object | null): ReadonlyArray<object> =>
+		!prototype ? [] : [...lineOf(Object.getPrototypeOf(prototype)), prototype]
+
+	/**
+	 * Returns the properties of a class decorated with this metadata, its base classes' first and each once,
+	 * in the order they are declared, so a consumer can walk them without naming them again.
+	 */
+	metadata.keys = function (constructor: Constructor<any>): ReadonlySet<string> {
+		return new Set(lineOf(constructor.prototype).flatMap(prototype => [...Reflect.getOwnMetadata(propertyKeysKey, prototype) ?? []]))
 	}
 
 	/** Returns the metadata decorated onto a class, or onto one of its properties when `propertyKey` is given. */

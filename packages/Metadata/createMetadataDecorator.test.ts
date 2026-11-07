@@ -53,6 +53,68 @@ describe('createMetadata', () => {
 		})
 	})
 
+	describe('keys', () => {
+		class Base {
+			@meta('First') first?: string
+			undecorated?: string
+			@meta('Second') second?: string
+		}
+
+		class Derived extends Base {
+			@meta('Third') third?: string
+			@meta('Overridden') override first = ''
+		}
+
+		it('should list the decorated properties in the order they are declared', () => {
+			expect([...meta.keys(Base)]).toEqual(['first', 'second'])
+		})
+
+		it('should list a base class\'s properties first, each once when a subclass decorates it again', () => {
+			expect([...meta.keys(Derived)]).toEqual(['first', 'second', 'third'])
+		})
+
+		it('should list a property once when it is decorated twice in the same class', () => {
+			class Twice {
+				@meta('Outer') @meta('Inner') value?: string
+			}
+			expect([...meta.keys(Twice)]).toEqual(['value'])
+		})
+
+		it('should list the properties of a base class through a class between them that decorates none', () => {
+			class Between extends Base { }
+			class Last extends Between {
+				@meta('Last') last?: string
+			}
+			expect([...meta.keys(Last)]).toEqual(['first', 'second', 'last'])
+		})
+
+		it('should not let a subclass\'s properties reach its base class', () => {
+			expect(meta.keys(Base).has('third')).toBe(false)
+		})
+
+		it('should list none for a class with only class metadata, or none at all', () => {
+			expect(meta.keys(TestClassOne).size).toBe(0)
+			expect(meta.keys(TestClassZero).size).toBe(0)
+		})
+
+		it('should list a decorated accessor', () => {
+			class Accessor {
+				@meta('Getter') get value() { return '' }
+			}
+			expect([...meta.keys(Accessor)]).toEqual(['value'])
+		})
+
+		it('should not let two decorators share their properties', () => {
+			const other = createMetadataDecorator('other')
+			class Shared {
+				@meta('Meta') one?: string
+				@other('Other') two?: string
+			}
+			expect([...meta.keys(Shared)]).toEqual(['one'])
+			expect([...other.keys(Shared)]).toEqual(['two'])
+		})
+	})
+
 	describe('by key path', () => {
 		class TestKeyPathOne {
 			@meta('Some property') property?: string

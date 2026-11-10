@@ -80,8 +80,8 @@ export abstract class DialogAuthenticator<Account extends object> extends Dialog
 			if (!authenticated) {
 				throw new Error('Something went wrong.\nTry again.')
 			}
-			Application.instance?.requestUpdate()
 			await DialogAuthenticator.afterAuthenticationHooks.execute()
+			Application.instance?.requestUpdate()
 			NotificationComponent.notifySuccess('Authenticated successfully')
 			return account
 		} catch (error: any) {

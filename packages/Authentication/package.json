@@ -1,6 +1,6 @@
 {
 	"name": "@a11d/lit-application-authentication",
-	"version": "0.3.1",
+	"version": "0.3.2",
 	"description": "Tools for requiring sign-in on an application, its pages or dialogs through a sign-in dialog, built on @a11d/lit-application.",
 	"repository": {
 		"type": "git",

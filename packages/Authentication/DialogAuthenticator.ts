@@ -72,20 +72,29 @@ export abstract class DialogAuthenticator<Account extends object> extends Dialog
 	/** Resolves with the authenticated account, or with `undefined` when there is none. */
 	protected abstract getAuthenticatedAccount(): Promise<Account | undefined>
 
+	/** The notification after signing in. Subclasses override the messages to translate them. */
+	protected get authenticatedMessage() { return 'Authenticated successfully' }
+	/** The notification after signing out. */
+	protected get unauthenticatedMessage() { return 'Unauthenticated successfully' }
+	/** The error when the account cannot be verified after signing in. */
+	protected get unverifiedMessage() { return 'Something went wrong. Try again.' }
+	/** The error when signing in fails without a message of its own. */
+	protected get failedMessage() { return 'Incorrect Credentials' }
+
 	/** Signs in, verifies the account through `getAuthenticatedAccount`, runs `afterAuthenticationHooks` and notifies about the success. */
 	async authenticate() {
 		try {
 			const account = await this.authenticateAccount()
 			const authenticated = await this.getAuthenticatedAccount()
 			if (!authenticated) {
-				throw new Error('Something went wrong.\nTry again.')
+				throw new Error(this.unverifiedMessage)
 			}
 			await DialogAuthenticator.afterAuthenticationHooks.execute()
 			Application.instance?.requestUpdate()
-			NotificationComponent.notifySuccess('Authenticated successfully')
+			NotificationComponent.notifySuccess(this.authenticatedMessage)
 			return account
 		} catch (error: any) {
-			throw new Error(error.message ?? 'Incorrect Credentials', { cause: error })
+			throw new Error(error.message ?? this.failedMessage, { cause: error })
 		}
 	}
 
@@ -94,7 +103,7 @@ export abstract class DialogAuthenticator<Account extends object> extends Dialog
 		try {
 			await this.unauthenticateAccount()
 		} finally {
-			NotificationComponent.notifySuccess('Unauthenticated successfully')
+			NotificationComponent.notifySuccess(this.unauthenticatedMessage)
 			this.preventNextAutomaticAuthentication = true
 			this.confirm()
 		}
@@ -121,7 +130,7 @@ export abstract class DialogAuthenticator<Account extends object> extends Dialog
 		}
 
 		try {
-			return this.authenticate()
+			return await this.authenticate()
 		} catch {
 			return super.confirm(strategy)
 		}

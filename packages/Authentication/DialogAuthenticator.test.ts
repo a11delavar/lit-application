@@ -1,5 +1,5 @@
 import { component, html } from '@a11d/lit'
-import { Application, NotificationComponent } from '@a11d/lit-application'
+import { Application, DialogComponent, NotificationComponent } from '@a11d/lit-application'
 import { DialogAuthenticator } from './DialogAuthenticator.js'
 
 type Account = { readonly name: string }
@@ -15,11 +15,23 @@ class TestApplication extends Application {
 class TestDialogAuthenticator extends DialogAuthenticator<Account> {
 	protected authenticateAccount = () => Promise.resolve({ name: 'Ada' })
 	protected unauthenticateAccount = () => Promise.resolve()
-	protected getAuthenticatedAccount = () => Promise.resolve({ name: 'Ada' })
+	protected getAuthenticatedAccount = (): Promise<Account | undefined> => Promise.resolve({ name: 'Ada' })
 
 	protected override get template() {
 		return html.nothing
 	}
+}
+
+@component('test-translated-dialog-authenticator')
+class TestTranslatedDialogAuthenticator extends TestDialogAuthenticator {
+	protected override get authenticatedMessage() { return 'Signed in' }
+	protected override get unauthenticatedMessage() { return 'Signed out' }
+}
+
+@component('test-rejected-dialog-authenticator')
+class TestRejectedDialogAuthenticator extends TestDialogAuthenticator {
+	protected override authenticateAccount = () => Promise.reject(new Error('Expired password'))
+	protected override getAuthenticatedAccount = () => Promise.resolve(undefined)
 }
 
 describe('DialogAuthenticator', () => {
@@ -45,5 +57,34 @@ describe('DialogAuthenticator', () => {
 		}
 
 		expect(events).toEqual(['hook', 'render'])
+	})
+
+	describe('Messages', () => {
+		it('should notify with the messages a subclass overrides', async () => {
+			const notifySuccess = vi.spyOn(NotificationComponent, 'notifySuccess').mockResolvedValue()
+			vi.spyOn(DialogComponent.prototype, 'confirm').mockResolvedValue({ name: 'Ada' })
+			const authenticator = new TestTranslatedDialogAuthenticator()
+
+			await authenticator.authenticate()
+			await authenticator.unauthenticate()
+
+			expect(notifySuccess.mock.calls.map(([message]) => message)).toEqual(['Signed in', 'Signed out'])
+		})
+	})
+
+	describe('Remembered credentials', () => {
+		it('should show the dialog when signing in with them fails', async () => {
+			const shallRemember = DialogAuthenticator.shallRememberStorage.value
+			DialogAuthenticator.shallRememberStorage.value = true
+			const showDialog = vi.spyOn(DialogComponent.prototype, 'confirm').mockResolvedValue({ name: 'Ada' })
+
+			try {
+				await expect(new TestRejectedDialogAuthenticator().confirm()).resolves.toEqual({ name: 'Ada' })
+			} finally {
+				DialogAuthenticator.shallRememberStorage.value = shallRemember
+			}
+
+			expect(showDialog).toHaveBeenCalledOnce()
+		})
 	})
 })

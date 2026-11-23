@@ -1,4 +1,4 @@
-import { Component, component, event, html, query, state } from '@a11d/lit'
+import { Component, component, event, html, query, state, type PropertyValues } from '@a11d/lit'
 import {
 	DialogActionKey,
 	DialogCancelledError,
@@ -52,6 +52,25 @@ class FakeDialog extends Component implements IDialog {
 }
 FakeDialog
 
+@component('test-dialog-fake-closing-motion')
+@DialogComponent.dialogElement()
+class FakeDialogWithClosingMotion extends FakeDialog {
+	protected override updated(props: PropertyValues<this>) {
+		super.updated(props)
+		if (props.get('open') === true && !this.open) {
+			this.renderRoot.querySelector('div')!.animate({ opacity: [1, 0] }, 100)
+		}
+	}
+
+	protected override get template() {
+		return html`
+			<div></div>
+			${super.template}
+		`
+	}
+}
+FakeDialogWithClosingMotion
+
 @DialogComponent.errorHandler('test-default', true)
 class CapturingDefaultHandler extends DialogComponentErrorHandler {
 	static lastError?: Error
@@ -66,12 +85,14 @@ type ActionOverrides = {
 	cancellation?: () => any
 }
 
-function defineDialog<TResult = unknown>(overrides: ActionOverrides = {}) {
+function defineDialog<TResult = unknown>(overrides: ActionOverrides = {}, closingMotion = false) {
 	const tag = `test-dialog-component-${++counter}`
 	@component(tag)
 	class TestDialog extends DialogComponent<void, TResult> {
 		protected override get template() {
-			return html`<test-dialog-fake></test-dialog-fake>`
+			return closingMotion
+				? html`<test-dialog-fake-closing-motion></test-dialog-fake-closing-motion>`
+				: html`<test-dialog-fake></test-dialog-fake>`
 		}
 		override primaryAction() {
 			return overrides.primary ? overrides.primary() : super.primaryAction()
@@ -295,6 +316,24 @@ describe('DialogComponent', () => {
 			await Promise.resolve()
 
 			expect(cancellation).not.toHaveBeenCalled()
+		})
+	})
+
+	describe('opening a dialog while another plays its closing motion', () => {
+		it('should open it outside the closing dialog and keep it once that is removed', async () => {
+			const First = defineDialog<boolean>({ primary: () => true }, true)
+			const first = await open(First)
+			const firstTopLayer = first.dialog.topLayerElement
+			await first.dialog.handleAction(DialogActionKey.Primary)
+			await first.promise
+
+			const second = await open(defineDialog())
+
+			expect(first.instance.isConnected).toBe(true)
+			expect(firstTopLayer.contains(second.instance)).toBe(false)
+			await vi.waitFor(() => expect(first.instance.isConnected).toBe(false))
+			expect(second.instance.isConnected).toBe(true)
+			expect(second.dialog.open).toBe(true)
 		})
 	})
 })

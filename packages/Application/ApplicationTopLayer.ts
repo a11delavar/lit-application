@@ -11,7 +11,7 @@ export class ApplicationTopLayer extends Component {
 
 	/** The most recently connected top layer, or `document.body` when none is connected. */
 	static get instance() {
-		const instances = [...ApplicationTopLayer.instances]
+		const instances = [...ApplicationTopLayer.instances].filter(instance => instance.isConnected)
 		return instances[instances.length - 1] ?? document.body
 	}
 

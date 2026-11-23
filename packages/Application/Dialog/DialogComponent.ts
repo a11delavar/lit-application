@@ -203,6 +203,8 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 	/** Closes the dialog, resolving its confirmation with the result, or rejecting it if the result is an `Error`. */
 	protected close(result: TResult | Error) {
 		this.open = false
+		// Dialogs opened during the closing motion go to the top layer below
+		this.dialogElement.topLayerElement?.remove()
 
 		const [resolve, reject] = this._confirmationPromiseExecutor ?? []
 		if (result instanceof Error) {

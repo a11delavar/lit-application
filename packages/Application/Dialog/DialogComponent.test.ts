@@ -275,6 +275,89 @@ describe('DialogComponent', () => {
 		})
 	})
 
+	describe('invoking an action while another is running', () => {
+		function pendingAction<T>() {
+			let resolve!: (value: T) => void
+			const promise = new Promise<T>(r => resolve = r)
+			return { action: vi.fn(() => promise), resolve }
+		}
+
+		it('should run the primary action once when Enter is pressed while it is running', async () => {
+			const primary = pendingAction<string>()
+			const { dialog, promise } = await open(defineDialog<string>({ primary: primary.action }))
+			dialog.primaryOnEnter = true
+
+			void dialog.handleAction(DialogActionKey.Primary)
+			window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+			primary.resolve('ok')
+
+			await expect(promise).resolves.toEqual('ok')
+			expect(primary.action).toHaveBeenCalledOnce()
+		})
+
+		it('should not run the secondary action while the primary one is running', async () => {
+			const primary = pendingAction<string>()
+			const secondary = vi.fn(() => 'secondary')
+			const { dialog, promise } = await open(defineDialog<string>({ primary: primary.action, secondary }))
+
+			void dialog.handleAction(DialogActionKey.Primary)
+			await dialog.handleAction(DialogActionKey.Secondary)
+			primary.resolve('ok')
+
+			await expect(promise).resolves.toEqual('ok')
+			expect(secondary).not.toHaveBeenCalled()
+		})
+
+		it('should run the primary action again once it has settled', async () => {
+			const primary = vi.fn(() => 'ok')
+			const { dialog } = await open(defineDialog<string>({ primary }))
+			dialog.manualClose = true
+
+			await dialog.handleAction(DialogActionKey.Primary)
+			await dialog.handleAction(DialogActionKey.Primary)
+
+			expect(primary).toHaveBeenCalledTimes(2)
+		})
+
+		it('should cancel while the primary action is running', async () => {
+			const primary = pendingAction<string>()
+			const { dialog, promise } = await open(defineDialog<string>({ primary: primary.action }))
+
+			void dialog.handleAction(DialogActionKey.Primary)
+			await dialog.handleAction(DialogActionKey.Cancellation)
+
+			await expect(promise).rejects.toBeInstanceOf(DialogCancelledError)
+		})
+
+		it('should run the cancellation action once when Escape is pressed while it is running', async () => {
+			const cancellation = pendingAction<Error>()
+			const { instance, promise } = await open(defineDialog({ cancellation: cancellation.action }))
+
+			window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+			window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+			cancellation.resolve(new DialogCancelledError(instance))
+
+			await expect(promise).rejects.toBeInstanceOf(DialogCancelledError)
+			expect(cancellation.action).toHaveBeenCalledOnce()
+		})
+
+		it('should keep the primary action from running again after a cancellation that left the dialog open', async () => {
+			const primary = pendingAction<string>()
+			const cancellation = () => { throw new DialogCancelledError({} as any) }
+			const { dialog, promise } = await open(defineDialog<string>({ primary: primary.action, cancellation }))
+
+			void dialog.handleAction(DialogActionKey.Primary)
+			await Promise.resolve(dialog.handleAction(DialogActionKey.Cancellation)).catch(() => undefined)
+			void dialog.handleAction(DialogActionKey.Primary)
+
+			expect(dialog.executingAction).toBe(DialogActionKey.Primary)
+			primary.resolve('ok')
+			await expect(promise).resolves.toEqual('ok')
+			expect(primary.action).toHaveBeenCalledOnce()
+			expect(dialog.executingAction).toBeUndefined()
+		})
+	})
+
 	describe('keyboard short-cuts', () => {
 		it('triggers primary on Enter when primaryOnEnter is true', async () => {
 			const Dialog = defineDialog<string>({ primary: () => 'enter' })

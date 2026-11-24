@@ -269,7 +269,12 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 		return new DialogCancelledError(this)
 	}
 
-	/** Runs the action of the key and closes the dialog with its result, unless `manualClose` keeps it open. */
+	private readonly executingActions = new Set<DialogActionKey>()
+
+	/**
+	 * Runs the action of the key and closes the dialog with its result, unless `manualClose` keeps it open.
+	 * An action is ignored while it is running, and while another is running unless it cancels.
+	 */
 	protected readonly handleAction = async (actionKey: DialogActionKey) => {
 		const actionByKey = new Map([
 			[DialogActionKey.Primary, this.primaryAction],
@@ -283,7 +288,12 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			throw new Error(`No action for key ${actionKey}`)
 		}
 
+		if (this.executingActions.has(actionKey) || (this.executingActions.size && actionKey !== DialogActionKey.Cancellation)) {
+			return
+		}
+
 		try {
+			this.executingActions.add(actionKey)
 			this.dialogElement.executingAction = actionKey
 			const result = await action()
 			if (!this.dialogElement.manualClose || actionKey === DialogActionKey.Cancellation) {
@@ -293,7 +303,8 @@ export abstract class DialogComponent<T extends DialogParameters = void, TResult
 			this.handleError(e)
 			throw e
 		} finally {
-			this.dialogElement.executingAction = undefined
+			this.executingActions.delete(actionKey)
+			this.dialogElement.executingAction = [...this.executingActions].at(-1)
 		}
 	}
 
